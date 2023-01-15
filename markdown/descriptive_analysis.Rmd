@@ -78,7 +78,10 @@ data %>%
 
 data %>% 
   group_by(participant, rsi) %>% 
-  count(classic_pes_type) %>% View()
+  count(classic_pes_type) %>% 
+  filter(classic_pes_type == "post_error",
+         n < 50) %>% 
+  View()
 ```
 
 ```{r visualization}
