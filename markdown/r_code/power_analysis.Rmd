@@ -1,0 +1,133 @@
+---
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup}
+library(Superpower)
+```
+
+# Power Analysis
+Checking if planned design has enough power. Means and sd of drift rates and boundary separations was extracted from @dutilh2012testing and @dutilh2013.
+They only "reported" se of values. Sd was calculated from this using the formula
+$sd = se * sqrt(n)$
+
+Values had to be estimated from plots in those studies, both have long RSI
+
+Mean values from @dutihl2013 (young participants)
+drift rate (mean, sd): 
+pre: 0.23, 0.05
+post: 0.18, 0.05
+
+boundary sep (mean, sd):
+pre: 0.125, 0.025
+post: 0.157, 0.025
+
+values from @dutilh2012testing
+drift rate (word freq2):
+pre: 0.23, 0.06
+post: 0.23, 0.06
+
+boundary sep (mean, sd):
+pre: 0.133, 0.018
+post: 0.148, 0.018
+
+@schroder2020 shows high intercorrelation between pre- and post-error RT (>0.7). But ddm paramters often contain more unsystematic error variance due to the estimation process @lerche2017. @yap2012 do however find good within-session reliabilities of ddm paramters **reliability even good estimator here, since we are measuring different parameter conditions?**. @lerche2017 also report test-retest reliabilites in ranges from 0.6-0.8 for most experiments and estimation procedures on drift rate and boundary separation.
+
+Mean values generated using these assumptions:
+Drift rate in short RSI slightly lower than in long RSI **(look up effect of RSI on drift rate)** 
+drift rate takes larger decrease in short rsi following an error, post driftrate (short) was estimated from dutilh2012testing because they only ones to show decrease
+
+boundary sep same assumptions, but now interaction effect leading to higher increases in boundary sep following an error in long rsi. Values for short RSI PE were guessed
+
+
+```{r setting up power}
+my_design <- "2w*2w" # 2 within factors (pre- vs. post-error; short/long rsi)
+
+alpha <- 0.05 # alpha level of tests
+
+my_n <- 50 # initial guess, becomes irrelevant with power curves
+
+mu_drift <- c(# mean values of drift rate in the 2x2 conditions
+  0.23,
+  0.24,
+  0.18,
+  0.22
+)
+
+sd_drift <- 0.08 # sd of drift rate
+
+mu_boundary <- c(# mean values of boundary sep in the 2x2 conditions
+  0.12,
+  0.13,
+  0.135,
+  0.155
+)
+
+sd_boundary <- 0.02
+  
+my_r <- 0.7 # correlation between values (can be specified for each bivariate correlation separately)
+
+my_labelnames <- c(
+  "type", "e-1", "e+1",
+  "rsi", "short", "long"
+  ) # names of factors
+```
+
+```{r design drift}
+design_result_drift <- ANOVA_design(
+  design = my_design,
+  n = my_n,
+  mu = mu_drift,
+  sd = sd_drift,
+  r = my_r,
+  labelnames = my_labelnames
+)
+
+```
+
+```{r exact drift}
+exact_result_drift <- ANOVA_exact(design_result_drift,
+                            alpha_level = alpha,
+                            verbose = FALSE)
+```
+
+```{r power plot drift}
+power_drift <- plot_power(
+  design_result_drift,
+  min_n = 50,
+  max_n = 100,
+  desired_power = 80,
+  plot = TRUE,
+  verbose = TRUE
+  )
+```
+
+```{r design boundary}
+design_result_boundary <- ANOVA_design(
+  design = my_design,
+  n = my_n,
+  mu = mu_boundary,
+  sd = sd_boundary,
+  r = my_r,
+  labelnames = my_labelnames
+)
+
+```
+
+```{r exact boundary}
+exact_result_boundary <- ANOVA_exact(design_result_boundary,
+                            alpha_level = alpha,
+                            verbose = FALSE)
+```
+
+```{r power plot boundary}
+power_boundary <- plot_power(
+  design_result_boundary,
+  min_n = 50,
+  max_n = 100,
+  desired_power = 80,
+  plot = TRUE
+)
+```
+

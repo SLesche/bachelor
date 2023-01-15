@@ -1,0 +1,160 @@
+---
+editor_options:
+  chunk_output_type: console
+---
+# Library calls
+```{r setup}
+library(tidyverse)
+library(rio)
+library(data.table)
+
+ggplot2::theme_set(theme_classic()) # setting default theme
+```
+
+```{r functions}
+
+```
+
+```{r data}
+data <- rio::import("./markdown/data/analysis_data.Rdata")
+```
+
+```{r descriptive data}
+mean_error_rate_overall <- (1 - mean(data$acc, na.rm = TRUE)) * 100
+
+mean_error_rate_nogo <- data %>% 
+  filter(trial_type == "nogo") %>% 
+  summarise(mean_acc = mean(acc, na.rm = TRUE))
+
+mean_error_rate_nogo <- (1 - mean_error_rate_nogo$mean_acc)*100
+
+mean_rt <- mean(data$rt, na.rm = TRUE)
+
+mean_rt_short <- data %>% 
+  filter(rsi == 0.2) %>% 
+  summarise(mean_rt = mean(rt, na.rm = TRUE)) %>% .$mean_rt
+
+mean_rt_long <- data %>% 
+  filter(rsi == 1) %>% 
+  summarise(mean_rt = mean(rt, na.rm = TRUE)) %>% .$mean_rt
+
+mean_rt_pre_error <- data %>% 
+  filter(error_code == -1) %>% 
+  summarise(mean_rt = mean(rt, na.rm = TRUE)) %>% .$mean_rt
+
+mean_rt_post_error <- data %>% 
+  filter(error_code == 1) %>% 
+  summarise(mean_rt = mean(rt, na.rm = TRUE)) %>% .$mean_rt
+
+mean_acc_pre_error <- data %>% 
+  filter(error_code == -1) %>% 
+  summarise(mean_acc = mean(acc, na.rm = TRUE)) %>% .$mean_acc
+
+mean_acc_post_error <- data %>% 
+  filter(error_code == 1) %>% 
+  summarise(mean_acc = mean(acc, na.rm = TRUE)) %>% .$mean_acc
+
+mean_acc_error_rsi_comp <- data %>%
+  group_by(rsi, error_code) %>% 
+  summarise(mean_acc = mean(acc, na.rm = TRUE)) %>% 
+  filter(error_code %in% c(-1, 1))
+
+mean_rt_error_rsi_comp <- data %>% 
+  group_by(rsi, error_code) %>% 
+  summarise(mean_rt = mean(rt, na.rm = TRUE)) %>% 
+  filter(error_code %in% c(-1, 1))
+
+# TODO: What are NA in acc condition? aren't they really errors, does this happen often?
+# TODO: Distinction fast vs. slow erros, not only in code, but get research example aswell
+```
+
+```{r classic pes}
+# Maybe we'd wanna run this, to compare trials on equal footing
+# nonetheless, a "correct" response means waiting longer, leading to different rt then after an error response
+data %>% 
+  group_by(rsi, classic_pes_type) %>% 
+  summarize(mean_rt = mean(rt, na.rm = TRUE), 
+            count = n())
+
+data %>% 
+  group_by(participant, rsi) %>% 
+  count(classic_pes_type) %>% View()
+```
+
+```{r visualization}
+data %>% 
+  group_by(rsi, error_code) %>% 
+  summarise(
+    mean_rt = mean(rt, na.rm = TRUE),
+    sd_rt = sd(rt, na.rm = TRUE),
+    mean_acc = mean(acc, na.rm = TRUE),
+    sd_acc = sd(acc, na.rm = TRUE)
+  ) %>% 
+  mutate(error_code = ifelse(is.na(error_code), "other", error_code)) %>% 
+  ggplot(aes(
+    x = error_code,
+    y = mean_rt,
+    group = rsi,
+    color = factor(rsi)
+  )) +
+  geom_line()
+
+data %>% 
+  group_by(rsi, error_code) %>% 
+  summarise(
+    mean_rt = mean(rt, na.rm = TRUE),
+    sd_rt = sd(rt, na.rm = TRUE),
+    mean_acc = mean(acc, na.rm = TRUE),
+    sd_acc = sd(acc, na.rm = TRUE)
+  ) %>% 
+  mutate(error_code = ifelse(is.na(error_code), "other", error_code)) %>% 
+  filter(error_code %in% c(-1, 1, "other")) %>% 
+  ggplot(aes(
+    x = error_code,
+    y = mean_acc,
+    group = rsi,
+    color = factor(rsi)
+  )) +
+  geom_line()
+
+data %>% 
+  group_by(rsi, classic_pes_type) %>% 
+  summarise(
+    across(
+      c("rt", "acc"),
+      list(sd = ~sd(., na.rm = TRUE), mean = ~mean(., na.rm = TRUE))
+      )
+    ) %>% 
+  mutate(classic_pes_type = ifelse(is.na(classic_pes_type), "other", classic_pes_type)) %>% 
+  filter(classic_pes_type != "other") %>% 
+  ggplot(
+    aes(
+      x = factor(rsi),
+      y = rt_mean,
+      group = classic_pes_type,
+      fill = classic_pes_type
+    )
+  ) +
+  geom_bar(stat = "identity", position = "dodge")
+
+data %>% 
+  group_by(rsi, classic_pes_type) %>% 
+  summarise(
+    across(
+      c("rt", "acc"),
+      list(sd = ~sd(., na.rm = TRUE), mean = ~mean(., na.rm = TRUE))
+      )
+    ) %>% 
+  mutate(classic_pes_type = ifelse(is.na(classic_pes_type), "other", classic_pes_type)) %>% 
+  filter(classic_pes_type != "other") %>% 
+  ggplot(
+    aes(
+      x = factor(rsi),
+      y = acc_mean,
+      group = classic_pes_type,
+      fill = classic_pes_type
+    )
+  ) +
+  geom_bar(stat = "identity", position = "dodge")
+```
+

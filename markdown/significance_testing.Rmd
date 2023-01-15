@@ -1,0 +1,41 @@
+---
+editor_options:
+  chunk_output_type: console
+---
+# Library calls
+```{r setup}
+library(tidyverse)
+library(rio)
+library(data.table)
+library(lme4) # for later
+
+ggplot2::theme_set(theme_classic()) # setting default theme
+```
+
+```{r functions}
+
+```
+
+```{r data}
+data <- rio::import("./markdown/data/analysis_data.Rdata")
+```
+
+```{r notes}
+# TODO
+# RT short vs. long
+# RT error types
+# RT classic PES version
+# Interaction RSI X Error_type on RT
+
+# ACC short vs. long
+# ACC pre. vs. post-error
+# Interaction RSI x Error_type on ACC
+
+
+```
+
+```{r linear models}
+lm_rsi_short_long <- glmer(rt ~ rsi + (1|participant), data = data)
+summary(lm_rsi_short_long)
+```
+

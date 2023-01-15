@@ -1,0 +1,138 @@
+---
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup}
+library(flextable)
+library(tidyverse)
+library()
+```
+
+```{r transpose-function}
+df_transpose <- function(df) {
+  
+  first_name <- colnames(df)[1]
+  
+  temp <-
+    df %>% 
+    tidyr::pivot_longer(-1) %>%
+    tidyr::pivot_wider(names_from = 1, values_from = value)
+  
+  colnames(temp)[1] <- first_name
+  temp
+}
+```
+```{r}
+
+
+```
+
+```{r data}
+tibble(
+  type = c("Pre-error & Short RSI",
+           "Pre-error & Long RSI",
+           "Post-error & Short RSI",
+           "Post-error & Long RSI"),
+  mu_drift,
+  sd_drift = rep(sd_drift, 4),
+  mu_boundary,
+  sd_boundary = rep(sd_boundary, 4)
+  ) %>% 
+  df_transpose() %>% 
+  janitor::clean_names() %>% 
+  select(type,
+         pre_error_short_rsi,
+         post_error_short_rsi,
+         pre_error_long_rsi,
+         post_error_long_rsi) %>% 
+  mutate(
+    type = recode(type,
+                  mu_drift = "Mean",
+                  sd_drift = "SD",
+                  mu_boundary = "Mean",
+                  sd_boundary = "SD")
+  ) %>%
+  rename(
+    "Short RSI_pre-error" = pre_error_short_rsi,
+    "Short RSI_post-error" = post_error_short_rsi,
+    "Long RSI_pre-error" = pre_error_long_rsi,
+    "Long RSI_post-error" = post_error_long_rsi
+    ) %>% 
+  mutate(
+    Parameter = c("Drift Rate", "Drift Rate", "Boundary Separation", "Boundary Separation")
+  ) %>% 
+  select(Parameter, " " = type, everything()) %>% 
+  as_grouped_data(
+    groups = c("Parameter")
+  ) %>%
+  flextable(
+    col_keys = c("Parameter", " ",
+      "Short RSI_pre-error",
+                 "Short RSI_post-error",
+                 "Long RSI_pre-error",
+                 "Long RSI_post-error")
+  ) %>%
+  flextable::separate_header() %>% 
+  # add_footer_lines(
+  #   " "
+  # ) %>%
+  # flextable::compose(
+  #   .,
+  #   i = 1,
+  #   j = 1, 
+  #   part = "footer",
+  #   value = as_paragraph(as_i("Note. "), "Values based on previous research by Dutilh et al. (2012, 2013)")
+  # ) %>% 
+  apa_footer("My note") %>% 
+  set_caption(
+    caption = "Mean values and standard deviations used for power analysis"
+  ) %>% 
+  # ftExtra::colformat_md() %>% 
+  flextable::theme_apa() %>% 
+  align(align = "left", part = "footer")
+```
+
+```{r}
+audit_table <- structure(
+  list(
+    Questions = c(
+      "How often do you have a drink containing alcohol?",
+      "How many standard drinks of alcohol do you drink on a typical day when you are drinking?",
+      "How often do you have 5 or more drinks on one occasion?"
+    ),
+    `0` = c("Never", "1–2", "Never"),
+    `1` = c("Monthly or less", "3-4", "Less than monthly"),
+    `2` = c("2-4 times per month", "5-6", "monthly"),
+    `3` = c("2-3 times per week","7-9", "Weekly"),
+    `4` = c("4+ times per week", "10+", "Daily or almost daily")
+  ),
+  class = "data.frame",
+  row.names = c(NA, 3L)
+)
+
+means_table <- structure(
+  list(
+    Parameter = c("Drift Rate", " ", " ", "Boundary Separation", " ", " "),
+    Type = c(" ", "Mean", "SD", " ", "Mean", "SD")
+  ),
+  class = "data.frame",
+  row.names = c(NA, 6L)
+)
+apa_table(
+  tibble(Parameter = 1:6, Type = 1:6),
+  caption = "Caption",
+  col_spanners = list("Score" = c(1,2)),
+  note = "Some note",
+  landscape = FALSE
+)
+apa_table(
+  audit_table,
+  caption = "AUDIT-C scoring table",
+  align = c("m{8cm}", rep("m{2cm}", 5)),
+  col_spanners = list("Score" = c(2,6)),
+  note = "Item scores are summed. Women who score 3+ and men who score 4+ are at-risk",
+  landscape = TRUE
+)
+```
+

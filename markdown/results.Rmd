@@ -1,0 +1,22 @@
+# Results
+```{r library calls}
+library(tidyverse)
+```
+
+## Outline Results
+- data included
+- outliers and data excluded
+- behavioral description of effects
+- replicate pes, check interaction RSI and so forth
+- diffusion modelling things
+- describe differential effects of errors on parameters in RSI conditions
+
+## Trying data insertation
+```{r data table, echo = FALSE}
+data <- tibble(first = 1:5, second = 1:5, third = 1:5, fourth = 1:5)
+```
+
+```{r display, results = "asis"}
+knitr::kable(data, caption = "some data")
+```
+

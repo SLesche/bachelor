@@ -1,0 +1,88 @@
+<!-- This file is for LaTeX and R setups -->
+<!-- Latex -->
+<!-- Problem with Latex stuff is, that it won't compile to word correctly... -->
+
+<!-- R -->
+
+```{r setup, include = FALSE}
+# think about calling renv here to make sure everyone has the same packages installed
+
+library(papaja)
+library(tidyverse)
+library(Superpower)
+library(rio)
+library(flextable)
+library(ftExtra)
+library(rmarkdown)
+library(knitr)
+r_refs("r-references.bib")
+r_citations <- cite_r(
+  file = "r-references.bib",
+  pkgs = c("papaja", "tidyverse"),
+  omit = FALSE
+  )
+
+# Knitr chunk options
+
+# disallow tables breaking over pages
+knitr::opts_chunk$set(ft.keepnext = TRUE,
+                      ft.align = "left",
+                      ft.latex.float = "float")
+# Seed for random number generation
+set.seed(1234)
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed) # this adds random seed to all chunks
+knitr::opts_chunk$set(autodep = TRUE)
+knitr::dep_auto()
+```
+
+```{r analysis-preferences}
+# set flextable defaults for fonts
+set_flextable_defaults(fonts_ignore = TRUE)
+```
+
+
+```{r transpose-function}
+df_transpose <- function(df) {
+  
+  first_name <- colnames(df)[1]
+  
+  temp <-
+    df %>% 
+    tidyr::pivot_longer(-1) %>%
+    tidyr::pivot_wider(names_from = 1, values_from = value)
+  
+  colnames(temp)[1] <- first_name
+  temp
+}
+```
+
+```{r apa-footer-flextable}
+apa_footer <- function(data, note){
+  flextable::add_footer_lines(
+    x = data,
+    " "
+    ) %>%
+    flextable::compose(
+      # x = data,
+      i = 1,
+      j = 1,
+      part = "footer",
+      value = as_paragraph(
+        as_i("Note. "), note
+      )
+    )
+}
+```
+
+```{r print-flextable}
+print_flextable_apa <- function(x){
+  flextable::flextable_to_rmd(
+    x,
+    ft.align = "left",
+    ft.keepnext = TRUE,
+    bookdown = TRUE,
+    print = TRUE
+  )
+}
+```
+

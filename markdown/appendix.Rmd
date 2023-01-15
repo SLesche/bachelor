@@ -1,0 +1,4 @@
+# Appendix
+```{r mean-values-power-analysis, results = 'asis'}
+estimated_mean_values_table
+```
