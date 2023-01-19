@@ -84,6 +84,22 @@ data %>%
   View()
 ```
 
+```{r block comparison}
+data %>% 
+  group_by(rsi, block) %>% 
+  summarize(mean_rt = mean(rt, na.rm = TRUE),
+            mean_acc = mean(acc, na.rm = TRUE),
+            count = n())
+
+# Check whether accuracy difference overall in RSI is driven by go trials
+data %>% 
+  group_by(rsi, trial_type, block) %>% 
+  summarise(mean_rt = mean(rt, na.rm = TRUE),
+            mean_acc = sum(acc)/n(),
+            count = n()) %>% 
+  View()
+```
+
 ```{r visualization}
 data %>% 
   group_by(rsi, error_code) %>% 
@@ -161,3 +177,4 @@ data %>%
   geom_bar(stat = "identity", position = "dodge")
 ```
 
+# TODO: Something about "fast" vs. "slow" errors

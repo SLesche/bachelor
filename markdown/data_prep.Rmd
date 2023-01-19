@@ -27,9 +27,17 @@ data <- list.files(
   data.table::rbindlist(
     fill = TRUE
   ) %>% 
-  mutate(key_resp_trial.rt = ifelse(participant %in% 1:3, # added a 0.1 dead time after first three participants
-                                    key_resp_trial.rt,
-                                    key_resp_trial.rt + 0.1))
+  janitor::clean_names() %>% # make all names snake_case
+  mutate(key_resp_trial_rt = ifelse(participant %in% 1:3, # added a 0.1 dead time after first three participants
+                                    key_resp_trial_rt,
+                                    key_resp_trial_rt + 0.1)) %>% 
+  rename(
+    "block" = loop_exp_this_n,
+    "trial" = loop_trials_this_n,
+    "response" = key_resp_trial_keys,
+    "acc" = key_resp_trial_corr,
+    "rt" = key_resp_trial_rt
+  )
 ```
 
 ```{r checking condition mappings}
@@ -46,26 +54,49 @@ demo_data <- "REPLACE ME CORRECTLY"
 # Filtering out practice trials
 ```{r sort exp trials}
 exp_data <- data %>% 
-  filter(is.na(loop_practice.thisN)) %>%  # Filter all practice trials
-  janitor::remove_empty(which = "cols") %>%  # remove all columns that have just NA, could also remove all empty rows aswell
-  janitor::clean_names()# make names all snake case
+  group_by(participant) %>% # want to have map_x_key and map_y_key everywhere
+  mutate(
+    map_x_key = ifelse(map_x_key == "", NA, map_x_key),
+    map_y_key = ifelse(map_y_key == "", NA, map_y_key)
+  ) %>% 
+  fill(map_x_key, .direction = "down") %>% 
+  fill(map_y_key, .direction = "down") %>% 
+  fill(map_condition, .direction = "down") %>% 
+  ungroup() %>% 
+  filter(is.na(loop_practice_this_n)) %>%  # Filter all practice trials
+  janitor::remove_empty(which = "cols") # remove all columns that have just NA, could also remove all empty rows aswell
 
-exp_data <- exp_data %>% # adding acc and rt variables, selecting important values to front
-  mutate(acc = key_resp_trial_corr,
-         rt = key_resp_trial_rt) %>% 
-  select(participant, loop_exp_this_n, loop_trials_this_n, trial_type, acc, rt,
+exp_data <- exp_data %>% # selecting important variables to front
+  select(participant, block, trial, trial_type, acc, rt,
+         response, map_condition,
          everything())
 ```
 
+```{r adding decision variable}
+dec_data <- exp_data %>% 
+  mutate(decision_char = case_when(
+    map_condition == 0 & response == "l" ~ "y",
+    map_condition == 0 & response == "d" ~ "x",
+    map_condition == 1 & response == "l" ~ "x",
+    map_condition == 1 & response == "d" ~ "y",
+    response == "None" ~ "none"
+  )) %>% 
+  mutate(decision = case_when(
+    decision_char == "x" ~ 0,
+    decision_char == "y" ~ 1,
+    decision_char == "none" ~ -9
+  ))
+```
+
 ```{r just experimental data}
-rt_data <- exp_data %>% 
-  filter(!is.na(loop_exp_this_n)) # n.obs should be multiple of 3000
+rt_data <- dec_data %>% 
+  filter(!is.na(block)) # n.obs should be multiple of 3000
 ```
 
 ```{r coding error types}
 # just coding errors in nogo trials as error
 error_data <- rt_data %>% 
-  group_by(participant, loop_exp_this_n) %>%  # consecutive errors have to be within a participant and block
+  group_by(participant, block) %>%  # consecutive errors have to be within a participant and block
   mutate(
     error_type = case_when(
       trial_type == "nogo" & acc == 0 & lag(trial_type) == "go" & lead(trial_type) =="go" ~ "error_single_lure",
@@ -81,7 +112,7 @@ error_data <- rt_data %>%
     )
   ) %>% 
   ungroup()  %>% 
-  group_by(participant, loop_exp_this_n) %>% 
+  group_by(participant, block) %>% 
   mutate(classic_pes_type = case_when(
     lag(trial_type, 2) == "go" & lag(trial_type) == "nogo" & trial_type == "go" & lag(acc) == 0 ~ "post_error",
     lag(trial_type, 2) == "go" & lag(trial_type) == "nogo" & trial_type == "go" & lag(acc) == 1 ~ "post_correct"
@@ -92,6 +123,7 @@ error_data <- rt_data %>%
 ```{r filtering participants}
 # Filter out too fast responses aswell as 
 final_data <- error_data
+
 ```
 
 

@@ -1,0 +1,130 @@
+---
+editor_options:
+  chunk_output_type: console
+---
+# Library calls
+```{r setup}
+library(tidyverse)
+library(rio)
+library(data.table)
+
+ggplot2::theme_set(theme_classic()) # setting default theme
+
+# Diffusion model packages
+library(RWiener)
+library(brms)
+library(rtdists)
+
+# Rstan
+library(rstan)
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+
+```
+
+```{r functions}
+
+```
+
+```{r data}
+# data <- rio::import("./markdown/data/analysis_data.Rdata")
+```
+
+
+# Fitting model
+Normally would not allow parameters other than diffusion model to depend on trial conditions, but they should depend on rsi condition here. Dont vary between go/nogo though. Drift rate may though.
+
+
+# Example
+```{r}
+data(speed_acc, package = "rtdists")
+speed_acc <- droplevels(speed_acc[!speed_acc$censor,]) # remove extreme RTs
+speed_acc <- droplevels(speed_acc[speed_acc$frequency %in% 
+                                     c("high", "nw_high"),])
+speed_acc$response2 <- as.numeric(speed_acc$response)-1
+str(speed_acc)
+```
+
+```{r}
+formula <- bf(rt | dec(response2) ~ 0 + condition:frequency + 
+                (0 + condition:frequency|p|id), 
+               bs ~ 0 + condition + (0 + condition|p|id), 
+               ndt ~ 0 + condition + (0 + condition|p|id),
+               bias ~ 0 + condition + (0 + condition|p|id))
+```
+
+```{r}
+get_prior(formula,
+          data = speed_acc, 
+          family = wiener(link_bs = "identity", 
+                          link_ndt = "identity", 
+                          link_bias = "identity"))
+```
+
+```{r}
+prior <- c(
+ prior("cauchy(0, 5)", class = "b"),
+ set_prior("normal(1.5, 1)", class = "b", dpar = "bs"),
+ set_prior("normal(0.2, 0.1)", class = "b", dpar = "ndt"),
+ set_prior("normal(0.5, 0.2)", class = "b", dpar = "bias")
+)
+```
+
+```{r}
+make_stancode(formula, 
+              family = wiener(link_bs = "identity", 
+                              link_ndt = "identity",
+                              link_bias = "identity"),
+              data = speed_acc, 
+              prior = prior)
+```
+
+```{r}
+tmp_dat <- make_standata(formula, 
+                         family = wiener(link_bs = "identity", 
+                              link_ndt = "identity",
+                              link_bias = "identity"),
+                            data = speed_acc, prior = prior)
+str(tmp_dat, 1, give.attr = FALSE)
+
+initfun <- function() {
+  list(
+    b = rnorm(tmp_dat$K),
+    b_bs = runif(tmp_dat$K_bs, 1, 2),
+    b_ndt = runif(tmp_dat$K_ndt, 0.1, 0.15),
+    b_bias = rnorm(tmp_dat$K_bias, 0.5, 0.1),
+    sd_1 = runif(tmp_dat$M_1, 0.5, 1),
+    z_1 = matrix(rnorm(tmp_dat$M_1*tmp_dat$N_1, 0, 0.01),
+                 tmp_dat$M_1, tmp_dat$N_1),
+    L_1 = diag(tmp_dat$M_1)
+  )
+}
+```
+
+```{r}
+fit_wiener <- brm(formula, 
+                  data = speed_acc,
+                  family = wiener(link_bs = "identity", 
+                                  link_ndt = "identity",
+                                  link_bias = "identity"),
+                  prior = prior, init = initfun,
+                  iter = 1000, warmup = 500, 
+                  chains = 4, cores = 4, 
+                  refresh = 10)
+NPRED <- 500
+pred_wiener <- predict(fit_wiener, 
+                       summary = FALSE, 
+                       negative_rt = TRUE, 
+                       nsamples = NPRED)
+```
+
+```{r}
+tmp <- tempdir()
+download.file("https://singmann.github.io/files/brms_wiener_example_fit.rda", 
+              file.path(tmp, "brms_wiener_example_fit.rda"))
+download.file("https://singmann.github.io/files/brms_wiener_example_predictions.rda", 
+              file.path(tmp, "brms_wiener_example_predictions.rda"))
+load(file.path(tmp, "brms_wiener_example_fit.rda"))
+load(file.path(tmp, "brms_wiener_example_predictions.rda"))
+```
+
