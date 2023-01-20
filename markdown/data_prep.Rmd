@@ -122,7 +122,33 @@ error_data <- rt_data %>%
 
 ```{r filtering participants}
 # Filter out too fast responses aswell as 
-final_data <- error_data
+error_data %>% 
+  filter(rt > 0.15) %>% 
+  group_by(participant) %>% 
+  summarize(mean_rt = mean(rt, na.rm = TRUE)) %>% 
+  mutate(outlier = ifelse(
+    mean_rt > mean(mean_rt) + 2.5*sd(mean_rt) |
+      mean_rt < mean(mean_rt) - 2.5*sd(mean_rt),
+    1,
+    0
+  )) %>% 
+  count(outlier) # check if there are participant-level outliers
+
+outlier_data <- error_data %>% 
+  filter(rt > 0.15 | is.na(rt)) %>% 
+  group_by(participant) %>% # group by participant?
+  # summarize( # sanity check
+  #   mean_rt = mean(rt, na.rm = TRUE),
+  #   sd_rt = sd(rt, na.rm = TRUE),
+  #   ci_upper = mean_rt + 2.5*sd_rt,
+  #   ci_lower = mean_rt - 2.5*sd_rt
+  # )
+  filter(
+    (rt < mean(rt, na.rm = TRUE) + 2.5*sd(rt, na.rm = TRUE) &
+      rt > mean(rt, na.rm = TRUE) - 2.5*sd(rt, na.rm = TRUE)) | is.na(rt)
+  )
+  
+final_data <- outlier_data
 
 ```
 

@@ -31,7 +31,21 @@ data_robust <- data %>%
          trial_type, rsi, 
          acc, rt,
          stimulus, correct, response, decision, decision_char,
-         error_code)
+         error_code) %>% 
+  mutate(
+    rsi = case_when(
+      rsi == 0.2 ~ "short",
+      rsi == 1 ~ "long"
+    ),
+    error_factor = case_when(
+      error_code == -1 ~ "pre_error",
+      error_code == 1 ~ "post_error"
+    )
+  ) %>% 
+  mutate(
+    rsi = factor(rsi),
+    error_factor = factor(error_factor)
+  )
 
 
 data_classic <- data %>% 
@@ -40,7 +54,17 @@ data_classic <- data %>%
          trial_type, rsi, 
          acc, rt,
          stimulus, correct, response, decision, decision_char,
-         classic_pes_type)
+         classic_pes_type) %>% 
+  mutate(
+    rsi = case_when(
+      rsi == 0.2 ~ "short",
+      rsi == 1 ~ "long"
+    )
+  ) %>% 
+  mutate(
+    rsi = factor(rsi),
+    error_factor = factor(classic_pes_type)
+  )
 
 ```
 
@@ -52,7 +76,17 @@ data_classic_clean <- data_classic %>%
   filter(!is.na(rt))
 ```
 
-```{r}
+```{r export data}
+rio::export(data_classic_clean, "./markdown/data/diffusion_data_classic.rdata")
+rio::export(data_robust_clean, "./markdown/data/diffusion_data_robust.rdata")
+```
 
+```{r}
+data_robust_clean %>% 
+  count(participant, rsi, error_code) %>% 
+  mutate(quality = ifelse(n > 40, "good", "bad")) %>% 
+  ungroup() %>% 
+  group_by(error_code, rsi) %>% 
+  count(quality)
 ```
 
