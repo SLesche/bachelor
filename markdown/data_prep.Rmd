@@ -120,9 +120,35 @@ error_data <- rt_data %>%
   ungroup()
 ```
 
+```{r error id}
+speed_data <- error_data %>% 
+  group_by(participant, block) %>% 
+  mutate(
+    error_id = case_when(
+      error_code == 0 ~ paste(participant, block, trial, sep = "_"),
+      error_code == -1 ~ paste(participant, block, trial + 1, sep = "_"),
+      error_code == 1 ~ paste(participant, block, trial - 1, sep = "_")
+    )
+  ) %>% 
+  ungroup() %>% 
+  group_by(participant) %>% 
+  mutate(error_speed = case_when(
+    error_code == 0 &
+      rt >= median(rt, na.rm = TRUE) ~ "slow",
+    error_code == 0 &
+      rt < median(rt, na.rm = TRUE) ~ "fast"
+  )) %>% 
+  mutate(error_speed = case_when(
+    error_id == lag(error_id) & error_id == lag(error_id, 2) ~ lag(error_speed),
+    error_id == lead(error_id) & error_id == lead(error_id, 2) ~ lead(error_speed),
+    error_id == error_id ~ error_speed
+  )) %>% 
+  ungroup()
+```
+
 ```{r filtering participants}
 # Filter out too fast responses aswell as 
-error_data %>% 
+speed_data %>% 
   filter(rt > 0.15) %>% 
   group_by(participant) %>% 
   summarize(mean_rt = mean(rt, na.rm = TRUE)) %>% 
@@ -134,7 +160,7 @@ error_data %>%
   )) %>% 
   count(outlier) # check if there are participant-level outliers
 
-outlier_data <- error_data %>% 
+outlier_data <- speed_data %>% 
   filter(rt > 0.15 | is.na(rt)) %>% 
   group_by(participant) %>% # group by participant?
   # summarize( # sanity check

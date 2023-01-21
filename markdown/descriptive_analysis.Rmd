@@ -103,6 +103,7 @@ data %>%
 ```{r visualization}
 data %>% 
   group_by(rsi, error_code) %>% 
+  filter(!is.na(rt)) %>% 
   summarise(
     mean_rt = mean(rt, na.rm = TRUE),
     sd_rt = sd(rt, na.rm = TRUE),
@@ -120,6 +121,7 @@ data %>%
 
 data %>% 
   group_by(rsi, error_code) %>% 
+  filter(!is.na(rt)) %>% 
   summarise(
     mean_rt = mean(rt, na.rm = TRUE),
     sd_rt = sd(rt, na.rm = TRUE),
@@ -138,6 +140,7 @@ data %>%
 
 data %>% 
   group_by(rsi, classic_pes_type) %>% 
+  filter(!is.na(rt)) %>% 
   summarise(
     across(
       c("rt", "acc"),
@@ -158,6 +161,7 @@ data %>%
 
 data %>% 
   group_by(rsi, classic_pes_type) %>% 
+  filter(!is.na(rt)) %>% 
   summarise(
     across(
       c("rt", "acc"),
@@ -178,3 +182,31 @@ data %>%
 ```
 
 # TODO: Something about "fast" vs. "slow" errors
+```{r error rate without noresponse}
+data %>% 
+  group_by(rsi, error_code) %>% 
+  filter(!is.na(rt)) %>%
+  summarize(
+    across(
+      c("rt", "acc"),
+      list(mean = ~mean(., na.rm = TRUE)) 
+    )
+  )
+```
+
+
+```{r fast slow error}
+data %>% 
+  filter(!is.na(error_speed)) %>% 
+  group_by(rsi, error_speed, error_code) %>% 
+  summarize(
+    across(c("rt", "acc"),
+    list(
+      mean = ~mean(., na.rm = TRUE), 
+      sd = ~sd(., na.rm = TRUE)
+      )
+    )
+  )
+
+```
+
