@@ -35,6 +35,13 @@ knitr::opts_chunk$set(autodep = TRUE)
 knitr::dep_auto()
 ```
 
+```{r tinytex}
+# want to auto-install tinytex 
+# if(tinytex::is_tinytex() == FALSE){
+#   tinytex::install_tinytex()
+# }
+```
+
 ```{r analysis-preferences}
 # set flextable defaults for fonts
 set_flextable_defaults(fonts_ignore = TRUE)
