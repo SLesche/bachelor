@@ -172,7 +172,8 @@ outlier_data <- speed_data %>%
   filter(
     (rt < mean(rt, na.rm = TRUE) + 2.5*sd(rt, na.rm = TRUE) &
       rt > mean(rt, na.rm = TRUE) - 2.5*sd(rt, na.rm = TRUE)) | is.na(rt)
-  )
+  ) %>% 
+  ungroup()
   
 final_data <- outlier_data
 
