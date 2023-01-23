@@ -210,3 +210,18 @@ data %>%
 
 ```
 
+
+```{r condition comparison}
+data %>% 
+  group_by(rsi, map_condition) %>% 
+  summarize(
+    across(c("rt", "acc"),
+    list(
+      mean = ~mean(., na.rm = TRUE), 
+      sd = ~sd(., na.rm = TRUE)
+      )
+    )
+  )
+
+```
+
