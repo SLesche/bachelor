@@ -70,10 +70,10 @@ data_classic <- data %>%
 
 ```{r no na}
 data_robust_clean <- data_robust %>% 
-  filter(!is.na(rt))
+  filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo")
 
 data_classic_clean <- data_classic %>% 
-  filter(!is.na(rt))
+  filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo")
 ```
 
 ```{r export data}

@@ -1,0 +1,31 @@
+---
+editor_options:
+  chunk_output_type: console
+---
+# Library calls
+```{r setup}
+library(tidyverse)
+library(rio)
+library(data.table)
+
+ggplot2::theme_set(theme_classic()) # setting default theme
+
+# Diffusion model packages
+library(RWiener)
+library(brms)
+library(rtdists)
+
+# Rstan
+library(rstan)
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+
+```
+
+```{r functions}
+
+```
+
+```{r data}
+data <- rio::import("./markdown/data/analysis_data.Rdata")
+```
