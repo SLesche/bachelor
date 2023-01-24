@@ -1,0 +1,88 @@
+---
+editor_options:
+  chunk_output_type: console
+---
+# Library calls
+```{r setup}
+library(tidyverse)
+library(rio)
+library(data.table)
+
+ggplot2::theme_set(theme_classic()) # setting default theme
+```
+
+```{r functions}
+
+```
+
+```{r data}
+data <- rio::import("./markdown/data/analysis_data.rdata")
+data_classic <- rio::import("./markdown/data/diffusion_data_classic.rdata")
+data_robust <- rio::import("./markdown/data/diffusion_data_robust.rdata")
+```
+
+```{r distribution of trials}
+data_classic %>% 
+  ggplot(
+    aes(
+      x = trial,
+      group = rsi,
+      fill = rsi
+    )
+  ) +
+  geom_histogram(
+    bins = nrow(data_classic %>% count(trial))
+  )
+
+data_robust %>% 
+  ggplot(
+    aes(
+      x = trial,
+      group = rsi,
+      fill = rsi
+    )
+  ) +
+  geom_histogram(
+    bins = nrow(data_robust %>% count(trial))
+  )
+
+```
+
+```{r accuracy in blocks}
+data %>% 
+  group_by(block, rsi) %>% 
+  summarize(
+    across(
+      c("rt", "acc"),
+      list(mean = ~mean(., na.rm = TRUE),
+           sd = ~sd(., na.rm = TRUE),
+           count = ~n())
+    )
+  ) %>% 
+  ggplot(aes(
+    x = block,
+    y = rt_mean,
+    group = rsi,
+    color = factor(rsi)
+  ))+
+  geom_line()
+
+data %>% 
+  group_by(block, rsi) %>% 
+  summarize(
+    across(
+      c("rt", "acc"),
+      list(mean = ~mean(., na.rm = TRUE),
+           sd = ~sd(., na.rm = TRUE),
+           count = ~n())
+    )
+  ) %>% 
+  ggplot(aes(
+    x = block,
+    y = acc_mean,
+    group = rsi,
+    color = factor(rsi)
+  ))+
+  geom_line()
+```
+
