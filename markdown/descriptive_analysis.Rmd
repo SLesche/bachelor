@@ -77,7 +77,7 @@ data %>%
             count = n())
 
 data %>% 
-  group_by(participant, rsi) %>% 
+  group_by(id, rsi) %>% 
   count(classic_pes_type) %>% 
   filter(classic_pes_type == "post_error",
          n < 50) %>%

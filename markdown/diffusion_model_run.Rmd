@@ -27,5 +27,27 @@ rstan_options(auto_write = TRUE)
 ```
 
 ```{r data}
-data <- rio::import("./markdown/data/analysis_data.Rdata")
+data_robust <- rio::import("./markdown/data/diffusion_data_robust.Rdata")
 ```
+
+```{r set-formula}
+formula <- bf( # Do I want an intercept here?
+  rt | dec(decision) ~ 1 + rsi:error_factor + (1 + rsi:error_factor|id),
+  bs ~ 1 + rsi:error_factor + (1 + rsi:error_factor|id),
+  ndt ~ 1 + rsi:error_factor + (1 + rsi:error_factor|id),
+  bias ~ 1 + rsi:error_factor + (1 + rsi:error_factor|id)
+)
+```
+
+```{r get-prior}
+get_prior(
+  formula = formula,
+  data = data_robust,
+  family = wiener(
+    link_bs = "identity",
+    link_ndt = "identity", 
+    link_bias = "identity"
+    )
+)
+```
+

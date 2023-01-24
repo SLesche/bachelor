@@ -32,6 +32,7 @@ data <- list.files(
                                     key_resp_trial_rt,
                                     key_resp_trial_rt + 0.1)) %>% 
   rename(
+    "id" = participant,
     "block" = loop_exp_this_n,
     "trial" = loop_trials_this_n,
     "response" = key_resp_trial_keys,
@@ -54,7 +55,7 @@ demo_data <- "REPLACE ME CORRECTLY"
 # Filtering out practice trials
 ```{r sort exp trials}
 exp_data <- data %>% 
-  group_by(participant) %>% # want to have map_x_key and map_y_key everywhere
+  group_by(id) %>% # want to have map_x_key and map_y_key everywhere
   mutate(
     map_x_key = ifelse(map_x_key == "", NA, map_x_key),
     map_y_key = ifelse(map_y_key == "", NA, map_y_key)
@@ -67,7 +68,7 @@ exp_data <- data %>%
   janitor::remove_empty(which = "cols") # remove all columns that have just NA, could also remove all empty rows aswell
 
 exp_data <- exp_data %>% # selecting important variables to front
-  select(participant, block, trial, trial_type, acc, rt,
+  select(id, block, trial, trial_type, acc, rt,
          response, map_condition,
          everything())
 ```
@@ -96,7 +97,7 @@ rt_data <- dec_data %>%
 ```{r coding error types}
 # just coding errors in nogo trials as error
 error_data <- rt_data %>% 
-  group_by(participant, block) %>%  # consecutive errors have to be within a participant and block
+  group_by(id, block) %>%  # consecutive errors have to be within a participant and block
   mutate(
     error_type = case_when(
       trial_type == "nogo" & acc == 0 & lag(trial_type) == "go" & lead(trial_type) =="go" ~ "error_single_lure",
@@ -112,7 +113,7 @@ error_data <- rt_data %>%
     )
   ) %>% 
   ungroup()  %>% 
-  group_by(participant, block) %>% 
+  group_by(id, block) %>% 
   mutate(classic_pes_type = case_when(
     lag(trial_type, 2) == "go" & lag(trial_type) == "nogo" & trial_type == "go" & lag(acc) == 0 ~ "post_error",
     lag(trial_type, 2) == "go" & lag(trial_type) == "nogo" & trial_type == "go" & lag(acc) == 1 ~ "post_correct"
@@ -122,16 +123,16 @@ error_data <- rt_data %>%
 
 ```{r error id}
 speed_data <- error_data %>% 
-  group_by(participant, block) %>% 
+  group_by(id, block) %>% 
   mutate(
     error_id = case_when(
-      error_code == 0 ~ paste(participant, block, trial, sep = "_"),
-      error_code == -1 ~ paste(participant, block, trial + 1, sep = "_"),
-      error_code == 1 ~ paste(participant, block, trial - 1, sep = "_")
+      error_code == 0 ~ paste(id, block, trial, sep = "_"),
+      error_code == -1 ~ paste(id, block, trial + 1, sep = "_"),
+      error_code == 1 ~ paste(id, block, trial - 1, sep = "_")
     )
   ) %>% 
   ungroup() %>% 
-  group_by(participant) %>% 
+  group_by(id) %>% 
   mutate(error_speed = case_when(
     error_code == 0 &
       rt >= median(rt, na.rm = TRUE) ~ "slow",
@@ -150,7 +151,7 @@ speed_data <- error_data %>%
 # Filter out too fast responses aswell as 
 speed_data %>% 
   filter(rt > 0.15) %>% 
-  group_by(participant) %>% 
+  group_by(id) %>% 
   summarize(mean_rt = mean(rt, na.rm = TRUE)) %>% 
   mutate(outlier = ifelse(
     mean_rt > mean(mean_rt) + 2.5*sd(mean_rt) |
@@ -162,7 +163,7 @@ speed_data %>%
 
 outlier_data <- speed_data %>% 
   filter(rt > 0.15 | is.na(rt)) %>% 
-  group_by(participant) %>% # group by participant?
+  group_by(id) %>% # group by participant?
   # summarize( # sanity check
   #   mean_rt = mean(rt, na.rm = TRUE),
   #   sd_rt = sd(rt, na.rm = TRUE),

@@ -27,7 +27,7 @@ data <- rio::import("./markdown/data/analysis_data.rdata")
 ```{r selecting different datasets}
 data_robust <- data %>% 
   filter(error_code %in% c(-1, 1)) %>% 
-  select(participant, trial, block,
+  select(id, trial, block,
          trial_type, rsi, 
          acc, rt,
          stimulus, correct, response, decision, decision_char,
@@ -50,7 +50,7 @@ data_robust <- data %>%
 
 data_classic <- data %>% 
   filter(!is.na(classic_pes_type)) %>% 
-  select(participant, trial, block,
+  select(id, trial, block,
          trial_type, rsi, 
          acc, rt,
          stimulus, correct, response, decision, decision_char,
@@ -83,7 +83,7 @@ rio::export(data_robust_clean, "./markdown/data/diffusion_data_robust.rdata")
 
 ```{r}
 data_robust_clean %>% 
-  count(participant, rsi, error_code) %>% 
+  count(id, rsi, error_code) %>% 
   mutate(quality = ifelse(n > 40, "good", "bad")) %>% 
   ungroup() %>% 
   group_by(error_code, rsi) %>% 
