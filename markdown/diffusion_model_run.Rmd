@@ -51,3 +51,70 @@ get_prior(
 )
 ```
 
+```{r set-prior}
+prior <- c(
+ prior("cauchy(0, 5)", class = "b"),
+ set_prior("normal(1.5, 1)", class = "b", dpar = "bs"),
+ set_prior("normal(0.2, 0.1)", class = "b", dpar = "ndt"),
+ set_prior("normal(0.5, 0.2)", class = "b", dpar = "bias")
+)
+```
+
+```{r stan-code-check}
+# Check that all parameters listed
+make_stancode(formula, 
+              family = wiener(link_bs = "identity", 
+                              link_ndt = "identity",
+                              link_bias = "identity"),
+              data = data_robust, 
+              prior = prior)
+```
+
+```{r temp-starting-values}
+tmp_dat <- make_standata(
+  formula, 
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  data = data_robust,
+  prior = prior
+  )
+```
+
+```{r init-function}
+initfun <- function() {
+  list(
+    b = rnorm(tmp_dat$K),
+    b_bs = runif(tmp_dat$K_bs, 1, 2),
+    b_ndt = runif(tmp_dat$K_ndt, 0.1, 0.15),
+    b_bias = rnorm(tmp_dat$K_bias, 0.5, 0.1),
+    sd_1 = runif(tmp_dat$M_1, 0.5, 1),
+    z_1 = matrix(rnorm(tmp_dat$M_1*tmp_dat$N_1, 0, 0.01),
+                 tmp_dat$M_1, tmp_dat$N_1),
+    L_1 = diag(tmp_dat$M_1)
+  )
+}
+```
+
+```{r}
+fit_wiener <- brm(
+  formula, 
+  data = data_robust,
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  prior = prior, 
+  init = initfun,
+  iter = 1000, 
+  warmup = 500, 
+  chains = 4,
+  cores = 4, 
+  # control = list(max_treedepth = 15),
+  refresh = 20
+  )
+```
+
