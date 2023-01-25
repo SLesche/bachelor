@@ -17,15 +17,54 @@ library("DescTools") # for CCC
 
 ```{r data}
 # Reading in data
-data_robust <- rio::import("./markdown/data/diffusion_data_robust")
+data_robust <- rio::import("./markdown/data/diffusion_data_robust.rdata")
 
 data_model_robust <- rio::import("./markdown/models/brms_wiener_fit.rda")
+data_pred_robust <- rio::import("./markdown/models/brms_wiener_predictions.rda")
 ```
 
-```{r}
+```{r checking rhat}
 # Checking parameters with highest rhat
-fit_wiener$fit %>% 
+data_model_robust$fit %>% 
   rstan::summary() %>% 
-  .$summary
+  .$summary %>% 
+  as_tibble() %>% 
+  slice_max(Rhat, n = 5)
+
+data_model_robust$fit %>% 
+  rstan::summary() %>% 
+  .$summary %>% 
+  as_tibble() %>% 
+  slice_min(n_eff, n = 5)
+```
+
+```{r divergent}
+# Number of divergent transitions
+sum(subset(nuts_params(data_model_robust), Parameter=="divergent__")$Value)
+```
+
+```{r visual-par-inspection}
+pars <- variables(data_model_robust)
+pars_sel <- c(
+  sample(pars[1:(length(pars)/2)], 3),
+  sample(pars[-(1:(length(pars)/2))], 3)
+  )
+
+plot(data_model_robust, pars = pars_sel, N = 6, 
+     ask = FALSE, exact_match = TRUE, newpage = TRUE, plot = TRUE)
+```
+
+```{r divergent problems}
+pairs(data_model_robust$fit, pars = pars[c(1, 3, 5, 7, 9)], condition = "divergent__")
+
+```
+
+```{r parameter correlations}
+posterior <- as.mcmc(data_model_robust, combine_chains = TRUE)
+cor_posterior <- cor(posterior)
+cor_posterior[lower.tri(cor_posterior, diag = TRUE)] <- NA
+cor_long <- as.data.frame(as.table(cor_posterior))
+cor_long <- na.omit(cor_long)
+tail(cor_long[order(abs(cor_long$Freq)),], 10)
 ```
 

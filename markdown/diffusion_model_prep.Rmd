@@ -16,7 +16,8 @@ ggplot2::theme_set(theme_classic()) # setting default theme
 ```
 
 ```{r data}
-data <- rio::import("./markdown/data/analysis_data.rdata")
+data <- rio::import("./markdown/data/analysis_data.rdata") %>% 
+  mutate(id = factor(id))
 ```
 
 # Preparing diffusion model
