@@ -5,6 +5,7 @@
 
 renv/
 template/
+logbuch_ba.xlsx
 
 markdown/data
 markdown/models
@@ -21,3 +22,12 @@ markdown/*.html
 markdown/*.log
 markdown/*.fff
 markdown/*.ttt
+
+psychopy/archive
+psychopy/data
+psychopy/instructions_bat
+psychopy/instructions_bat_d
+psychopy/instructions_bat_l
+psychopy/*.pptx
+psychopy/*.xlsx
+psychopy/readme.md
