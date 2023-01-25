@@ -32,10 +32,10 @@ data_robust <- rio::import("./markdown/data/diffusion_data_robust.Rdata")
 
 ```{r set-formula}
 formula <- bf( # Do I want an intercept here?
-  rt | dec(decision) ~ 1 + rsi:error_factor + (1 + rsi:error_factor|id),
-  bs ~ 1 + rsi:error_factor + (1 + rsi:error_factor|id),
-  ndt ~ 1 + rsi:error_factor + (1 + rsi:error_factor|id),
-  bias ~ 1 + rsi:error_factor + (1 + rsi:error_factor|id)
+  rt | dec(decision) ~ 0 + rsi:error_factor,
+  bs ~ 0 + rsi:error_factor,
+  ndt ~ 0 + rsi:error_factor,
+  bias ~ 0 + rsi:error_factor
 )
 ```
 
@@ -89,16 +89,16 @@ initfun <- function() {
     b = rnorm(tmp_dat$K),
     b_bs = runif(tmp_dat$K_bs, 1, 2),
     b_ndt = runif(tmp_dat$K_ndt, 0.1, 0.15),
-    b_bias = rnorm(tmp_dat$K_bias, 0.5, 0.1),
-    sd_1 = runif(tmp_dat$M_1, 0.5, 1),
-    z_1 = matrix(rnorm(tmp_dat$M_1*tmp_dat$N_1, 0, 0.01),
-                 tmp_dat$M_1, tmp_dat$N_1),
-    L_1 = diag(tmp_dat$M_1)
+    b_bias = rnorm(tmp_dat$K_bias, 0.5, 0.1) #,
+    # sd_1 = runif(tmp_dat$M_1, 0.5, 1),
+    # z_1 = matrix(rnorm(tmp_dat$M_1*tmp_dat$N_1, 0, 0.01),
+    #              tmp_dat$M_1, tmp_dat$N_1),
+    # L_1 = diag(tmp_dat$M_1)
   )
 }
 ```
 
-```{r}
+```{r fitting model}
 fit_wiener <- brm(
   formula, 
   data = data_robust,
@@ -109,12 +109,27 @@ fit_wiener <- brm(
     ),
   prior = prior, 
   init = initfun,
-  iter = 1000, 
+  iter = 2000, 
   warmup = 500, 
   chains = 4,
   cores = 4, 
   # control = list(max_treedepth = 15),
   refresh = 20
   )
+```
+
+```{r pred}
+n_pred <- 500
+pred_wiener <- brms::predict(fit_wiener, 
+                       summary = FALSE, 
+                       negative_rt = TRUE, 
+                       nsamples = 500)
+```
+
+```{r save}
+save(fit_wiener, file = "./markdown/models/brms_wiener_fit.rda", 
+     compress = "xz")
+save(pred_wiener, file = "brms_wiener_predictions.rda", 
+     compress = "xz")
 ```
 

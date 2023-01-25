@@ -1,0 +1,31 @@
+---
+editor_options:
+  chunk_output_type: console
+---
+```{r setup}
+# Library calls
+library("brms")
+library(tidyverse)
+library("gridExtra") # for grid.arrange
+library("DescTools") # for CCC
+```
+
+```{r functions}
+# Custom functions
+
+```
+
+```{r data}
+# Reading in data
+data_robust <- rio::import("./markdown/data/diffusion_data_robust")
+
+data_model_robust <- rio::import("./markdown/models/brms_wiener_fit.rda")
+```
+
+```{r}
+# Checking parameters with highest rhat
+fit_wiener$fit %>% 
+  rstan::summary() %>% 
+  .$summary
+```
+
