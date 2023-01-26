@@ -1,5 +1,5 @@
 # Sven Lesche's Bachelor Thesis
-This repository contains all scripts used to generate the bachelor thesis: "Effects of the Response-Stimulus-Interval on the Nature of Cognitive Processes Underlying Post-Error Slowing – A Diffusion Model Account".
+This repository contains all scripts used to generate the bachelor thesis: _"Effects of the Response-Stimulus-Interval on the Nature of Cognitive Processes Underlying Post-Error Slowing – A Diffusion Model Account"_.
 To replicate my work, please inquire about the raw data used, I'll gladly provide it. 
 
 ## Renv
