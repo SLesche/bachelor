@@ -11,9 +11,7 @@ library(data.table)
 ggplot2::theme_set(theme_classic()) # setting default theme
 
 # Diffusion model packages
-library(RWiener)
 library(brms)
-library(rtdists)
 
 # Rstan
 library(rstan)
@@ -32,12 +30,12 @@ data_robust <- rio::import("./markdown/data/diffusion_data_robust.Rdata")
 
 ```{r set-formula}
 formula <- bf( # TODO: Do I want an intercept here?
-  rt | dec(decision) ~ 1 + rsi:error_factor + (1 + rsi|p|id), 
+  rt | dec(decision) ~ 1 + rsi*error_factor + (1 + rsi|p|id), 
     # random slopes just for rsi?
-  bs ~ 1 + rsi:error_factor + (1 + rsi|p|id),
+  bs ~ 1 + rsi*error_factor + (1 + rsi|p|id),
     # because rsi and error_factor are known they can be used here
     # pre-error is not technically "known", but should affect bs and ndt nonetheless
-  ndt ~ 1 + rsi:error_factor + (1 + rsi|p|id),
+  ndt ~ 1 + rsi*error_factor + (1 + rsi|p|id),
   bias ~ 1 
     # just want to estimate intercept for bias?
     # watch for prior/init function, can't just set bias to 0.5, only in acc-coding
@@ -113,7 +111,7 @@ initfun <- function() {# all pars in stancode need init here
     Intercept_bs = runif(tmp_dat$K_bs, 1, 2),
     b_ndt = rnorm(tmp_dat$K_ndt, 0.5, 0.1),
     Intercept_ndt = runif(tmp_dat$K_ndt, 1, 2),
-    Intercept_bias = 0.5, #TODO:  am I setting bias to 0.5 here? or just prior?
+    Intercept_bias = runif(tmp_dat$K_bias, 1, 2), #TODO:  am I setting bias to 0.5 here? or just prior?
     sd_1 = runif(tmp_dat$M_1, 0.5, 1),
     z_1 = matrix(rnorm(tmp_dat$M_1*tmp_dat$N_1, 0, 0.01),
                  tmp_dat$M_1, tmp_dat$N_1),
@@ -123,12 +121,12 @@ initfun <- function() {# all pars in stancode need init here
 ```
 
 ```{r fitting model}
-n_iter = 2000
-n_warmup = 500
-n_chains = 4
-n_cores = 4
-max_depth = 15
-adapt_delta = 0.95
+n_iter <- 2000
+n_warmup <- 500
+n_chains <- 4
+n_cores <- 4
+max_depth <- 15
+adapt_delta <- 0.95
 
 fit_wiener <- brm(
   formula, 
