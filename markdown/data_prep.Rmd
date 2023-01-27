@@ -48,7 +48,44 @@ condition_table <- data %>%
 ```
 
 ```{r extracting demo data}
-demo_data <- "REPLACE ME CORRECTLY"
+demo_data <- data %>% 
+  select(id, alter, geschlecht_w_m_d_andere, studiengang) %>% 
+  unique() %>% 
+  mutate(id = as.numeric(id)) %>% 
+  arrange(id)
+
+demo_output <- demo_data %>% 
+  mutate(is_psych = ifelse(
+    str_detect(tolower(studiengang), "psych"),
+    1,
+    0
+  )) %>% 
+  mutate(geschlecht_w_m_d_andere = ifelse( # dealing with "weiblich" / "männlich"
+    str_detect(tolower(geschlecht_w_m_d_andere), "w"),
+    "w",
+    geschlecht_w_m_d_andere
+  )) %>% 
+  mutate(is_women = ifelse(
+    geschlecht_w_m_d_andere == "w",
+    1,
+    0
+    )) %>% 
+  # mutate(alter = readr::parse_number(alter)) %>% 
+  summarize(
+    n_subjects = length(unique(id)),
+    n_women = sum(is_women, na.rm = TRUE),
+    n_psych = sum(is_psych, na.rm = TRUE),
+    gender_perc = sum(is_women, na.rm = TRUE) / sum(!is.na(is_women)),
+    mean_age = mean(alter, na.rm = TRUE),
+    max_age = max(alter, na.rm = TRUE),
+    min_age = min(alter, na.rm = TRUE),
+    sd_age = sd(alter, na.rm = TRUE),
+    psych_perc = sum(is_psych, na.rm = TRUE) / sum(!is.na(is_psych)),
+    na_gender = sum(is.na(geschlecht_w_m_d_andere)),
+    na_psych = sum(is.na(studiengang)),
+    na_alter = sum(is.na(alter))
+  )
+
 # No demo data was collected for first 7 participants (have in logbuch_ba.xlsx)
 ```
 
