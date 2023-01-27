@@ -23,7 +23,7 @@ data <- list.files(
   pattern = keyword,
   full.names = T
   ) %>%
-  map(import) %>% 
+  map(data.table::fread) %>% 
   data.table::rbindlist(
     fill = TRUE
   ) %>% 
@@ -178,6 +178,11 @@ outlier_data <- speed_data %>%
   
 final_data <- outlier_data
 
+```
+
+```{r lost trials}
+trials_lost_filter <- nrow(rt_data) - nrow(final_data)
+percentage_trials_lost <- round(trials_lost_filter / nrow(rt_data), 4)*100
 ```
 
 

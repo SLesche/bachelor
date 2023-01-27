@@ -219,7 +219,8 @@ data %>%
     across(c("rt", "acc"),
     list(
       mean = ~mean(., na.rm = TRUE), 
-      sd = ~sd(., na.rm = TRUE)
+      sd = ~sd(., na.rm = TRUE),
+      count = ~n()
       )
     )
   )
