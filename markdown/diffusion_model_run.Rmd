@@ -134,7 +134,7 @@ initfun_no_int <- function() {# all pars in stancode need init here
   )
 }
 
-n_iter <- 2000
+n_iter <- 3000
 n_warmup <- 500
 n_chains <- 4
 n_cores <- 4
@@ -156,9 +156,13 @@ fit_wiener_no_int <- brm(
   warmup = n_warmup, 
   chains = 4,
   cores = n_cores, 
-  # control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
-  refresh = 20
+  control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  refresh = 20,
+  seed = 1234 # reproducibility
   )
+
+save(fit_wiener_no_init, file = paste0("./markdown/models/brms_wiener_fit_", Sys.Date(), ".rda"),
+     compress = "xz")
 ```
 
 
