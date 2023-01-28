@@ -26,21 +26,141 @@ rstan_options(auto_write = TRUE)
 
 ```{r data}
 data_robust <- rio::import("./markdown/data/diffusion_data_robust.Rdata")
+data_classic <- rio::import("./markdown/data/diffusion_data_classic.rdata")
 ```
 
 ```{r set-formula}
-formula <- bf( # TODO: Do I want an intercept here?
-  rt | dec(decision) ~ 1 + rsi*error_factor + (1 + rsi|p|id), 
+formula <- bf( # TODO: Do I want an intercept here?, also move this to the end!
+  rt | dec(decision) ~ 1 + rsi:error_factor + (1|p|id), 
     # random slopes just for rsi?
-  bs ~ 1 + rsi*error_factor + (1 + rsi|p|id),
+  bs ~ 1 + rsi:error_factor + (1|p|id),
     # because rsi and error_factor are known they can be used here
     # pre-error is not technically "known", but should affect bs and ndt nonetheless
-  ndt ~ 1 + rsi*error_factor + (1 + rsi|p|id),
-  bias ~ 1 
+  ndt ~ 1 + rsi:error_factor + (1|p|id),
+  bias = 0.5
     # just want to estimate intercept for bias?
     # watch for prior/init function, can't just set bias to 0.5, only in acc-coding
 )
 ```
+
+```{r testing intercepts}
+# TODO: Clean this up to show only why intercepts are suppressed
+unique(model.matrix(~ 0 + rsi:error_factor, data_robust))
+unique(model.matrix(~ 0 + rsi*error_factor, data_robust))
+unique(model.matrix(~  rsi:error_factor, data_robust))
+
+unique(model.matrix(~ 0 + rsi + error_factor + rsi:error_factor, data_robust))
+unique(model.matrix(~ 1 + rsi + error_factor + rsi:error_factor, data_robust))
+unique(model.matrix(~ 0 + rsi:error_factor, data_robust))
+unique(model.matrix(~ 1 + rsi:error_factor, data_robust))
+unique(model.matrix(~ 1 + rsi*error_factor, data_robust))
+
+```
+
+```{r formula-no-intercept}
+formula_no_intercept <- bf(
+  # No intercepts, bc this estimates parameters for each combination of
+  # rsi and error_factor
+  rt | dec(decision) ~ 0 + rsi:error_factor + (0 + rsi|p|id),
+    # random slopes just for rsi for now. can do random slopes for error_factor later
+    # TODO: Implement this! Model comparison?
+  bs ~ 0 + rsi:error_factor + (0 + rsi|p|id),
+    # because rsi and error_factor are known they can be used here
+    # pre-error is not technically "known", but should affect bs and ndt nonetheless
+  ndt ~ 0 + rsi:error_factor + (0 + rsi|p|id),
+  bias = 0.5 # no reason for bias to vary
+    # just want to estimate intercept for bias?
+    # TODO: maybe estimate intercept for bias? 
+)
+
+auto_prior_no_int <- get_prior(# this just as sanity check
+  formula = formula_no_intercept,
+  data = data_robust,
+  family = wiener(
+    link_bs = "identity", #TODO: keep these identity links?, explain why
+    link_ndt = "identity", 
+    link_bias = "identity"
+    )
+)
+
+prior_no_int <- c(
+ # drift rate
+ prior("lkj(1)", class = "cor"), # correlations between pars
+ prior("normal(0,1)", class = "b"), # drift rate, population
+  # prior research found drift rates between 0.1-0.3, this is weakly informative prior
+ prior("normal(0, 0.3)", class = "sd"), # drift rate, group
+  # TODO: Explain why this is used
+
+ # boundary separation
+ set_prior("normal(0, 2)", class = "b", dpar = "bs", lb = 0), 
+  # bs restricted to > 0, lb = 0
+ set_prior("normal(0, 0.3)", class = "sd", dpar =  "bs"), # group level
+
+ # Non-decision time
+ set_prior("normal(0.15, 0.1)", class = "b", dpar = "ndt", lb = 0),
+ set_prior("normal(0, 0.3)", class = "sd", dpar =  "ndt"), # group level
+ 
+ # Group-level priors
+ set_prior("normal(0, 0.3)", class = "sd", group = "id")
+)
+
+make_stancode(formula_no_intercept, 
+              family = wiener(link_bs = "identity", 
+                              link_ndt = "identity",
+                              link_bias = "identity"),
+              data = data_robust, 
+              prior = prior_no_int)
+
+tmp_dat_no_int <- make_standata(
+  formula_no_intercept, 
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  data = data_robust,
+  prior = prior_no_int
+  )
+
+initfun_no_int <- function() {# all pars in stancode need init here
+  list(
+    b = rnorm(tmp_dat_no_int$K), # manual 4 pars? tmp_dat_no_int$K = 5
+    b_bs = runif(tmp_dat_no_int$K_bs, 1, 2),
+    b_ndt = rep(0.1, 4), # low ndt init, need 4 dims here?
+    sd_1 = runif(tmp_dat_no_int$M_1, 0.5, 1),
+    z_1 = matrix(rnorm(tmp_dat_no_int$M_1*tmp_dat_no_int$N_1, 0, 0.01),
+                 tmp_dat_no_int$M_1, tmp_dat_no_int$N_1),
+    L_1 = diag(tmp_dat_no_int$M_1)
+  )
+}
+
+n_iter <- 2000
+n_warmup <- 500
+n_chains <- 4
+n_cores <- 4
+max_depth <- 15
+adapt_delta <- 0.95
+
+
+fit_wiener_no_int <- brm(
+  formula_no_intercept, 
+  data = data_robust,
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  prior = prior_no_int, 
+  init = initfun_no_int,
+  iter = n_iter, 
+  warmup = n_warmup, 
+  chains = 4,
+  cores = n_cores, 
+  # control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  refresh = 20
+  )
+```
+
 
 ```{r get-prior}
 auto_prior <- get_prior(
@@ -59,12 +179,12 @@ prior <- c(
  # drift rate
  prior("lkj(1)", class = "cor"), # correlations between pars
  prior("normal(0,1)", class = "b"), # drift rate, population
- prior("normal(0, 0.3", class = "sd"), # drift rate, group
+ prior("normal(0, 0.3)", class = "sd"), # drift rate, group
  set_prior("normal(0, 1)", class = "Intercept"), # intercept of drift rate (population)
 
- # Bias
- set_prior("beta(1.3, 1.3)", class = "Intercept", dpar = "bias", lb = 0, ub = 1), # Bias only intercept
- # bias has bound 0, 1
+ # # Bias
+ # set_prior("beta(1.3, 1.3)", class = "Intercept", dpar = "bias", lb = 0, ub = 1), # Bias only intercept
+ # # bias has bound 0, 1
  # boundary separation
  set_prior("normal(0, 2)", class = "b", dpar = "bs", lb = 0), 
   # bs restricted to > 0, lb = 0
@@ -109,24 +229,22 @@ initfun <- function() {# all pars in stancode need init here
     Intercept = runif(tmp_dat$K, 1, 2),
     b_bs = runif(tmp_dat$K_bs, 1, 2),
     Intercept_bs = runif(tmp_dat$K_bs, 1, 2),
-    b_ndt = rnorm(tmp_dat$K_ndt, 0.5, 0.1),
-    Intercept_ndt = runif(tmp_dat$K_ndt, 1, 2),
-    Intercept_bias = runif(tmp_dat$K_bias, 1, 2), #TODO:  am I setting bias to 0.5 here? or just prior?
+    b_ndt = runif(tmp_dat$K_ndt, 0, 1),
+    Intercept_ndt = array(0.05), # setting low initial ndt
+    Intercept_bias = array(0.5), #TODO:  am I setting bias to 0.5 here? or just prior?
     sd_1 = runif(tmp_dat$M_1, 0.5, 1),
     z_1 = matrix(rnorm(tmp_dat$M_1*tmp_dat$N_1, 0, 0.01),
                  tmp_dat$M_1, tmp_dat$N_1),
-    L_1 = diag(tmp_dat$M_1)
+    L_1 = diag(tmp_dat$M_1)#,
+    # sd_2 = runif(tmp_dat$M_2, 0.5, 1),
+    # z_2 = matrix(rnorm(tmp_dat$M_2*tmp_dat$N_2, 0, 0.01),
+    #              tmp_dat$M_2, tmp_dat$N_2)
   )
 }
 ```
 
+
 ```{r fitting model}
-n_iter <- 2000
-n_warmup <- 500
-n_chains <- 4
-n_cores <- 4
-max_depth <- 15
-adapt_delta <- 0.95
 
 fit_wiener <- brm(
   formula, 
