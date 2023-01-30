@@ -1,0 +1,31 @@
+---
+editor_options:
+  chunk_output_type: console
+---
+```{r setup}
+# Library calls
+
+```
+
+```{r functions}
+# Custom functions
+
+```
+
+```{r data}
+# Reading in data
+fit_wiener_robust <- rio::import("./markdown/models/brms_wiener_fit.rda")
+fit_wiener_classic <- rio::import("./markdown/models/brms_wiener_fit.rda")
+```
+
+```{r setup-pred}
+n_pred <- 1000
+```
+
+```{r pred-robust}
+pred_robust <- predict(fit_wiener_robust, 
+                       summary = FALSE, 
+                       negative_rt = TRUE, 
+                       ndraws = n_pred)
+```
+

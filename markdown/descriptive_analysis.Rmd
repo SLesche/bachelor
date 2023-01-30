@@ -90,8 +90,28 @@ data %>%
   filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
   summarize(mean_rt = mean(rt, na.rm = TRUE),
             mean_acc = mean(acc, na.rm = TRUE),
-            count = n())
+            count = n()) %>% 
+  ggplot(aes(
+    x = block,
+    y = mean_rt,
+    group = rsi,
+    color = factor(rsi)
+  ))+
+  geom_line()
 
+data %>% 
+  group_by(rsi, block) %>% 
+  filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
+  summarize(mean_rt = mean(rt, na.rm = TRUE),
+            mean_acc = mean(acc, na.rm = TRUE),
+            count = n()) %>% 
+  ggplot(aes(
+    x = block,
+    y = mean_acc,
+    group = rsi,
+    color = factor(rsi)
+  ))+
+  geom_line()
 # Check whether accuracy difference overall in RSI is driven by go trials
 data %>% 
   group_by(rsi, trial_type, block) %>% 
@@ -208,7 +228,6 @@ data %>%
       )
     )
   )
-
 ```
 
 
