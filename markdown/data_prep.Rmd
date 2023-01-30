@@ -52,11 +52,26 @@ demo_data <- data %>%
   select(id, alter, geschlecht_w_m_d_andere, studiengang) %>% 
   unique() %>% 
   mutate(id = as.numeric(id)) %>% 
-  arrange(id)
+  arrange(id) %>% 
+  mutate( # data from logbuch.xlsx
+    geschlecht_w_m_d_andere = ifelse(
+      id %in% 1:7,
+      "w",
+      geschlecht_w_m_d_andere
+    ),
+    studiengang = ifelse(
+      id %in% c(1:3, 5:7),
+      "Psychologie",
+      studiengang
+    )
+  )
+
+demo_data[1:7, "alter"] <- c(20, 19, 21, 19, 23, 20, 21)
+demo_data[4, "studiengang"] <- "Bildungswissenschaften, Nebenfach Psychologie"
 
 demo_output <- demo_data %>% 
   mutate(is_psych = ifelse(
-    str_detect(tolower(studiengang), "psych"),
+    str_detect(tolower(studiengang), "psych") | str_detect(tolower(studiengang), "bildung"),
     1,
     0
   )) %>% 
@@ -85,6 +100,8 @@ demo_output <- demo_data %>%
     na_psych = sum(is.na(studiengang)),
     na_alter = sum(is.na(alter))
   )
+
+rio::export(demo_output, "./markdown/data/demo_output.rdata")
 
 # No demo data was collected for first 7 participants (have in logbuch_ba.xlsx)
 ```
