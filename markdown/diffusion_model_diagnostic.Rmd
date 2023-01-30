@@ -21,6 +21,8 @@ data_robust <- rio::import("./markdown/data/diffusion_data_robust.rdata")
 
 data_model_robust <- rio::import("./markdown/models/brms_wiener_fit.rda")
 data_pred_robust <- rio::import("./markdown/models/brms_wiener_predictions.rda")
+
+data_model_robust <- rio::import("./markdown/models/brms_wiener_fit_2023-01-30.rda")
 ```
 
 ```{r checking rhat}
@@ -50,12 +52,12 @@ pars_sel <- c(
   sample(pars[-(1:(length(pars)/2))], 3)
   )
 
-plot(data_model_robust, pars = pars_sel, N = 6, 
+plot(data_model_robust, variable = pars_sel, N = 6, 
      ask = FALSE, exact_match = TRUE, newpage = TRUE, plot = TRUE)
 ```
 
 ```{r divergent problems}
-pairs(data_model_robust$fit, pars = pars[c(1, 3, 5, 7, 9)], condition = "divergent__")
+pairs(data_model_robust$fit, variable = pars_sel, condition = "divergent__")
 
 ```
 
@@ -66,5 +68,12 @@ cor_posterior[lower.tri(cor_posterior, diag = TRUE)] <- NA
 cor_long <- as.data.frame(as.table(cor_posterior))
 cor_long <- na.omit(cor_long)
 tail(cor_long[order(abs(cor_long$Freq)),], 10)
+
+hist(cor_long$Freq, breaks = 40)
 ```
+
+```{r model-fit}
+
+```
+
 
