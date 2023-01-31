@@ -32,7 +32,7 @@ data_classic <- rio::import("./markdown/data/diffusion_data_classic.rdata")
 ```{r testing intercepts}
 # Have to supress intercept for modeling reasons (that I don't quite understand myself)
 # And combining factors with `:` gives each combination an estimate
-unique(model.matrix(~ 0 + rsi:error_factor, data_robust))
+unique(model.matrix(~ 0 + rsi:error_factor:stimulus, data_robust))
 unique(model.matrix(~ 0 + rsi*error_factor, data_robust))
 unique(model.matrix(~ 1 + rsi:error_factor, data_robust))
 unique(model.matrix(~ 1 + rsi*error_factor, data_robust))
@@ -42,7 +42,7 @@ unique(model.matrix(~ 1 + rsi*error_factor, data_robust))
 formula <- bf(
   # No intercepts, bc this estimates parameters for each combination of
   # rsi and error_factor
-  rt | dec(decision) ~ 0 + rsi:error_factor + (0 + rsi|p|id),
+  rt | dec(decision) ~ 0 + rsi:error_factor:stimulus + (0 + rsi:stimulus|p|id),
     # random slopes just for rsi for now. can do random slopes for error_factor later
     # TODO: Implement this! Model comparison?
   bs ~ 0 + rsi:error_factor + (0 + rsi|p|id),
@@ -156,7 +156,7 @@ initfun_classic <- function() {# all pars in stancode need init here
 
 
 ```{r setup-model}
-n_iter <- 3000
+n_iter <- 1000
 n_warmup <- 500
 n_chains <- 4
 n_cores <- 4
@@ -181,7 +181,7 @@ fit_wiener_robust <- brm(
   warmup = n_warmup, 
   chains = n_chains,
   cores = n_cores, 
-  control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  # control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
   refresh = 20,
   seed = seed # reproducibility
   )
