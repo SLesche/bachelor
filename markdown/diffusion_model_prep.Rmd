@@ -28,7 +28,7 @@ data <- rio::import("./markdown/data/analysis_data.rdata") %>%
 ```{r selecting different datasets}
 data_robust <- data %>% 
   filter(error_code %in% c(-1, 1)) %>% 
-  select(id, trial, block,
+  select(id, trial, block, map_condition,
          trial_type, rsi, 
          acc, rt,
          stimulus, correct, response, decision, decision_char,
@@ -45,13 +45,14 @@ data_robust <- data %>%
   ) %>% 
   mutate(
     rsi = factor(rsi),
-    error_factor = factor(error_factor)
+    error_factor = factor(error_factor),
+    map_condition = factor(map_condition)
   )
 
 
 data_classic <- data %>% 
   filter(!is.na(classic_pes_type)) %>% 
-  select(id, trial, block,
+  select(id, trial, block, map_condition,
          trial_type, rsi, 
          acc, rt,
          stimulus, correct, response, decision, decision_char,
@@ -64,7 +65,8 @@ data_classic <- data %>%
   ) %>% 
   mutate(
     rsi = factor(rsi),
-    error_factor = factor(classic_pes_type)
+    error_factor = factor(classic_pes_type),
+    map_condition = factor(map_condition)
   )
 
 ```

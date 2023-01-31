@@ -49,7 +49,7 @@ formula <- bf(
     # because rsi and error_factor are known they can be used here
     # pre-error is not technically "known", but should affect bs and ndt nonetheless
   ndt ~ 0 + rsi:error_factor + (0 + rsi|p|id),
-  bias ~ 1 + (1|id) # no reason for bias to vary TODO: intercept for bias
+  bias ~ 0 + map_condition # no reason for bias to vary TODO: intercept for bias
     # just want to estimate intercept for bias?
     # TODO: maybe estimate intercept for bias? 
 )
@@ -75,8 +75,8 @@ prior <- c(
  set_prior("normal(0, 0.3)", class = "sd", dpar =  "ndt"), # group level
  
  # bias
- set_prior("normal(0.5, 0.1)", class = "Intercept", dpar = "bias", lb = 0, ub = 1),
- set_prior("normal(0, 0.3)", class = "sd", dpar = "bias"),
+ set_prior("normal(0.5, 0.1)", class = "b", dpar = "bias", lb = 0, ub = 1),
+ # set_prior("normal(0, 0.3)", class = "sd", dpar = "bias"),
  
  # Group-level priors
  set_prior("normal(0, 0.3)", class = "sd", group = "id")
@@ -132,6 +132,7 @@ initfun_robust <- function() {# all pars in stancode need init here
     b = rnorm(tmp_dat_robust$K), 
     b_bs = runif(tmp_dat_robust$K_bs, 1, 2),
     b_ndt = rep(0.1, 4), # rep 4, cause need 4 dims
+    b_bias = rnorm(tmp_dat_robust$K_bias, 0.5, 0.2),
     sd_1 = runif(tmp_dat_robust$M_1, 0.5, 1),
     z_1 = matrix(rnorm(tmp_dat_robust$M_1*tmp_dat_robust$N_1, 0, 0.01),
                  tmp_dat_robust$M_1, tmp_dat_robust$N_1),
@@ -144,6 +145,7 @@ initfun_classic <- function() {# all pars in stancode need init here
     b = rnorm(tmp_dat_classic$K), 
     b_bs = runif(tmp_dat_classic$K_bs, 1, 2),
     b_ndt = rep(0.1, 4), # rep 4, cause need 4 dims
+    b_bias = rnorm(tmp_dat_classic$K_bias, 0.5, 0.2),
     sd_1 = runif(tmp_dat_classic$M_1, 0.5, 1),
     z_1 = matrix(rnorm(tmp_dat_classic$M_1*tmp_dat_classic$N_1, 0, 0.01),
                  tmp_dat_classic$M_1, tmp_dat_classic$N_1),
