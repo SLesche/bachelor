@@ -100,13 +100,20 @@ data %>%
   geom_line()
 
 data %>% 
-  group_by(rsi, block) %>% 
-  filter(!is.na(rt) & trial_type == "go") %>% 
+  mutate(block_fifths = case_when(
+    trial < 50 ~ block + 0.2,
+    trial < 100 ~ block + 0.4,
+    trial < 150 ~ block + 0.6,
+    trial < 200 ~ block + 0.8,
+    trial < 250 ~ block + 1
+  )) %>%
+  group_by(rsi, block_fifths) %>%
+  filter(!is.na(rt) & trial_type == "go") %>%
   summarize(mean_rt = mean(rt, na.rm = TRUE),
             mean_acc = mean(acc, na.rm = TRUE),
             count = n()) %>% 
   ggplot(aes(
-    x = block,
+    x = block_fifths,
     y = mean_acc,
     group = rsi,
     color = factor(rsi)
