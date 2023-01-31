@@ -7,6 +7,8 @@ editor_options:
 library(tidyverse)
 library(rio)
 library(data.table)
+library(afex)
+library(emmeans)
 library(lme4) # for later
 
 ggplot2::theme_set(theme_classic()) # setting default theme
@@ -23,6 +25,7 @@ data <- rio::import("./markdown/data/analysis_data.Rdata")
 ```{r notes}
 # TODO
 # RT short vs. long
+# Condition Comparison
 # RT error types
 # RT classic PES version
 # Interaction RSI X Error_type on RT
@@ -34,8 +37,119 @@ data <- rio::import("./markdown/data/analysis_data.Rdata")
 
 ```
 
-```{r linear models}
-lm_rsi_short_long <- glmer(rt ~ rsi + (1|participant), data = data)
-summary(lm_rsi_short_long)
+```{r assumption-checks}
+# TODO: Check normality assumptions and such
+```
+
+```{r condition}
+data %>% 
+  filter(trial_type == "go") %>% 
+  group_by(id, map_condition) %>% 
+  summarize(mean_rt = mean(rt, na.rm = TRUE)) %>% 
+  t.test(mean_rt ~ map_condition, data = .)
+
+# Condition has significant effect on rt
+
+data %>% 
+  filter(trial_type == "go") %>% 
+  group_by(id, map_condition) %>% 
+  summarize(mean_acc = mean(acc, na.rm = TRUE)) %>% 
+  t.test(mean_acc ~ map_condition, data = .)
+
+# But not on acc
+
+# Interaction condition and pes?
+data %>% 
+  filter(!is.na(rt) & trial_type == "go") %>% 
+  group_by(id, map_condition, error_code) %>% 
+  summarize(
+    across(
+      c("rt", "acc"),
+      list(mean = ~mean(., na.rm = TRUE), sd = ~sd(., na.rm = TRUE))
+    )
+  ) %>% 
+  filter(error_code %in% c(-1, 1)) %>% 
+  group_by(id, map_condition) %>% 
+  summarize(pes = rt_mean - lag(rt_mean),
+            pea = acc_mean - lag(acc_mean)) %>% 
+  filter(!is.na(pes)) %>% 
+  ungroup() %>% 
+  # t.test(pea ~ map_condition, data = .)
+  t.test(pes ~ map_condition, data = .)
+
+```
+
+```{r rsi-error-code}
+mean_data_rsi_robust <- data %>% 
+  filter(!is.na(rt) & trial_type == "go") %>% 
+  group_by(id, rsi, error_code) %>%
+  summarize(
+    across(
+      c("rt", "acc"),
+      list(mean = ~mean(., na.rm = TRUE), sd = ~sd(., na.rm = TRUE))
+    )
+  ) %>%
+  filter(!is.na(error_code)) %>% 
+  ungroup() %>% 
+  mutate(id = factor(id),
+         rsi = factor(rsi, 
+                      levels = c(0.2, 1),
+                      labels = c("short", "long")),
+         error_code = factor(error_code,
+                             levels = c(-1, 1),
+                             labels = c("pre-error", "post-error"))
+         )
+
+mean_data_rsi_classic <- data %>% 
+  filter(!is.na(rt) & trial_type == "go") %>% 
+  group_by(id, rsi, classic_pes_type) %>%
+  summarize(
+    across(
+      c("rt", "acc"),
+      list(mean = ~mean(., na.rm = TRUE), sd = ~sd(., na.rm = TRUE))
+    )
+  ) %>%
+  filter(!is.na(classic_pes_type)) %>% 
+  ungroup() %>% 
+  mutate(id = factor(id),
+         rsi = factor(rsi, 
+                      levels = c(0.2, 1),
+                      labels = c("short", "long")),
+         classic_pes_type = factor(classic_pes_type)
+         )
+
+aov_rt_rsi_error_robust <- aov_car(
+  formula = rt_mean ~ rsi*error_code + Error(id/rsi*error_code),
+  data = mean_data_rsi_robust
+)
+
+aov_rt_rsi_error_classic <- aov_car(
+  formula = rt_mean ~ rsi*classic_pes_type + Error(id/rsi*classic_pes_type),
+  data = mean_data_rsi_classic
+)
+
+aov_acc_rsi_error_robust <- aov_car(
+  formula = acc_mean ~ rsi*error_code + Error(id/rsi*error_code),
+  data = mean_data_rsi_robust
+)
+
+aov_acc_rsi_error_classic <- aov_car(
+  formula = acc_mean ~ rsi*classic_pes_type + Error(id/rsi*classic_pes_type),
+  data = mean_data_rsi_classic
+)
+```
+
+```{r emmeans}
+aov_rt_rsi_error_robust %>% 
+  emmeans(~error_code*rsi)
+
+aov_rt_rsi_error_classic %>% 
+  emmeans(~classic_pes_type*rsi)
+
+aov_acc_rsi_error_robust %>% 
+  emmeans(~error_code*rsi)
+
+aov_acc_rsi_error_classic %>% 
+  emmeans(~classic_pes_type*rsi)
 ```
 

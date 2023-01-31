@@ -87,7 +87,7 @@ data %>%
 ```{r block comparison}
 data %>% 
   group_by(rsi, block) %>% 
-  filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
+  filter(!is.na(rt) & trial_type == "go") %>% 
   summarize(mean_rt = mean(rt, na.rm = TRUE),
             mean_acc = mean(acc, na.rm = TRUE),
             count = n()) %>% 
@@ -101,7 +101,7 @@ data %>%
 
 data %>% 
   group_by(rsi, block) %>% 
-  filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
+  filter(!is.na(rt) & trial_type == "go") %>% 
   summarize(mean_rt = mean(rt, na.rm = TRUE),
             mean_acc = mean(acc, na.rm = TRUE),
             count = n()) %>% 
@@ -142,7 +142,7 @@ data %>%
 
 data %>% 
   group_by(rsi, error_code) %>% 
-  filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
+  filter(!is.na(rt) & trial_type == "go") %>% 
   summarise(
     mean_rt = mean(rt, na.rm = TRUE),
     sd_rt = sd(rt, na.rm = TRUE),
@@ -219,6 +219,7 @@ data %>%
 ```{r fast slow error}
 data %>% 
   filter(!is.na(error_speed)) %>% 
+  filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
   group_by(rsi, error_speed, error_code) %>% 
   summarize(
     across(c("rt", "acc"),
