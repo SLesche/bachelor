@@ -3,6 +3,24 @@
 library(tidyverse)
 ```
 
+```{r imports}
+descriptive_output <- rio::import("./data/descriptive_output.rdata")
+load("./data/aov_rt_rsi_error_classic.rdata")
+load("./data/aov_acc_rsi_error_classic.rdata")
+```
+
+```{r source-significance}
+# TODO: Figure out structure, convert to R-scripts, figure out working directory mess
+```
+
+We found significant effects of rsi `r apa_print(aov_rt_rsi_error_classic)$statistic$rsi`, significant effects of error type `r apa_print(aov_rt_rsi_error_classic)$statistic$classic_pes_type` and crucially a significant interaction effect `r apa_print(aov_rt_rsi_error_classic)$statistic$rsi_classic_pes_type`.
+
+Full result: `r apa_print(aov_rt_rsi_error_classic)$full_result$rsi_classic_pes_type`.
+
+A table can be found here
+`r apa_table(apa_print(aov_rt_rsi_error_classic)$table, caption = "Anova Results")`
+
+
 ## Outline Results
 - data included
 - outliers and data excluded
