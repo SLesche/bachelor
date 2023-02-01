@@ -1,9 +1,4 @@
----
-editor_options:
-  chunk_output_type: console
----
-# Library calls
-```{r setup}
+## ----setup----------------------------------------------------------------------------------------------------
 library(tidyverse)
 library(rio)
 library(data.table)
@@ -13,20 +8,19 @@ library(lme4) # for later
 library(broom)
 
 ggplot2::theme_set(theme_classic()) # setting default theme
-```
 
-```{r functions}
 
-```
+## ----functions------------------------------------------------------------------------------------------------
 
-```{r data}
+
+## ----data-----------------------------------------------------------------------------------------------------
 data <- rio::import("./markdown/data/analysis_data.Rdata") %>% 
   mutate(rsi = factor(rsi),
          error_code = factor(error_code),
          id = factor(id))
-```
 
-```{r notes}
+
+## ----notes----------------------------------------------------------------------------------------------------
 # TODO
 # RT short vs. long
 # Condition Comparison
@@ -39,14 +33,14 @@ data <- rio::import("./markdown/data/analysis_data.Rdata") %>%
 # Interaction RSI x Error_type on ACC
 
 
-```
 
-```{r assumption-checks}
+
+## ----assumption-checks----------------------------------------------------------------------------------------
 # Check assumptions_checks.rmd 
 # Assumption of homogeneity of variance violated in factors rsi/error_code
-```
 
-```{r condition}
+
+## ----condition------------------------------------------------------------------------------------------------
 data %>% 
   filter(trial_type == "go") %>% 
   group_by(id, map_condition) %>% 
@@ -84,9 +78,9 @@ data %>%
   # t.test(pea ~ map_condition, data = .)
   t.test(pes ~ map_condition, data = .)
 
-```
 
-```{r rsi-error-code}
+
+## ----rsi-error-code-------------------------------------------------------------------------------------------
 mean_data_rsi_robust <- data %>% 
   filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
   group_by(id, rsi, error_code) %>%
@@ -148,9 +142,9 @@ aov_acc_rsi_error_classic <- aov_car(
   data = mean_data_rsi_classic,
   anova_table = list(es = c("ges","pes"))
 )
-```
 
-```{r emmeans}
+
+## ----emmeans--------------------------------------------------------------------------------------------------
 aov_rt_rsi_error_robust %>% 
   emmeans(~error_code*rsi)
 
@@ -162,31 +156,25 @@ aov_acc_rsi_error_robust %>%
 
 aov_acc_rsi_error_classic %>% 
   emmeans(~classic_pes_type*rsi)
-```
 
-```{r papaja-example}
+
+## ----papaja-example-------------------------------------------------------------------------------------------
 papaja::apa_print(
   aov_rt_rsi_error_classic
 )
-```
 
-```{r linear-models, eval = FALSE, inclue = FALSE}
-# Multilevel models allow incorporating the full range of rts
-lm_rt_robust <- lmer(
-  rt ~ rsi*error_code + (1 + rsi|id),
-  data = data
-)
-summary(lm_rt_robust)
 
-lm_rt_classic <- lmer(
-  rt ~ rsi*classic_pes_type + (1 + rsi|id),
-  data = data
-)
-summary(lm_rt_classic)
-```
-
-```{r exporting}
-save(aov_rt_rsi_error_classic, file = "./markdown/data/aov_rt_rsi_error_classic.rdata")
-save(aov_acc_rsi_error_classic, file = "./markdown/data/aov_acc_rsi_error_classic.rdata")
-```
+## ----linear-models, eval = FALSE, inclue = FALSE--------------------------------------------------------------
+## # Multilevel models allow incorporating the full range of rts
+## lm_rt_robust <- lmer(
+##   rt ~ rsi*error_code + (1 + rsi|id),
+##   data = data
+## )
+## summary(lm_rt_robust)
+## 
+## lm_rt_classic <- lmer(
+##   rt ~ rsi*classic_pes_type + (1 + rsi|id),
+##   data = data
+## )
+## summary(lm_rt_classic)
 

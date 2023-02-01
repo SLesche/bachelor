@@ -47,7 +47,6 @@ knitr::dep_auto()
 set_flextable_defaults(fonts_ignore = TRUE)
 ```
 
-
 ```{r transpose-function}
 df_transpose <- function(df) {
   
