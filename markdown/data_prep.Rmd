@@ -70,40 +70,6 @@ demo_data <- data %>%
 demo_data[1:7, "alter"] <- c(20, 19, 21, 19, 23, 20, 21)
 demo_data[4, "studiengang"] <- "Bildungswissenschaften, Nebenfach Psychologie"
 
-demo_output <- demo_data %>% 
-  mutate(is_psych = ifelse(
-    str_detect(tolower(studiengang), "psych") | str_detect(tolower(studiengang), "bildung"),
-    1,
-    0
-  )) %>% 
-  mutate(geschlecht_w_m_d_andere = ifelse( # dealing with "weiblich" / "männlich"
-    str_detect(tolower(geschlecht_w_m_d_andere), "w"),
-    "w",
-    geschlecht_w_m_d_andere
-  )) %>% 
-  mutate(is_women = ifelse(
-    geschlecht_w_m_d_andere == "w",
-    1,
-    0
-    )) %>% 
-  # mutate(alter = readr::parse_number(alter)) %>% 
-  summarize(
-    n_subjects = length(unique(id)),
-    n_women = sum(is_women, na.rm = TRUE),
-    n_psych = sum(is_psych, na.rm = TRUE),
-    gender_perc = sum(is_women, na.rm = TRUE) / sum(!is.na(is_women)),
-    mean_age = mean(alter, na.rm = TRUE),
-    max_age = max(alter, na.rm = TRUE),
-    min_age = min(alter, na.rm = TRUE),
-    sd_age = sd(alter, na.rm = TRUE),
-    psych_perc = sum(is_psych, na.rm = TRUE) / sum(!is.na(is_psych)),
-    na_gender = sum(is.na(geschlecht_w_m_d_andere)),
-    na_psych = sum(is.na(studiengang)),
-    na_alter = sum(is.na(alter))
-  )
-
-rio::export(demo_output, "./markdown/data/demo_output.rdata")
-
 # No demo data was collected for first 7 participants (have in logbuch_ba.xlsx)
 ```
 
@@ -204,19 +170,27 @@ speed_data <- error_data %>%
 
 ```{r filtering participants}
 # Filter out too fast responses aswell as 
-speed_data %>% 
+outliers <- speed_data %>% 
   filter(rt > 0.15) %>% 
   group_by(id) %>% 
-  summarize(mean_rt = mean(rt, na.rm = TRUE)) %>% 
+  summarize(mean_rt = mean(rt, na.rm = TRUE),
+            mean_acc = mean(acc, na.rm = TRUE)) %>% 
   mutate(outlier = ifelse(
     mean_rt > mean(mean_rt) + 2.5*sd(mean_rt) |
-      mean_rt < mean(mean_rt) - 2.5*sd(mean_rt),
+      mean_rt < mean(mean_rt) - 2.5*sd(mean_rt) |
+      mean_acc > mean(mean_acc) + 2.5*sd(mean_acc) |
+      mean_acc < mean(mean_acc) - 2.5*sd(mean_acc),
     1,
     0
   )) %>% 
-  count(outlier) # check if there are participant-level outliers
+  select(id, outlier) %>% 
+  filter(outlier == 1)
+
+n_outliers <- sum(outliers$outlier)
+
 
 outlier_data <- speed_data %>% 
+  anti_join(., outliers) %>% 
   filter(rt > 0.15 | is.na(rt)) %>% 
   group_by(id) %>% # group by participant?
   # summarize( # sanity check
@@ -235,13 +209,53 @@ final_data <- outlier_data
 
 ```
 
+```{r append-demo}
+demo_output <- demo_data %>% 
+  anti_join(., outliers) %>% 
+  mutate(is_psych = ifelse(
+    str_detect(tolower(studiengang), "psych") | str_detect(tolower(studiengang), "bildung"),
+    1,
+    0
+  )) %>% 
+  mutate(geschlecht_w_m_d_andere = ifelse( # dealing with "weiblich" / "männlich"
+    str_detect(tolower(geschlecht_w_m_d_andere), "w"),
+    "w",
+    geschlecht_w_m_d_andere
+  )) %>% 
+  mutate(is_women = ifelse(
+    geschlecht_w_m_d_andere == "w",
+    1,
+    0
+    )) %>% 
+  # mutate(alter = readr::parse_number(alter)) %>% 
+  summarize(
+    n_subjects = length(unique(id)),
+    n_women = sum(is_women, na.rm = TRUE),
+    n_psych = sum(is_psych, na.rm = TRUE),
+    gender_perc = sum(is_women, na.rm = TRUE) / sum(!is.na(is_women)),
+    mean_age = mean(alter, na.rm = TRUE),
+    max_age = max(alter, na.rm = TRUE),
+    min_age = min(alter, na.rm = TRUE),
+    sd_age = sd(alter, na.rm = TRUE),
+    psych_perc = sum(is_psych, na.rm = TRUE) / sum(!is.na(is_psych)),
+    na_gender = sum(is.na(geschlecht_w_m_d_andere)),
+    na_psych = sum(is.na(studiengang)),
+    na_alter = sum(is.na(alter))
+  ) %>% 
+  mutate(n_outliers = n_outliers)
+
+```
+
 ```{r lost trials}
-trials_lost_filter <- nrow(rt_data) - nrow(final_data)
+trials_lost_filter <- nrow(rt_data) - nrow(final_data) - 3000 * n_outliers # lose 3000 trials per outlier
 percentage_trials_lost <- round(trials_lost_filter / nrow(rt_data), 4)*100
+
+demo_output$percentage_trials_lost <- percentage_trials_lost
 ```
 
 
 ```{r saving data}
 export(final_data, "./markdown/data/analysis_data.Rdata")
+export(demo_output, "./markdown/data/demo_output.rdata")
 ```
 

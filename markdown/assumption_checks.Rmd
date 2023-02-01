@@ -1,0 +1,151 @@
+---
+editor_options:
+  chunk_output_type: console
+---
+```{r setup}
+# Library calls
+library(tidyverse)
+library(psych)
+library(car)
+
+ggplot2::theme_set(theme_classic()) # setting default theme
+```
+
+```{r functions}
+# Custom functions
+
+```
+
+```{r data}
+# Reading in data
+data <- rio::import("./markdown/data/analysis_data.rdata")
+```
+
+```{r mean-data}
+mean_data_rsi_robust <- data %>% 
+  filter(!is.na(rt) & trial_type == "go") %>% 
+  group_by(id, map_condition, rsi, error_code) %>%
+  summarize(
+    across(
+      c("rt", "acc"),
+      list(mean = ~mean(., na.rm = TRUE), sd = ~sd(., na.rm = TRUE))
+    )
+  ) %>%
+  filter(!is.na(error_code)) %>% 
+  ungroup() %>% 
+  mutate(id = factor(id),
+         rsi = factor(rsi, 
+                      levels = c(0.2, 1),
+                      labels = c("short", "long")),
+         error_code = factor(error_code,
+                             levels = c(-1, 1),
+                             labels = c("pre-error", "post-error")),
+         map_condition = factor(map_condition)
+         )
+
+mean_data_rsi_classic <- data %>% 
+  filter(!is.na(rt) & trial_type == "go") %>% 
+  group_by(id, map_condition, rsi, classic_pes_type) %>%
+  summarize(
+    across(
+      c("rt", "acc"),
+      list(mean = ~mean(., na.rm = TRUE), sd = ~sd(., na.rm = TRUE))
+    )
+  ) %>%
+  filter(!is.na(classic_pes_type)) %>% 
+  ungroup() %>% 
+  mutate(id = factor(id),
+         rsi = factor(rsi, 
+                      levels = c(0.2, 1),
+                      labels = c("short", "long")),
+         classic_pes_type = factor(classic_pes_type),
+         map_condition = factor(map_condition)
+         )
+
+```
+
+```{r checking-normality}
+# Normality of rt in map_condition
+mean_data_rsi_classic %>% 
+  ggplot(aes(
+    x = rt_mean
+  ))+
+  geom_histogram()+
+  facet_wrap(vars(map_condition))
+
+mean_data_rsi_robust %>% 
+  ggplot(aes(
+    x = rt_mean
+  ))+
+  geom_histogram()+
+  facet_wrap(vars(map_condition))
+
+# Normality of acc obviously not given
+mean_data_rsi_classic %>% 
+  ggplot(aes(
+    x = acc_mean
+  ))+
+  geom_histogram()+
+  facet_wrap(vars(map_condition))
+
+mean_data_rsi_robust %>% 
+  ggplot(aes(
+    x = acc_mean
+  ))+
+  geom_histogram()+
+  facet_wrap(vars(map_condition))
+```
+
+```{r equal-variance}
+# Robust
+mean_data_rsi_robust %>% 
+  leveneTest(rt_mean ~ map_condition, 
+           data = .)
+
+mean_data_rsi_robust %>% 
+  leveneTest(acc_mean ~ map_condition,
+           data = .)
+
+mean_data_rsi_robust %>% 
+  leveneTest(rt_mean ~ rsi,
+           data = .) # variance not equal
+
+mean_data_rsi_robust %>% 
+  leveneTest(rt_mean ~ error_code,
+           data = .) # variance not equal
+
+mean_data_rsi_robust %>% 
+  leveneTest(rt_mean ~ rsi*error_code,
+             data = .)
+# Classic
+mean_data_rsi_classic %>% 
+  leveneTest(rt_mean ~ map_condition, 
+           data = .)
+
+mean_data_rsi_classic %>% 
+  leveneTest(acc_mean ~ map_condition,
+           data = .)
+
+mean_data_rsi_classic %>% 
+  leveneTest(rt_mean ~ rsi,
+           data = .) # variance not equal
+
+mean_data_rsi_classic %>% 
+  leveneTest(rt_mean ~ classic_pes_type,
+           data = .) # variance not equal
+
+mean_data_rsi_classic %>% 
+  leveneTest(rt_mean ~ rsi*classic_pes_type,
+             data = .)
+```
+
+```{r comparing-variance}
+mean_data_rsi_classic %>% 
+  group_by(rsi, classic_pes_type) %>% 
+  summarize(var = var(rt_mean, na.rm = TRUE))
+
+mean_data_rsi_robust %>% 
+  group_by(rsi, error_code) %>% 
+  summarize(var = var(rt_mean, na.rm = TRUE))
+```
+

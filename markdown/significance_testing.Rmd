@@ -42,11 +42,8 @@ data <- rio::import("./markdown/data/analysis_data.Rdata") %>%
 ```
 
 ```{r assumption-checks}
-# TODO: Check normality assumptions and such
-
-# Normality of dv = rt, acc
-# Homogeneity, equal variances in groups rsi, error_code
-
+# Check assumptions_checks.rmd 
+# Assumption of homogeneity of variance violated in factors rsi/error_code
 ```
 
 ```{r condition}
