@@ -67,7 +67,7 @@ data %>%
 
 # Interaction condition and pes?
 data %>% 
-  filter(!is.na(rt) & trial_type == "go") %>% 
+  filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
   group_by(id, map_condition, error_code) %>% 
   summarize(
     across(
@@ -88,7 +88,7 @@ data %>%
 
 ```{r rsi-error-code}
 mean_data_rsi_robust <- data %>% 
-  filter(!is.na(rt) & trial_type == "go") %>% 
+  filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
   group_by(id, rsi, error_code) %>%
   summarize(
     across(
@@ -96,7 +96,7 @@ mean_data_rsi_robust <- data %>%
       list(mean = ~mean(., na.rm = TRUE), sd = ~sd(., na.rm = TRUE))
     )
   ) %>%
-  filter(!is.na(error_code)) %>% 
+  filter(error_code %in% c(-1, 1)) %>% 
   ungroup() %>% 
   mutate(id = factor(id),
          rsi = factor(rsi, 
@@ -108,7 +108,7 @@ mean_data_rsi_robust <- data %>%
          )
 
 mean_data_rsi_classic <- data %>% 
-  filter(!is.na(rt) & trial_type == "go") %>% 
+  filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
   group_by(id, rsi, classic_pes_type) %>%
   summarize(
     across(

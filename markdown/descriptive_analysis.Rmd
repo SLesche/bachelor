@@ -7,6 +7,7 @@ editor_options:
 library(tidyverse)
 library(rio)
 library(data.table)
+library(scales)
 
 ggplot2::theme_set(theme_classic()) # setting default theme
 ```
@@ -38,34 +39,45 @@ mean_rt_long <- data %>%
   filter(rsi == 1) %>% 
   summarise(mean_rt = mean(rt, na.rm = TRUE)) %>% .$mean_rt
 
-mean_rt_pre_error <- data %>% 
-  filter(error_code == -1) %>% 
+# Want to do descriptives with classic pes. robust makes no sense with go-nogotask
+mean_rt_post_correct <- data %>% 
+  filter(classic_pes_type == "post_correct") %>% 
   summarise(mean_rt = mean(rt, na.rm = TRUE)) %>% .$mean_rt
 
 mean_rt_post_error <- data %>% 
-  filter(error_code == 1) %>% 
+  filter(classic_pes_type == "post_error") %>% 
   summarise(mean_rt = mean(rt, na.rm = TRUE)) %>% .$mean_rt
 
-mean_acc_pre_error <- data %>% 
-  filter(error_code == -1) %>% 
+mean_acc_post_correct <- data %>% 
+  filter(classic_pes_type == "post_correct") %>% 
   summarise(mean_acc = mean(acc, na.rm = TRUE)) %>% .$mean_acc
 
 mean_acc_post_error <- data %>% 
-  filter(error_code == 1) %>% 
+  filter(classic_pes_type == "post_error") %>% 
   summarise(mean_acc = mean(acc, na.rm = TRUE)) %>% .$mean_acc
 
 mean_acc_error_rsi_comp <- data %>%
-  group_by(rsi, error_code) %>% 
-  summarise(mean_acc = mean(acc, na.rm = TRUE)) %>% 
-  filter(error_code %in% c(-1, 1))
+  group_by(rsi, classic_pes_type) %>% 
+  summarise(mean_acc = mean(acc, na.rm = TRUE))
 
 mean_rt_error_rsi_comp <- data %>% 
-  group_by(rsi, error_code) %>% 
-  summarise(mean_rt = mean(rt, na.rm = TRUE)) %>% 
-  filter(error_code %in% c(-1, 1))
+  group_by(rsi, classic_pes_type) %>% 
+  summarise(mean_rt = mean(rt, na.rm = TRUE))
 
-# TODO: What are NA in acc condition? aren't they really errors, does this happen often?
-# TODO: Distinction fast vs. slow erros, not only in code, but get research example aswell
+# TODO: Create dataframe containing descriptive mean rts and accs for different conditions
+# Want mean rt on 
+
+descriptive_output <- data.frame(
+  mean_error_rate_overall,
+  mean_error_rate_nogo,
+  mean_rt,
+  mean_rt_short,
+  mean_rt_long,
+  mean_rt_post_correct,
+  mean_rt_post_error,
+  mean_acc_post_correct,
+  mean_acc_post_error
+)
 ```
 
 ```{r classic pes}
@@ -87,7 +99,7 @@ data %>%
 ```{r block comparison}
 data %>% 
   group_by(rsi, block) %>% 
-  filter(!is.na(rt) & trial_type == "go") %>% 
+  # filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
   summarize(mean_rt = mean(rt, na.rm = TRUE),
             mean_acc = mean(acc, na.rm = TRUE),
             count = n()) %>% 
@@ -108,7 +120,7 @@ data %>%
     trial < 250 ~ block + 1
   )) %>%
   group_by(rsi, block_fifths) %>%
-  filter(!is.na(rt) & trial_type == "go") %>%
+  # filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>%
   summarize(mean_rt = mean(rt, na.rm = TRUE),
             mean_acc = mean(acc, na.rm = TRUE),
             count = n()) %>% 
@@ -124,14 +136,13 @@ data %>%
   group_by(rsi, trial_type, block) %>% 
   summarise(mean_rt = mean(rt, na.rm = TRUE),
             mean_acc = sum(acc)/n(),
-            count = n()) %>% 
-  View()
+            count = n())
 ```
 
 ```{r visualization}
 data %>% 
   group_by(rsi, error_code) %>% 
-  filter(!is.na(rt)) %>% 
+  # filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
   summarise(
     mean_rt = mean(rt, na.rm = TRUE),
     sd_rt = sd(rt, na.rm = TRUE),
@@ -140,7 +151,7 @@ data %>%
   ) %>% 
   mutate(error_code = ifelse(is.na(error_code), "other", error_code)) %>% 
   ggplot(aes(
-    x = error_code,
+    x = error_code, 
     y = mean_rt,
     group = rsi,
     color = factor(rsi)
@@ -149,7 +160,7 @@ data %>%
 
 data %>% 
   group_by(rsi, error_code) %>% 
-  filter(!is.na(rt) & trial_type == "go") %>% 
+  # filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
   summarise(
     mean_rt = mean(rt, na.rm = TRUE),
     sd_rt = sd(rt, na.rm = TRUE),
@@ -166,9 +177,9 @@ data %>%
   )) +
   geom_line()
 
-data %>% 
+plot_rt_pes <- data %>% 
   group_by(rsi, classic_pes_type) %>% 
-  filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
+  # filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
   summarise(
     across(
       c("rt", "acc"),
@@ -185,11 +196,17 @@ data %>%
       fill = classic_pes_type
     )
   ) +
-  geom_bar(stat = "identity", position = "dodge")
+  geom_bar(stat = "identity", position = "dodge")+
+  labs(
+    title = "Mean Reaction Times",
+    x = "Response Stimulus Interval (s)",
+    y = "Mean Reaction Time (s)",
+    fill = ""
+  )
 
-data %>% 
+plot_acc_pes <- data %>% 
   group_by(rsi, classic_pes_type) %>% 
-  filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
+  # filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
   summarise(
     across(
       c("rt", "acc"),
@@ -206,7 +223,14 @@ data %>%
       fill = classic_pes_type
     )
   ) +
-  geom_bar(stat = "identity", position = "dodge")
+  geom_bar(stat = "identity", position = "dodge")+
+  labs(
+    title = "Mean Accuracy",
+    x = "Response Stimulus Interval (s)",
+    y = "Mean Accuracy",
+    fill = ""
+  )+
+  scale_y_continuous(labels = label_percent())
 ```
 
 # TODO: Something about "fast" vs. "slow" errors
@@ -252,5 +276,11 @@ data %>%
     )
   )
 
+```
+
+```{r exporting}
+rio::export(descriptive_output, "./markdown/data/descriptive_output.rdata")
+ggsave(plot_rt_pes, file = "./markdown/images/plot_rt_pes.jpg")
+ggsave(plot_acc_pes, file = "./markdown/images/plot_acc_pes.jpg")
 ```
 
