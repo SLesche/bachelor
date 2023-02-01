@@ -158,14 +158,14 @@ fit_wiener_robust_null <- brm(
   warmup = n_warmup, 
   chains = n_chains,
   cores = n_cores, 
-  # control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
   refresh = 20,
   seed = seed # reproducibility
   )
 ```
 
 ```{r saving-ddm-robust}
-save(fit_wiener_robust, file = paste0("./markdown/models/null_brms_wiener_fit_robust_", Sys.Date(), ".rda"),
+save(fit_wiener_robust_null, file = paste0("./markdown/models/null_brms_wiener_fit_robust_", Sys.Date(), ".rda"),
      compress = "xz")
 ```
 
