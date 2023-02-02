@@ -9,8 +9,7 @@ descriptive_output <- rio::import("./markdown/data/descriptive_output.rdata")
 # load("./data/aov_acc_rsi_error_classic.rdata")
 ```
 
-```{r source-significance}
-custom_child("./markdown/significance_testing.rmd")
+```{r child = "markdown/significance_testing.rmd"}
 ```
 
 We found significant effects of rsi `r apa_print(aov_rt_rsi_error_classic)$statistic$rsi`, significant effects of error type `r apa_print(aov_rt_rsi_error_classic)$statistic$classic_pes_type` and crucially a significant interaction effect `r apa_print(aov_rt_rsi_error_classic)$statistic$rsi_classic_pes_type`.
