@@ -84,26 +84,39 @@ csl               : "`r system.file('rmd', 'apa7.csl', package = 'papaja')`"
 documentclass     : "apa7"
 output            : papaja::apa6_pdf
 ---
+```{r setup, include = FALSE}
+# Working directory
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
 
+# disallow tables breaking over pages
+knitr::opts_chunk$set(ft.keepnext = TRUE,
+                      ft.align = "left",
+                      ft.latex.float = "float")
+# Seed for random number generation
+set.seed(1234)
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed) # this adds random seed to all chunks
+knitr::opts_chunk$set(autodep = TRUE)
+knitr::dep_auto()
+```
 <!-- Setup -->
-```{r child = "setup.Rmd"}
+```{r child = "markdown/setup.Rmd"}
 ```
 <!-- Here we incorporate child markdown-documents as the separate parts -->
 
 <!-- Introduction -->
-```{r child = "introduction.Rmd", eval = TRUE}
+```{r child = "markdown/introduction.Rmd", eval = TRUE}
 ```
 
 <!-- Method -->
-```{r child = "method.Rmd"}
+```{r child = "markdown/method.Rmd"}
 ```
 
 <!-- Results -->
-```{r child = "results.Rmd"}
+```{r child = "markdown/results.Rmd"}
 ```
 
 <!-- Discussion -->
-```{r child = "discussion.Rmd"}
+```{r child = "markdown/discussion.Rmd"}
 ```
 
 <!-- References -->
@@ -114,6 +127,6 @@ output            : papaja::apa6_pdf
 
 <!-- Appendix -->
 \newpage
-```{r child = "appendix.Rmd"}
+```{r child = "markdown/appendix.Rmd"}
 ```
 

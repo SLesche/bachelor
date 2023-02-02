@@ -163,7 +163,7 @@ estimated_mean_values_table <- tibble(
 
 
 ```{r reading-demo-data}
-demo_output <- rio::import("./data/demo_output.rdata")
+demo_output <- rio::import("./markdown/data/demo_output.rdata")
 ```
 
 **write this section better, clear outline participants, method, materials usw.**

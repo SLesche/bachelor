@@ -2,7 +2,7 @@
 editor_options:
   chunk_output_type: console
 ---
-# Library calls
+
 ```{r setup}
 library(tidyverse)
 library(rio)
