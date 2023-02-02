@@ -4,7 +4,7 @@
 
 <!-- R -->
 
-```{r libraries}
+```{r setup-libraries}
 # think about calling renv here to make sure everyone has the same packages installed
 
 library(papaja)
@@ -24,20 +24,19 @@ r_citations <- cite_r(
 
 ```
 
-```{r tinytex}
+```{r setup-tinytex}
 # want to auto-install tinytex 
 # if(tinytex::is_tinytex() == FALSE){
 #   tinytex::install_tinytex()
 # }
-rprojroot::find_root(rprojroot::has_file("renv.lock"))
 ```
 
-```{r analysis-preferences}
+```{r setup-analysis-preferences}
 # set flextable defaults for fonts
 set_flextable_defaults(fonts_ignore = TRUE)
 ```
 
-```{r transpose-function}
+```{r setup-transpose-function}
 df_transpose <- function(df) {
   
   first_name <- colnames(df)[1]
@@ -52,7 +51,7 @@ df_transpose <- function(df) {
 }
 ```
 
-```{r apa-footer-flextable}
+```{r setup-apa-footer-flextable}
 apa_footer <- function(data, note){
   flextable::add_footer_lines(
     x = data,
@@ -70,7 +69,7 @@ apa_footer <- function(data, note){
 }
 ```
 
-```{r print-flextable}
+```{r setup-print-flextable}
 print_flextable_apa <- function(x){
   flextable::flextable_to_rmd(
     x,

@@ -2,7 +2,7 @@
 editor_options:
   chunk_output_type: console
 ---
-```{r setup}
+```{r assumption-checks-setup}
 # Library calls
 library(tidyverse)
 library(psych)
@@ -11,17 +11,17 @@ library(car)
 ggplot2::theme_set(theme_classic()) # setting default theme
 ```
 
-```{r functions}
+```{r assumption-checks-functions}
 # Custom functions
 
 ```
 
-```{r data}
+```{r assumption-checks-data}
 # Reading in data
 data <- rio::import("./markdown/data/analysis_data.rdata")
 ```
 
-```{r mean-data}
+```{r assumption-checks-mean-data}
 mean_data_rsi_robust <- data %>% 
   filter(!is.na(rt) & trial_type == "go") %>% 
   group_by(id, map_condition, rsi, error_code) %>%
@@ -64,7 +64,7 @@ mean_data_rsi_classic <- data %>%
 
 ```
 
-```{r checking-normality}
+```{r assumption-checks-checking-normality}
 # Normality of rt in map_condition
 mean_data_rsi_classic %>% 
   ggplot(aes(
@@ -96,7 +96,7 @@ mean_data_rsi_robust %>%
   facet_wrap(vars(map_condition))
 ```
 
-```{r equal-variance}
+```{r assumption-checks-equal-variance}
 # Robust
 mean_data_rsi_robust %>% 
   leveneTest(rt_mean ~ map_condition, 
@@ -139,7 +139,7 @@ mean_data_rsi_classic %>%
              data = .)
 ```
 
-```{r comparing-variance}
+```{r assumption-checks-comparing-variance}
 mean_data_rsi_classic %>% 
   group_by(rsi, classic_pes_type) %>% 
   summarize(var = var(rt_mean, na.rm = TRUE))

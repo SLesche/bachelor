@@ -28,7 +28,7 @@ In order to be comparable to previous research on PES using EAM [@purcell2016; @
 
 (ref:ddm-slide-caption) Ratcliff-Drift-Diffusion Model
 
-```{r ddm-slide, fig.cap = paste("(ref:ddm-slide-caption)")}
+```{r introduction-ddm-slide, fig.cap = paste("(ref:ddm-slide-caption)")}
 knitr::include_graphics(
   "images/ddm-slide/Slide1.png"
 )

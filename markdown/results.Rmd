@@ -1,15 +1,9 @@
 # Results
-```{r library calls}
-library(tidyverse)
+```{r results-source-descriptive-analysis, child = "markdown/descriptive_analysis.Rmd"}
+
 ```
 
-```{r imports}
-descriptive_output <- rio::import("./markdown/data/descriptive_output.rdata")
-# load("./data/aov_rt_rsi_error_classic.rdata")
-# load("./data/aov_acc_rsi_error_classic.rdata")
-```
-
-```{r child = "markdown/significance_testing.rmd"}
+```{r results-source-significance-testing, child = "markdown/significance_testing.rmd"}
 ```
 
 We found significant effects of rsi `r apa_print(aov_rt_rsi_error_classic)$statistic$rsi`, significant effects of error type `r apa_print(aov_rt_rsi_error_classic)$statistic$classic_pes_type` and crucially a significant interaction effect `r apa_print(aov_rt_rsi_error_classic)$statistic$rsi_classic_pes_type`.
@@ -29,11 +23,11 @@ A table can be found here
 - describe differential effects of errors on parameters in RSI conditions
 
 ## Trying data insertation
-```{r data table, echo = FALSE}
+```{r results-data table, echo = FALSE}
 data <- tibble(first = 1:5, second = 1:5, third = 1:5, fourth = 1:5)
 ```
 
-```{r display, results = "asis"}
+```{r results-display, results = "asis"}
 knitr::kable(data, caption = "some data")
 ```
 

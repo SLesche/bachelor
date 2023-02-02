@@ -2,19 +2,19 @@
 editor_options:
   chunk_output_type: console
 ---
-# Library calls
-```{r setup}
+<!-- # Library calls -->
+```{r data-prep-setup}
 library(tidyverse)
 library(rio)
 library(data.table)
 ```
 
-```{r functions}
+```{r data-prep-functions}
 
 ```
 
-# Reading in data
-```{r importing data}
+<!-- # Reading in data -->
+```{r data-prep-importing-data, cache = TRUE, cache.extra = tools::md5sum(list.files("./markdown/data", pattern = ".csv", full.names = TRUE))}
 path <- "./markdown/data/"
 keyword <- "bat_bachelor"
 
@@ -41,13 +41,13 @@ data <- list.files(
   )
 ```
 
-```{r checking condition mappings}
+```{r data-prep-checking condition mappings}
 condition_table <- data %>% 
   count(map_condition, map_x_key, map_y_key) %>% 
   filter(!is.na(map_condition))
 ```
 
-```{r extracting demo data}
+```{r data-prep-extracting demo data}
 demo_data <- data %>% 
   select(id, alter, geschlecht_w_m_d_andere, studiengang) %>% 
   unique() %>% 
@@ -73,8 +73,8 @@ demo_data[4, "studiengang"] <- "Bildungswissenschaften, Nebenfach Psychologie"
 # No demo data was collected for first 7 participants (have in logbuch_ba.xlsx)
 ```
 
-# Filtering out practice trials
-```{r sort exp trials}
+<!-- # Filtering out practice trials -->
+```{r data-prep-sort exp trials, cache = TRUE, dependson='importing-data'}
 exp_data <- data %>% 
   group_by(id) %>% # want to have map_x_key and map_y_key everywhere
   mutate(
@@ -94,7 +94,7 @@ exp_data <- exp_data %>% # selecting important variables to front
          everything())
 ```
 
-```{r adding decision variable}
+```{r data-prep-adding decision variable, cache = TRUE, dependson='importing-data'}
 dec_data <- exp_data %>% 
   mutate(decision_char = case_when(
     map_condition == 0 & response == "l" ~ "y",
@@ -110,12 +110,12 @@ dec_data <- exp_data %>%
   ))
 ```
 
-```{r just experimental data}
+```{r data-prep-just experimental data}
 rt_data <- dec_data %>% 
   filter(!is.na(block)) # n.obs should be multiple of 3000
 ```
 
-```{r coding error types}
+```{r data-prep-coding error types, cache = TRUE, dependson='importing-data'}
 # just coding errors in nogo trials as error
 error_data <- rt_data %>% 
   group_by(id, block) %>%  # consecutive errors have to be within a participant and block
@@ -142,7 +142,7 @@ error_data <- rt_data %>%
   ungroup()
 ```
 
-```{r error id}
+```{r data-prep-error id, cache = TRUE, dependson='importing-data'}
 speed_data <- error_data %>% 
   group_by(id, block) %>% 
   mutate(
@@ -168,7 +168,7 @@ speed_data <- error_data %>%
   ungroup()
 ```
 
-```{r filtering participants}
+```{r data-prep-filtering participants, cache = TRUE, dependson='importing-data'}
 # Filter out too fast responses aswell as 
 outliers <- speed_data %>% 
   filter(rt > 0.15) %>% 
@@ -209,7 +209,7 @@ final_data <- outlier_data
 
 ```
 
-```{r append-demo}
+```{r data-prep-append-demo, cache = TRUE, dependson='importing-data'}
 demo_output <- demo_data %>% 
   anti_join(., outliers) %>% 
   mutate(is_psych = ifelse(
@@ -217,7 +217,7 @@ demo_output <- demo_data %>%
     1,
     0
   )) %>% 
-  mutate(geschlecht_w_m_d_andere = ifelse( # dealing with "weiblich" / "männlich"
+  mutate(geschlecht_w_m_d_andere = ifelse( # dealing with "weiblich" / "mÃƒÂ¤nnlich"
     str_detect(tolower(geschlecht_w_m_d_andere), "w"),
     "w",
     geschlecht_w_m_d_andere
@@ -246,7 +246,7 @@ demo_output <- demo_data %>%
 
 ```
 
-```{r lost trials}
+```{r data-prep-lost trials}
 trials_lost_filter <- nrow(rt_data) - nrow(final_data) - 3000 * n_outliers # lose 3000 trials per outlier
 percentage_trials_lost <- round(trials_lost_filter / nrow(rt_data), 4)*100
 
@@ -254,7 +254,7 @@ demo_output$percentage_trials_lost <- percentage_trials_lost
 ```
 
 
-```{r saving data}
+```{r data-prep-saving data}
 export(final_data, "./markdown/data/analysis_data.Rdata")
 export(demo_output, "./markdown/data/demo_output.rdata")
 ```

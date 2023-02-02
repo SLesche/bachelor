@@ -19,7 +19,7 @@ ggplot2::theme_set(theme_classic()) # setting default theme
 
 ```
 
-```{r significance-testing-data}
+```{r significance-testing-data, cache = TRUE, cache.extra = tools::md5sum("./markdown/data/analysis_data.Rdata")}
 data <- rio::import("./markdown/data/analysis_data.Rdata") %>% 
   mutate(rsi = factor(rsi),
          error_code = factor(error_code),
@@ -46,7 +46,7 @@ data <- rio::import("./markdown/data/analysis_data.Rdata") %>%
 # Assumption of homogeneity of variance violated in factors rsi/error_code
 ```
 
-```{r significance-testing-condition}
+```{r significance-testing-condition, include = FALSE, cache = TRUE, dependson='significance-testing-data'}
 data %>% 
   filter(trial_type == "go") %>% 
   group_by(id, map_condition) %>% 
@@ -86,7 +86,7 @@ data %>%
 
 ```
 
-```{r significance-testing-rsi-error-code}
+```{r significance-testing-rsi-error-code, include = FALSE, cache = TRUE, dependson='significance-testing-data'}
 mean_data_rsi_robust <- data %>% 
   filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
   group_by(id, rsi, error_code) %>%
@@ -150,7 +150,7 @@ aov_acc_rsi_error_classic <- aov_car(
 )
 ```
 
-```{r significance-testing-emmeans}
+```{r significance-testing-emmeans, include = FALSE, cache = TRUE, dependson='significance-testing-data'}
 aov_rt_rsi_error_robust %>% 
   emmeans(~error_code*rsi)
 
@@ -164,13 +164,7 @@ aov_acc_rsi_error_classic %>%
   emmeans(~classic_pes_type*rsi)
 ```
 
-```{r significance-testing-papaja-example}
-papaja::apa_print(
-  aov_rt_rsi_error_classic
-)
-```
-
-```{r significance-testing-linear-models, eval = FALSE, inclue = FALSE}
+```{r significance-testing-linear-models, eval = FALSE, include = FALSE, cache = TRUE, dependson='significance-testing-data'}
 # Multilevel models allow incorporating the full range of rts
 lm_rt_robust <- lmer(
   rt ~ rsi*error_code + (1 + rsi|id),
@@ -184,9 +178,3 @@ lm_rt_classic <- lmer(
 )
 summary(lm_rt_classic)
 ```
-
-```{r significance-testing-exporting}
-save(aov_rt_rsi_error_classic, file = "./markdown/data/aov_rt_rsi_error_classic.rdata")
-save(aov_acc_rsi_error_classic, file = "./markdown/data/aov_acc_rsi_error_classic.rdata")
-```
-

@@ -1,170 +1,11 @@
 # Method
+```{r method-source-data-prep, child = "./markdown/data_prep.rmd"}
+```
 
 ## Power analysis
-```{r setting-values, cache = TRUE, include = FALSE}
-library(Superpower)
-my_design <- "2w*2w" # 2 within factors (pre- vs. post-error; short/long rsi)
-
-alpha_level_power <- 0.025 # alpha level of tests
-# bonferroni-corrected 0.05/2 <- 2 is the number of ANOVAs ran to test main hypotheses
-
-my_n <- 70 # initial guess, becomes irrelevant with power curves
-
-mu_drift <- c(# mean values of drift rate in the 2x2 conditions
-  0.23,
-  0.24,
-  0.18,
-  0.22
-)
-
-sd_drift <- 0.08 # sd of drift rate
-
-mu_boundary <- c(# mean values of boundary sep in the 2x2 conditions
-  0.12,
-  0.13,
-  0.135,
-  0.155
-)
-
-sd_boundary <- 0.02
-  
-my_r <- 0.7 # correlation between values (can be specified for each bivariate correlation separately)
-
-my_labelnames <- c(
-  "type", "e-1", "e+1",
-  "rsi", "short", "long"
-  ) # names of factors
+```{r method-source-power-analysis, child = "./markdown/power_analysis.rmd"}
 ```
-
-```{r fitting-design, cache = TRUE, dependson ='setting-values', include = FALSE}
-# Fitting design for drift rate
-design_result_drift <- ANOVA_design(
-  design = my_design,
-  n = my_n,
-  mu = mu_drift,
-  sd = sd_drift,
-  r = my_r,
-  labelnames = my_labelnames
-)
-
-# Fitting design for boundary separation
-design_result_boundary <- ANOVA_design(
-  design = my_design,
-  n = my_n,
-  mu = mu_boundary,
-  sd = sd_boundary,
-  r = my_r,
-  labelnames = my_labelnames
-)
-```
-
-```{r exact-power, cache = TRUE, dependson='fitting-design', include = FALSE}
-# Drift rate
-# Compute exact power and effect sizes for simulated data
-exact_result_drift <- ANOVA_exact(design_result_drift,
-                            alpha_level = alpha_level_power,
-                            verbose = FALSE)
-# Grab partial eta^2 for reporting
-partial_eta_interaction_drift <- exact_result_drift$main_results$partial_eta_squared[3] %>% round(., 2)
-
-# same for boundary
-exact_result_boundary <- ANOVA_exact(design_result_boundary,
-                            alpha_level = alpha_level_power,
-                            verbose = FALSE)
-partial_eta_interaction_boundary <- exact_result_boundary$main_results$partial_eta_squared[3] %>% round(., 2)
-```
-
-```{r power-plots, cache = TRUE, dependson = 'fitting-design', include = FALSE}
-power_drift <- plot_power(# estimating power for different sample sizes
-  design_result_drift,
-  min_n = 30,
-  max_n = 100,
-  alpha_level = alpha_level_power,
-  desired_power = 80,
-  plot = FALSE
-  )
-
-# Grab minimum sample size for the adequate power level
-required_n_drift <- power_drift$anova_n$n[which(power_drift$anova$variable == "type:rsi")]
-
-power_boundary <- plot_power(
-  design_result_boundary,
-  min_n = 30,
-  max_n = 100,
-  alpha_level = alpha_level_power,
-  desired_power = 80,
-  plot = FALSE
-)
-
-required_n_boundary <- power_boundary$anova_n$n[which(power_boundary$anova$variable == "type:rsi")]
-```
-
-We conducted a power analysis using the the R package `superpower` [@R-Superpower] with values based on previous studies [@dutilh2012testing; @dutilh2013] to determine the minimum sample size needed to detect an interaction effect of RSI and _trial type_ (pre- vs. post-error) on drift rate and boundary separation. Mean values for each cell were entered into the model to estimate effect sizes, returning interaction effects of partial $\eta^2 =$ `r partial_eta_interaction_drift` and `r partial_eta_interaction_boundary` for effects on drift rate and boundary separation, respectively. Using bonferroni corrected significance criteria of $\alpha$ = `r alpha_level_power` and power $= .80$, minimum sample size required to detect the hypothesized interaction effects was estimated to be N = `r required_n_boundary` for effects on boundary separation and N = `r required_n_drift` for effects on drift rate. Exact values entered into analysis can be found in Table \@ref(tab:mean-values-power-analysis) in the appendix.
-
-```{r estimated-mean-values-table, cache = TRUE, dependson = 'setting-values', results = 'asis', eval = TRUE}
-estimated_mean_values_table <- tibble(
-  type = c("Pre-error & Short RSI",
-           "Pre-error & Long RSI",
-           "Post-error & Short RSI",
-           "Post-error & Long RSI"),
-  mu_drift,
-  sd_drift = rep(sd_drift, 4),
-  mu_boundary,
-  sd_boundary = rep(sd_boundary, 4)
-  ) %>% 
-  df_transpose() %>% 
-  janitor::clean_names() %>% 
-  select(type,
-         pre_error_short_rsi,
-         post_error_short_rsi,
-         pre_error_long_rsi,
-         post_error_long_rsi) %>% 
-  mutate(
-    type = recode(type,
-                  mu_drift = "Mean",
-                  sd_drift = "SD",
-                  mu_boundary = "Mean",
-                  sd_boundary = "SD")
-  ) %>%
-  rename(
-    "Short RSI_pre-error" = pre_error_short_rsi,
-    "Short RSI_post-error" = post_error_short_rsi,
-    "Long RSI_pre-error" = pre_error_long_rsi,
-    "Long RSI_post-error" = post_error_long_rsi
-    ) %>% 
-  mutate(
-    Parameter = c("Drift Rate", "Drift Rate", "Boundary Separation", "Boundary Separation")
-  ) %>% 
-  select(Parameter, " " = type, everything()) %>% 
-  as_grouped_data(
-    groups = c("Parameter")
-  ) %>%
-  flextable(
-    col_keys = c("Parameter", " ",
-      "Short RSI_pre-error",
-                 "Short RSI_post-error",
-                 "Long RSI_pre-error",
-                 "Long RSI_post-error")
-  ) %>%
-  flextable::separate_header() %>% 
-  apa_footer( # this is a custom function defined in `setup.Rmd`
-    "Values based on previous research by Dutilh et al. (2012, 2013)."
-    ) %>% 
-  set_caption(
-    caption = "Mean values and standard deviations used for power analysis"
-  ) %>% 
-  # ftExtra::colformat_md() %>% 
-  flextable::theme_apa() %>% 
-  colformat_double(digits = 3) %>% 
-  align(i = NULL, j = 1, align = "left", part = "body") %>% 
-  align(i = 1, j = 1, align = "left", part = "footer") %>%
-  autofit() 
-```
-
-
-```{r reading-demo-data}
-demo_output <- rio::import("./markdown/data/demo_output.rdata")
-```
+We conducted a power analysis using the the R package `superpower` [@R-Superpower] with values based on previous studies [@dutilh2012testing; @dutilh2013] to determine the minimum sample size needed to detect an interaction effect of RSI and _trial type_ (pre- vs. post-error) on drift rate and boundary separation. Mean values for each cell were entered into the model to estimate effect sizes, returning interaction effects of partial $\eta^2 =$ `r partial_eta_interaction_drift` and `r partial_eta_interaction_boundary` for effects on drift rate and boundary separation, respectively. Using bonferroni corrected significance criteria of $\alpha$ = `r alpha_level_power` and power $= .80$, minimum sample size required to detect the hypothesized interaction effects was estimated to be N = `r required_n_boundary` for effects on boundary separation and N = `r required_n_drift` for effects on drift rate. Exact values entered into analysis can be found in Table \@ref(tab:appendix-mean-values-power-analysis) in the appendix.
 
 **write this section better, clear outline participants, method, materials usw.**
 ## Participants
@@ -174,12 +15,12 @@ We reached our goal of `r required_n_drift` participants more quickly than expec
 The experiment was programmed using the PsychoPy software [@peirce2019]. We used a modified version of the Behavior Adaptation Task (BAT) [@hester2007] -- a motor-inhibition Go-NoGo task. Stimuli consisted of a stream of the letters X and Y presented centrally on a grey background. Subjects were asked to respond to the letters when they occurred in an alternating pattern (Go-trial) but withhold their response on repeated presentation of a stimulus (NoGo-trial).
 **Stimuli size and monitor specs here?** **definitely stimulus size and fixation cross size**
 <!-- Instructions on response mappings of stimuli X and Y to the response keys D and L were counterbalanced across participants. Only errors in NoGo-trials were considered _error trials_ used for further analysis in order decrease variance of processes leading to an error. **this isn't quite right, is it? Why don't I use other errors?** -->
-<!-- (see Figure \@ref(fig:bat-example)) -->
+<!-- (see Figure \@ref(fig:method-bat-example)) -->
 <!-- Do I wanna mention stim and fix size? -->
 
-(ref:bat-example-caption) Behavioral Adaptation Task
+(ref:method-bat-example-caption) Behavioral Adaptation Task
 
-```{r bat-example, fig.cap = paste("(ref:bat-example-caption)")}
+```{r method-bat-example, fig.cap = paste("(ref:method-bat-example-caption)")}
 knitr::include_graphics(
   "images/bat_slide_pp/Slide1.png"
 )

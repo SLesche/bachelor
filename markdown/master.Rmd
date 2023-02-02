@@ -99,50 +99,6 @@ knitr::opts_chunk$set(autodep = TRUE)
 knitr::dep_auto()
 ```
 
-```{r replace-chunk-labels}
-add_prefix_chunk_labels <- function(file){
-  if (file.exists(file)){
-    # Extract file name
-    file_name_extenstion <- str_extract(
-      file,
-      "([^/]+)(?:\\.[*]+)?$"
-    )
-    
-    file_name <- str_extract(
-      file_name_extenstion,
-      "([^\\.]+)"
-    )
-    # Read in the File
-    lines <- readLines(file)
-    
-    # Change code labels
-    replaced_lables <- str_replace(
-      lines,
-      "(```\\{r[ ]+)([^,}]+)",
-      paste0(
-        "\\1",
-        str_replace_all(file_name, "_", "-"),
-        "-",
-        "\\2")
-    )
-    # write to new file
-    write_lines(replaced_lables, file = file)
-  } 
-  else {
-    print(file)
-    stop("This file doesn't exist")
-  }
-}
-
-rmd_files <- list.files("./markdown/", pattern = ".Rmd")
-
-files_to_alter <- rmd_files[-which(rmd_files == "master.Rmd")]
-
-for (i in files_to_alter){
-  add_prefix_chunk_labels(i)
-}
-```
-
 <!-- Setup -->
 ```{r child = "markdown/setup.Rmd"}
 ```

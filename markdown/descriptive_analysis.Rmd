@@ -2,8 +2,8 @@
 editor_options:
   chunk_output_type: console
 ---
-# Library calls
-```{r setup}
+<!-- # Library calls -->
+```{r descriptive-analysis-setup}
 library(tidyverse)
 library(rio)
 library(data.table)
@@ -12,15 +12,15 @@ library(scales)
 ggplot2::theme_set(theme_classic()) # setting default theme
 ```
 
-```{r functions}
+```{r descriptive-analysis-functions}
 
 ```
 
-```{r data}
+```{r descriptive-analysis-data, cache = TRUE, cache.extra = tools::md5sum("./markdown/data/analysis_data.Rdata")}
 data <- rio::import("./markdown/data/analysis_data.Rdata")
 ```
 
-```{r descriptive data}
+```{r descriptive-analysis-descriptive data}
 mean_error_rate_overall <- (1 - mean(data$acc, na.rm = TRUE)) * 100
 
 mean_error_rate_nogo <- data %>% 
@@ -80,7 +80,7 @@ descriptive_output <- data.frame(
 )
 ```
 
-```{r classic pes}
+```{r descriptive-analysis-classic pes, include = FALSE}
 # Maybe we'd wanna run this, to compare trials on equal footing
 # nonetheless, a "correct" response means waiting longer, leading to different rt then after an error response
 data %>% 
@@ -92,11 +92,10 @@ data %>%
   group_by(id, rsi) %>% 
   count(classic_pes_type) %>% 
   filter(classic_pes_type == "post_error",
-         n < 50) %>%
-  View()
+         n < 50)
 ```
 
-```{r block comparison}
+```{r descriptive-analysis-block comparison, include = FALSE, cache = TRUE, dependson='data'}
 data %>% 
   group_by(rsi, block) %>% 
   # filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
@@ -139,7 +138,7 @@ data %>%
             count = n())
 ```
 
-```{r visualization}
+```{r descriptive-analysis-visualization, include = FALSE, cache = TRUE, dependson='data'}
 data %>% 
   group_by(rsi, error_code) %>% 
   # filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
@@ -233,8 +232,8 @@ plot_acc_pes <- data %>%
   scale_y_continuous(labels = label_percent())
 ```
 
-# TODO: Something about "fast" vs. "slow" errors
-```{r error rate without noresponse}
+<!-- # TODO: Something about "fast" vs. "slow" errors -->
+```{r descriptive-analysis-error rate without noresponse, include = FALSE}
 data %>% 
   group_by(rsi, error_code) %>% 
   filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
@@ -247,7 +246,7 @@ data %>%
 ```
 
 
-```{r fast slow error}
+```{r descriptive-analysis-fast slow error, include = FALSE}
 data %>% 
   filter(!is.na(error_speed)) %>% 
   filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
@@ -263,7 +262,7 @@ data %>%
 ```
 
 
-```{r condition comparison}
+```{r descriptive-analysis-condition comparison, include = FALSE}
 data %>% 
   group_by(rsi, map_condition) %>% 
   summarize(
@@ -278,9 +277,9 @@ data %>%
 
 ```
 
-```{r exporting}
+```{r descriptive-analysis-exporting, include = FALSE}
 rio::export(descriptive_output, "./markdown/data/descriptive_output.rdata")
-ggsave(plot_rt_pes, file = "./markdown/images/plot_rt_pes.jpg")
-ggsave(plot_acc_pes, file = "./markdown/images/plot_acc_pes.jpg")
+# ggsave(plot_rt_pes, file = "./markdown/images/plot_rt_pes.jpg")
+# ggsave(plot_acc_pes, file = "./markdown/images/plot_acc_pes.jpg")
 ```
 
