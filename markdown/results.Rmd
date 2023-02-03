@@ -1,18 +1,39 @@
 # Results
 ```{r results-source-descriptive-analysis, child = "markdown/descriptive_analysis.Rmd"}
-
 ```
 
 ```{r results-source-significance-testing, child = "markdown/significance_testing.rmd"}
 ```
 
-We found significant effects of rsi `r apa_print(aov_rt_rsi_error_classic)$statistic$rsi`, significant effects of error type `r apa_print(aov_rt_rsi_error_classic)$statistic$classic_pes_type` and crucially a significant interaction effect `r apa_print(aov_rt_rsi_error_classic)$statistic$rsi_classic_pes_type`.
+All response times shorter than 150ms were excluded from analysis. We furthermore excluded participants with mean accuracy rates or mean reaction times deviating more than 2.5 standard deviation from the mean. A total of `r n_outliers` participants were excluded due to this criterion. Within-participant reaction times deviating more than 2.5 standard deviations from the participants mean were also considered outliers. `r demo_output$percentage_trials_lost`% of trials were lost, leaving `r nrow(final_data)` trials for analysis.
 
-Full result: `r apa_print(aov_rt_rsi_error_classic)$full_result$rsi_classic_pes_type`.
+**say here what version of PES is to be used (classic/robust), maybe test for global performance changes, then say what trials were entered into analysis**
 
-A table can be found here
-`r apa_table(apa_print(aov_rt_rsi_error_classic)$table, caption = "Anova Results")`
+Participants falsely responded in `r descriptive_output$mean_error_rate_nogo`% of NoGo trials. **in discussion I need to point out that this is much better than Hester et al**
 
+Mean reaction times of each participant for each combination of previous-trial-accuracy and RSI were entered into a 2x2 within-within ANOVA. Highly significant main effects of RSI `r apa_print(aov_rt_rsi_error_classic)$statistic$rsi` and accuracy of previous trial `r apa_print(aov_rt_rsi_error_classic)$statistic$classic_pes_type` were observed. Critically, the interaction between RSI and previous accuracy was highly significant `r apa_print(aov_rt_rsi_error_classic)$statistic$rsi_classic_pes_type`  (see Table \@ref(tab:results-anova-rsi-rt)). This is attributable to increased PES **increased effects or previous accuracy? how well did you explain the connection beforehand?** in the short RSI condition. **print the emmeans here? or how do you know direction?** **some images here, too?**
+
+Comparison of mean accuracy within participants between the 2x2 conditions yielded similar patterns of significant main effects of RSI and previous accuracy and a significant interaction effect (see Table \@ref(tab:results-anova-rsi-acc)). Participants accuracy shrank more intensely after an error committed in the short RSI-condition. **emmeans here**
+
+```{r results-anova-rsi-rt, results = 'asis'}
+apa_print(aov_rt_rsi_error_classic)$table %>% 
+  mutate(
+    term = c("RSI", "previous accuracy", "RSI $\\times$ previous accuracy")
+  ) %>% 
+  apa_table(
+    caption = "Effects of RSI and previous accuracy on mean reaction times",
+    note = "Both factors were manipulated within participants, with RSI being either 200ms or 1000ms. Previous accuracy refers to the accuracy of the response in the previous NoGo trial")
+```
+
+```{r results-anova-rsi-acc, results = 'asis'}
+apa_print(aov_acc_rsi_error_classic)$table %>% 
+  mutate(
+    term = c("RSI", "previous accuracy", "RSI $\\times$ previous accuracy")
+  ) %>% 
+  apa_table(
+    caption = "Effects of RSI and previous accuracy on mean accuracy",
+    note = "Both factors were manipulated within participants, with RSI being either 200ms or 1000ms. Previous accuracy refers to the accuracy of the response in the previous NoGo trial")
+```
 
 ## Outline Results
 - data included

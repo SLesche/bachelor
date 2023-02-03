@@ -86,6 +86,7 @@ data %>%
 
 ```
 
+
 ```{r significance-testing-rsi-error-code, include = FALSE, cache = TRUE, dependson='significance-testing-data'}
 mean_data_rsi_robust <- data %>% 
   filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
@@ -124,6 +125,13 @@ mean_data_rsi_classic <- data %>%
                       labels = c("short", "long")),
          classic_pes_type = factor(classic_pes_type)
          )
+
+# t_test_rt_rsi <- t.test(
+#   rt_mean ~ rsi,
+#   data = mean_data_rsi_classic,
+#   alternative = "greater",
+#   paired = TRUE
+# )
 
 aov_rt_rsi_error_robust <- aov_car(
   formula = rt_mean ~ rsi*error_code + Error(id/rsi*error_code),

@@ -135,9 +135,9 @@ error_data <- rt_data %>%
   ) %>% 
   ungroup()  %>% 
   group_by(id, block) %>% 
-  mutate(classic_pes_type = case_when(
-    lag(trial_type, 2) == "go" & lag(trial_type) == "nogo" & trial_type == "go" & lag(acc) == 0 ~ "post_error",
-    lag(trial_type, 2) == "go" & lag(trial_type) == "nogo" & trial_type == "go" & lag(acc) == 1 ~ "post_correct"
+  mutate(classic_pes_type = case_when( # for classic, can do double nogo aswell
+    lag(trial_type) == "nogo" & trial_type == "go" & lag(acc) == 0 ~ "post_error",
+    lag(trial_type) == "nogo" & trial_type == "go" & lag(acc) == 1 ~ "post_correct"
   )) %>% 
   ungroup()
 ```
