@@ -1,3 +1,17 @@
 ```{r appendix-mean-values-power-analysis, results = 'asis'}
 estimated_mean_values_table
 ```
+
+```{r results-emmeans-rsi-rt, results = 'asis'}
+apa_table(emmean_rt_rsi_error_classic,
+          caption = "Estimated marginal means for reaction times in 2x2 conditions",
+          note = "`emmean` column denotes estimated mean reaction time in seconds. Confidence level (CL) is set at 95%")
+```
+
+```{r results-emmeans-rsi-acc, results = 'asis'}
+apa_table(
+  emmean_acc_rsi_error_classic,
+  caption = "Estimated marginal means for reaction times in 2x2 conditions",
+  note = "`emmean` column denotes estimated mean accuracy as a frequency. Confidence level (CL) is set at 95%"
+)
+```

@@ -11,14 +11,18 @@ All response times shorter than 150ms were excluded from analysis. We furthermor
 
 Participants falsely responded in `r descriptive_output$mean_error_rate_nogo`% of NoGo trials. **in discussion I need to point out that this is much better than Hester et al**
 
-Mean reaction times of each participant for each combination of previous-trial-accuracy and RSI were entered into a 2x2 within-within ANOVA. Highly significant main effects of RSI `r apa_print(aov_rt_rsi_error_classic)$statistic$rsi` and accuracy of previous trial `r apa_print(aov_rt_rsi_error_classic)$statistic$classic_pes_type` were observed. Critically, the interaction between RSI and previous accuracy was highly significant `r apa_print(aov_rt_rsi_error_classic)$statistic$rsi_classic_pes_type`  (see Table \@ref(tab:results-anova-rsi-rt)). This is attributable to increased PES **increased effects or previous accuracy? how well did you explain the connection beforehand?** in the short RSI condition. **print the emmeans here? or how do you know direction?** **some images here, too?**
+Mean reaction times of each participant for each combination of previous-trial-accuracy and RSI were entered into a 2x2 within-within ANOVA. Highly significant main effects of RSI (`r apa_print(aov_rt_rsi_error_classic)$statistic$rsi`) and accuracy of previous trial (`r apa_print(aov_rt_rsi_error_classic)$statistic$classic_pes_type`) were observed. Critically, the interaction between RSI and previous accuracy was highly significant (`r apa_print(aov_rt_rsi_error_classic)$statistic$rsi_classic_pes_type`; see Table \@ref(tab:results-anova-rsi-rt)). This is attributable to increased PES **increased effects or previous accuracy? how well did you explain the connection beforehand?** in the short RSI condition. Estimated marginal means obtained post-hoc can be found in Table \@ref(tab:results-emmeans-rsi-rt) in the appendix.
 
-Comparison of mean accuracy within participants between the 2x2 conditions yielded similar patterns of significant main effects of RSI and previous accuracy and a significant interaction effect (see Table \@ref(tab:results-anova-rsi-acc)). Participants accuracy shrank more intensely after an error committed in the short RSI-condition. **emmeans here**
+Comparison of mean accuracy within participants between the 2x2 conditions yielded similar patterns of significant main effects of RSI and previous accuracy and a significant interaction effect (`r apa_print(aov_acc_rsi_error_classic)$statistic$rsi_classic_pes_type`; see Table \@ref(tab:results-anova-rsi-acc)). Participants accuracy shrank more intensely after an error committed in the short RSI-condition. Estimated marginal means obtained post-hoc can be found in Table \@ref(tab:results-emmeans-rsi-acc) in the appendix.
 
 ```{r results-anova-rsi-rt, results = 'asis'}
+# Maybe move these to appendix
 apa_print(aov_rt_rsi_error_classic)$table %>% 
   mutate(
     term = c("RSI", "previous accuracy", "RSI $\\times$ previous accuracy")
+  ) %>% 
+  rename(
+    "Effect" = term
   ) %>% 
   apa_table(
     caption = "Effects of RSI and previous accuracy on mean reaction times",
@@ -30,10 +34,14 @@ apa_print(aov_acc_rsi_error_classic)$table %>%
   mutate(
     term = c("RSI", "previous accuracy", "RSI $\\times$ previous accuracy")
   ) %>% 
+  rename(
+    "Effect" = term
+  ) %>% 
   apa_table(
     caption = "Effects of RSI and previous accuracy on mean accuracy",
     note = "Both factors were manipulated within participants, with RSI being either 200ms or 1000ms. Previous accuracy refers to the accuracy of the response in the previous NoGo trial")
 ```
+
 
 ## Outline Results
 - data included
