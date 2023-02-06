@@ -19,7 +19,7 @@ library(brms)
 r_refs("r-references.bib")
 r_citations <- cite_r(
   file = "r-references.bib",
-  pkgs = c("papaja", "tidyverse", "brms", "knitr"),
+  pkgs = c("papaja", "tidyverse", "knitr", "afex", "emmeans"),
   omit = FALSE,
   footnote = TRUE
   )
@@ -81,5 +81,9 @@ print_flextable_apa <- function(x){
     print = TRUE
   )
 }
+```
+
+```{r setup-custom-apa-print}
+# Write a custom apa-print function for anova. Printing effect sizes usw.
 ```
 
