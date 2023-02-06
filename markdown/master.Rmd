@@ -1,6 +1,6 @@
 ---
 title             : "Effects of the Response-Stimulus-Interval on the Nature of Cognitive Processes Underlying Post-Error Slowing – A Diffusion Model Account"
-shorttitle        : "Nature of PES at Different RSI"
+shorttitle        : "Nature of Post-Error Slowing"
 
 author: 
   - name          : "Sven Lesche"
@@ -25,7 +25,7 @@ affiliation:
   # add a second id using this syntax
 
 authornote: |
-  This work was completed as part of the author's bachelor-thesis.
+  This work was completed as part of the author's bachelor-thesis. It was completed in R-Markdown with code for data preparation, analysis and communication integrated into the scripts. All code needed to replicate this exact work can be found at: https://github.com/SLesche/bachelor.
 
 abstract: |
   One or two sentences providing a **basic introduction** to the field,  comprehensible to a scientist in any discipline.
@@ -79,6 +79,8 @@ header-includes:
     \raggedbottom
   - |
     \usepackage{hhline}
+  - |
+    \setlength{\parskip}{0pt}
 
 csl               : "`r system.file('rmd', 'apa7.csl', package = 'papaja')`"
 documentclass     : "apa7"

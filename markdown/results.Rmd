@@ -4,11 +4,6 @@
 
 ```{r results-source-significance-testing, child = "markdown/significance_testing.rmd"}
 ```
-
-All response times shorter than 150ms were excluded from analysis. We furthermore excluded participants with mean accuracy rates or mean reaction times deviating more than 2.5 standard deviation from the mean. A total of `r n_outliers` participants were excluded due to this criterion. Within-participant reaction times deviating more than 2.5 standard deviations from the participants mean were also considered outliers. `r demo_output$percentage_trials_lost`% of trials were lost, leaving `r nrow(final_data)` trials for analysis.
-
-**say here what version of PES is to be used (classic/robust), maybe test for global performance changes, then say what trials were entered into analysis**
-
 Participants falsely responded in `r descriptive_output$mean_error_rate_nogo`% of NoGo trials. **in discussion I need to point out that this is much better than Hester et al**
 
 Mean reaction times of each participant for each combination of previous-trial-accuracy and RSI were entered into a 2x2 within-within ANOVA. Highly significant main effects of RSI (`r apa_print(aov_rt_rsi_error_classic)$statistic$rsi`) and accuracy of previous trial (`r apa_print(aov_rt_rsi_error_classic)$statistic$classic_pes_type`) were observed. Critically, the interaction between RSI and previous accuracy was highly significant (`r apa_print(aov_rt_rsi_error_classic)$statistic$rsi_classic_pes_type`; see Table \@ref(tab:results-anova-rsi-rt)). This is attributable to increased PES **increased effects or previous accuracy? how well did you explain the connection beforehand?** in the short RSI condition. Estimated marginal means obtained post-hoc can be found in Table \@ref(tab:results-emmeans-rsi-rt) in the appendix.
