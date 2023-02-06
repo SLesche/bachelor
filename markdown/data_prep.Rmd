@@ -171,19 +171,19 @@ speed_data <- error_data %>%
 ```{r data-prep-filtering participants, cache = TRUE, dependson='importing-data'}
 # Filter out too fast responses aswell as 
 outliers <- speed_data %>% 
-  filter(rt > 0.15) %>% 
+  filter(rt > 0.15 | is.na(rt)) %>% 
   group_by(id) %>% 
   summarize(mean_rt = mean(rt, na.rm = TRUE),
             mean_acc = mean(acc, na.rm = TRUE)) %>% 
   mutate(outlier = ifelse(
-    mean_rt > mean(mean_rt) + 2.5*sd(mean_rt) |
-      mean_rt < mean(mean_rt) - 2.5*sd(mean_rt) |
-      mean_acc > mean(mean_acc) + 2.5*sd(mean_acc) |
-      mean_acc < mean(mean_acc) - 2.5*sd(mean_acc),
+    mean_rt > mean(mean_rt) + 3*sd(mean_rt) |
+      mean_rt < mean(mean_rt) - 3*sd(mean_rt) |
+      mean_acc > mean(mean_acc) + 3*sd(mean_acc) |
+      mean_acc < mean(mean_acc) - 3*sd(mean_acc),
     1,
     0
   )) %>% 
-  select(id, outlier) %>% 
+  select(id, outlier, mean_rt, mean_acc) %>% 
   filter(outlier == 1)
 
 n_outliers <- sum(outliers$outlier)
@@ -200,8 +200,9 @@ outlier_data <- speed_data %>%
   #   ci_lower = mean_rt - 2.5*sd_rt
   # )
   filter(
-    (rt < mean(rt, na.rm = TRUE) + 2.5*sd(rt, na.rm = TRUE) &
-      rt > mean(rt, na.rm = TRUE) - 2.5*sd(rt, na.rm = TRUE)) | is.na(rt)
+    (log(rt) < mean(log(rt), na.rm = TRUE) + 3*sd(log(rt), na.rm = TRUE) &
+      log(rt) > mean(log(rt), na.rm = TRUE) - 3*sd(log(rt), na.rm = TRUE)) 
+    | is.na(rt)
   ) %>% 
   ungroup()
   
