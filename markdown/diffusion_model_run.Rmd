@@ -124,7 +124,7 @@ initfun_robust <- function() {# all pars in stancode need init here
   list(
     b = rnorm(tmp_dat_robust$K), 
     b_bs = runif(tmp_dat_robust$K_bs, 1, 2),
-    b_ndt = runif(tmp_dat_robust$K_ndt, 0.1, 0.15), # rep for each dim in ndt
+    b_ndt = runif(tmp_dat_robust$K_ndt, 0.05, 0.1), # rep for each dim in ndt
     sd_1 = runif(tmp_dat_robust$M_1, 0.5, 1),
     z_1 = matrix(rnorm(tmp_dat_robust$M_1*tmp_dat_robust$N_1, 0, 0.01),
                  tmp_dat_robust$M_1, tmp_dat_robust$N_1),
@@ -136,7 +136,7 @@ initfun_classic <- function() {# all pars in stancode need init here
   list(
     b = rnorm(tmp_dat_classic$K),
     b_bs = runif(tmp_dat_classic$K_bs, 1, 2),
-    b_ndt = runif(tmp_dat_classic$K_ndt, 0.1, 0.15), # rep for each dim in ndt
+    b_ndt = runif(tmp_dat_classic$K_ndt, 0.05, 0.1), # rep for each dim in ndt
     sd_1 = runif(tmp_dat_classic$M_1, 0.5, 1),
     z_1 = matrix(rnorm(tmp_dat_classic$M_1*tmp_dat_classic$N_1, 0, 0.01),
                  tmp_dat_classic$M_1, tmp_dat_classic$N_1),
