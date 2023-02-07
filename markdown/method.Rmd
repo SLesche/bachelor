@@ -28,7 +28,9 @@ Participants were asked to respond as quickly and accurately as possible. Instru
 All response times shorter than 150ms were excluded from analysis. We furthermore excluded participants with mean accuracy rates or mean reaction times deviating more than 2.5 standard deviation from the mean across participants. A total of `r n_outliers` participants were excluded due to this criterion. Within-participant logarithmized reaction times deviating more than 3 standard deviations from the participants' mean were also considered outliers. `r demo_output$percentage_trials_lost`% of trials were lost, leaving `r nrow(final_data)` trials for analysis.
 
 ## Behavioral Analysis
-Only errors in NoGo trials were considered _error trials_ relevant for PES analysis. PES was defined using the traditional approach [@dutilh2012how; @pfister2022]. Mean reaction times in Go trials following an _error trial_ are compared to mean reaction times following a correct response to a NoGo trial. Effects of RSI condition and accuracy of the previous NoGo trial and their interaction were then examined using a 2x2 ANOVA. Post-error accuracy (PEA) was examined in a similar manner, comparing mean accuracy following a correct NoGo trial to mean accuracy of trials following an _error trial_.
+Only errors in NoGo trials were considered _error trials_ relevant for PES analysis. PES was defined using the traditional approach [@dutilh2012how; @pfister2022]. 
+$$\Delta_{PES} = \overline{RT_{E+1}} - \overline{RT_{C+1}}$$
+Mean reaction times $\overline{RT}$ in Go trials following an _error trial_ $E+1$ are compared to mean reaction times following a correct response to a NoGo trial $C+1$. Effects of RSI condition and accuracy of the previous NoGo trial and their interaction were then examined using a 2x2 ANOVA. Post-error accuracy (PEA) was examined in a similar manner, comparing mean accuracy following a correct NoGo trial to mean accuracy of trials following an _error trial_.
 
 ## Diffusion model specification
 **Describe procedure for diffusion model**
