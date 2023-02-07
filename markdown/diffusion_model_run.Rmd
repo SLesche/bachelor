@@ -32,7 +32,7 @@ data_classic <- rio::import("./markdown/data/diffusion_data_classic.rdata")
 ```{r testing intercepts}
 # Have to supress intercept for modeling reasons (that I don't quite understand myself)
 # And combining factors with `:` gives each combination an estimate
-unique(model.matrix(~ 0 + rsi:error_factor:stimulus, data_robust))
+unique(model.matrix(~ 0 + rsi:error_factor:stimulus, data_classic))
 unique(model.matrix(~ 0 + rsi*error_factor, data_robust))
 unique(model.matrix(~ 1 + rsi:error_factor, data_robust))
 unique(model.matrix(~ 1 + rsi*error_factor, data_robust))
@@ -42,39 +42,37 @@ unique(model.matrix(~ 1 + rsi*error_factor, data_robust))
 formula <- bf(
   # No intercepts, bc this estimates parameters for each combination of
   # rsi and error_factor
-  rt | dec(decision) ~ 0 + rsi:error_factor:stimulus + (0 + rsi:stimulus|id),
+  rt | dec(decision) ~ 0 + rsi:error_factor:stimulus + (0 + rsi|p|id),
     # random slopes just for rsi for now. can do random slopes for error_factor later
     # TODO: Implement this! Model comparison?
-  bs ~ 0 + rsi:error_factor + (0 + rsi|id),
+  bs ~ 0 + rsi:error_factor + (0 + rsi|p|id),
     # because rsi and error_factor are known they can be used here
     # pre-error is not technically "known", but should affect bs and ndt nonetheless
-  ndt ~ 0 + rsi:error_factor + (0 + rsi|id),
+  ndt ~ 0 + rsi:error_factor + (0 + rsi|p|id),
   bias = 0.5 # no reason for bias to vary TODO: intercept for bias
     # just want to estimate intercept for bias?
     # TODO: maybe estimate intercept for bias? 
 )
 ```
 
-
 ```{r set-prior}
 prior <- c(
  # drift rate
- prior("normal(0,1)", class = "b"), # drift rate, population
-  # prior research found drift rates between 0.1-0.3, this is weakly informative prior
- prior("normal(0, 0.3)", class = "sd"), # drift rate, group
+ prior("cauchy(0, 5)", class = "b"), # drift rate, population
+ prior("normal(0, 1)", class = "sd"), # drift rate, group
   # TODO: Explain why this is used
 
  # boundary separation
- set_prior("normal(0, 2)", class = "b", dpar = "bs", lb = 0), 
+ set_prior("normal(1.5, 1)", class = "b", dpar = "bs", lb = 0), 
   # bs restricted to > 0, lb = 0
- set_prior("normal(0, 0.3)", class = "sd", dpar =  "bs"), # group level
+ set_prior("normal(0, 1)", class = "sd", dpar =  "bs"), # group level
 
  # Non-decision time
  set_prior("normal(0.15, 0.1)", class = "b", dpar = "ndt", lb = 0),
- set_prior("normal(0, 0.3)", class = "sd", dpar =  "ndt"), # group level
+ set_prior("normal(0, 1)", class = "sd", dpar =  "ndt"), # group level
 
  # Group-level priors
- set_prior("normal(0, 0.3)", class = "sd", group = "id")
+ set_prior("normal(0, 1)", class = "sd", group = "id")
 )
 ```
 
@@ -126,7 +124,7 @@ initfun_robust <- function() {# all pars in stancode need init here
   list(
     b = rnorm(tmp_dat_robust$K), 
     b_bs = runif(tmp_dat_robust$K_bs, 1, 2),
-    b_ndt = rep(0.1, tmp_dat_robust$K_ndt), # rep for each dim in ndt
+    b_ndt = runif(tmp_dat_robust$K_ndt, 0.1, 0.15), # rep for each dim in ndt
     sd_1 = runif(tmp_dat_robust$M_1, 0.5, 1),
     z_1 = matrix(rnorm(tmp_dat_robust$M_1*tmp_dat_robust$N_1, 0, 0.01),
                  tmp_dat_robust$M_1, tmp_dat_robust$N_1),
@@ -136,9 +134,9 @@ initfun_robust <- function() {# all pars in stancode need init here
 
 initfun_classic <- function() {# all pars in stancode need init here
   list(
-    b = rnorm(tmp_dat_classic$K), 
+    b = rnorm(tmp_dat_classic$K),
     b_bs = runif(tmp_dat_classic$K_bs, 1, 2),
-    b_ndt = rep(0.1, tmp_dat_classic$K_ndt), # rep dim times
+    b_ndt = runif(tmp_dat_classic$K_ndt, 0.1, 0.15), # rep for each dim in ndt
     sd_1 = runif(tmp_dat_classic$M_1, 0.5, 1),
     z_1 = matrix(rnorm(tmp_dat_classic$M_1*tmp_dat_classic$N_1, 0, 0.01),
                  tmp_dat_classic$M_1, tmp_dat_classic$N_1),
@@ -176,7 +174,7 @@ fit_wiener_classic <- brm(
   chains = n_chains,
   cores = n_cores, 
   control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
-  refresh = 100,
+  refresh = 20,
   seed = seed # reproducibility
   )
 ```
