@@ -147,43 +147,17 @@ initfun_classic <- function() {# all pars in stancode need init here
 }
 ```
 
-
 ```{r setup-model}
-n_iter <- 1000
-n_warmup <- 500
+n_iter <- 4000
+n_warmup <- 2000
 n_chains <- 4
 n_cores <- 4
 max_depth <- 15
 adapt_delta <- 0.95
 seed <- 1234
-```
 
-
-```{r fitting-model-robust}
-fit_wiener_robust <- brm(
-  formula, 
-  data = data_robust,
-  family = wiener(
-    link_bs = "identity", 
-    link_ndt = "identity",
-    link_bias = "identity"
-    ),
-  prior = prior, 
-  init = initfun_robust,
-  iter = n_iter, 
-  warmup = n_warmup, 
-  chains = n_chains,
-  cores = n_cores, 
-  # control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
-  refresh = 20,
-  seed = seed # reproducibility
-  )
-# Can run %>% add_loo() here for added model fit parameters? only relevant for model comparison?
-```
-
-```{r saving-ddm-robust}
-save(fit_wiener_robust, file = paste0("./markdown/models/brms_wiener_fit_robust_", Sys.Date(), ".rda"),
-     compress = "xz")
+model_setup_values <- data.frame(n_iter, n_warmup, n_chains, n_cores, max_depth,
+                                 adapt_delta, seed)
 ```
 
 ```{r fitting-model-classic}
@@ -202,7 +176,7 @@ fit_wiener_classic <- brm(
   chains = n_chains,
   cores = n_cores, 
   control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
-  refresh = 20,
+  refresh = 100,
   seed = seed # reproducibility
   )
 ```
@@ -212,3 +186,29 @@ save(fit_wiener_classic, file = paste0("./markdown/models/brms_wiener_fit_classi
      compress = "xz")
 ```
 
+```{r fitting-model-robust}
+fit_wiener_robust <- brm(
+  formula, 
+  data = data_robust,
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  prior = prior, 
+  init = initfun_robust,
+  iter = n_iter, 
+  warmup = n_warmup, 
+  chains = n_chains,
+  cores = n_cores, 
+  # control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  refresh = 100,
+  seed = seed # reproducibility
+  )
+# Can run %>% add_loo() here for added model fit parameters? only relevant for model comparison?
+```
+
+```{r saving-ddm-robust}
+save(fit_wiener_robust, file = paste0("./markdown/models/brms_wiener_fit_robust_", Sys.Date(), ".rda"),
+     compress = "xz")
+```

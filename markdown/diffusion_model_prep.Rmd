@@ -101,5 +101,12 @@ data_robust_clean %>%
   ungroup() %>% 
   group_by(error_code, rsi) %>% 
   count(quality)
+
+data_classic_clean %>% 
+  count(id, rsi, classic_pes_type) %>% 
+  mutate(quality = ifelse(n > 40, "good", "bad")) %>% 
+  ungroup() %>% 
+  group_by(classic_pes_type, rsi) %>% 
+  count(quality)
 ```
 

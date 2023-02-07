@@ -15,6 +15,7 @@ library(data.table)
 
 <!-- # Reading in data -->
 ```{r data-prep-importing-data, cache = TRUE, cache.extra = tools::md5sum(list.files("./markdown/data", pattern = ".csv", full.names = TRUE))}
+# For auto-read
 path <- "./markdown/data/"
 keyword <- "bat_bachelor"
 
@@ -74,7 +75,7 @@ demo_data[4, "studiengang"] <- "Bildungswissenschaften, Nebenfach Psychologie"
 ```
 
 <!-- # Filtering out practice trials -->
-```{r data-prep-sort exp trials, cache = TRUE, dependson='importing-data'}
+```{r data-prep-sort exp trials, cache = TRUE, dependson='data-prep-importing-data'}
 exp_data <- data %>% 
   group_by(id) %>% # want to have map_x_key and map_y_key everywhere
   mutate(
@@ -94,7 +95,7 @@ exp_data <- exp_data %>% # selecting important variables to front
          everything())
 ```
 
-```{r data-prep-adding decision variable, cache = TRUE, dependson='importing-data'}
+```{r data-prep-adding decision variable, cache = TRUE, dependson='data-prep-importing-data'}
 dec_data <- exp_data %>% 
   mutate(decision_char = case_when(
     map_condition == 0 & response == "l" ~ "y",
@@ -115,7 +116,7 @@ rt_data <- dec_data %>%
   filter(!is.na(block)) # n.obs should be multiple of 3000
 ```
 
-```{r data-prep-coding error types, cache = TRUE, dependson='importing-data'}
+```{r data-prep-coding error types, cache = TRUE, dependson='data-prep-importing-data'}
 # just coding errors in nogo trials as error
 error_data <- rt_data %>% 
   group_by(id, block) %>%  # consecutive errors have to be within a participant and block
@@ -142,7 +143,7 @@ error_data <- rt_data %>%
   ungroup()
 ```
 
-```{r data-prep-error id, cache = TRUE, dependson='importing-data'}
+```{r data-prep-error id, cache = TRUE, dependson='data-prep-importing-data'}
 speed_data <- error_data %>% 
   group_by(id, block) %>% 
   mutate(
@@ -168,13 +169,15 @@ speed_data <- error_data %>%
   ungroup()
 ```
 
-```{r data-prep-filtering participants, cache = TRUE, dependson='importing-data'}
+```{r data-prep-filtering participants, cache = TRUE, dependson='data-prep-importing-data'}
 # Filter out too fast responses aswell as 
 outliers <- speed_data %>% 
   filter(rt > 0.15 | is.na(rt)) %>% 
-  group_by(id) %>% 
-  summarize(mean_rt = mean(rt, na.rm = TRUE),
+  group_by(id, rsi, trial_type) %>% 
+  summarize(mean_rt = mean(log(rt), na.rm = TRUE),
             mean_acc = mean(acc, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  group_by(rsi, trial_type) %>% 
   mutate(outlier = ifelse(
     mean_rt > mean(mean_rt) + 3*sd(mean_rt) |
       mean_rt < mean(mean_rt) - 3*sd(mean_rt) |
@@ -183,14 +186,15 @@ outliers <- speed_data %>%
     1,
     0
   )) %>% 
-  select(id, outlier, mean_rt, mean_acc) %>% 
-  filter(outlier == 1)
+  select(id, outlier, rsi, mean_rt, mean_acc) %>% 
+  filter(outlier == 1) %>% 
+  ungroup()
 
-n_outliers <- sum(outliers$outlier)
+n_outliers <- nrow(outliers %>% distinct(id))
 
 
 outlier_data <- speed_data %>% 
-  anti_join(., outliers) %>% 
+  filter(!id %in% outliers$id) %>% 
   filter(rt > 0.15 | is.na(rt)) %>% 
   group_by(id, rsi) %>% # group by participant and condition
   # summarize( # sanity check
@@ -210,9 +214,8 @@ final_data <- outlier_data %>% mutate(rt = rt*1000, rt_s = rt)
 
 ```
 
-```{r data-prep-append-demo, cache = TRUE, dependson='importing-data'}
+```{r data-prep-append-demo, cache = TRUE, dependson='data-prep-importing-data'}
 demo_output <- demo_data %>% 
-  anti_join(., outliers) %>% 
   mutate(is_psych = ifelse(
     str_detect(tolower(studiengang), "psych") | str_detect(tolower(studiengang), "bildung"),
     1,
