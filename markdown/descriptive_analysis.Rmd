@@ -339,6 +339,6 @@ data %>%
     "RT" = rt,
     "ACC" = acc
   ) %>% 
-  apa_table(., caption = "Descriptive Values", note = "Replace this with meaning")
+  apa_table(., caption = "Mean response times (RT), mean accuracies (ACC) by condition", note = "SDs in parentheses. RSI = response stimulus interval. Previous accuracy denotes C+1 if the previous trial was a correct NoGo trial and E+1 if there was an erroneous response to the previous NoGo trial, NA is printed if the previous trial was a Go trial.")
 ```
 
