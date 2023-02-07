@@ -82,8 +82,3 @@ print_flextable_apa <- function(x){
   )
 }
 ```
-
-```{r setup-custom-apa-print}
-# Write a custom apa-print function for anova. Printing effect sizes usw.
-```
-

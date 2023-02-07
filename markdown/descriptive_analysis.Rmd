@@ -39,6 +39,10 @@ mean_rt_long <- data %>%
   filter(rsi == 1) %>% 
   summarise(mean_rt = mean(rt, na.rm = TRUE)) %>% .$mean_rt
 
+mean_rt_go <- data %>% 
+  filter(trial_type == "go") %>% 
+  summarize(mean_rt = mean(rt, na.rm = TRUE)) %>% .$mean_rt
+
 # Want to do descriptives with classic pes. robust makes no sense with go-nogotask
 mean_rt_post_correct <- data %>% 
   filter(classic_pes_type == "post_correct") %>% 
@@ -71,6 +75,7 @@ descriptive_output <- data.frame(
   mean_error_rate_overall,
   mean_error_rate_nogo,
   mean_rt,
+  mean_rt_go,
   mean_rt_short,
   mean_rt_long,
   mean_rt_post_correct,
@@ -281,5 +286,11 @@ data %>%
 rio::export(descriptive_output, "./markdown/data/descriptive_output.rdata")
 # ggsave(plot_rt_pes, file = "./markdown/images/plot_rt_pes.jpg")
 # ggsave(plot_acc_pes, file = "./markdown/images/plot_acc_pes.jpg")
+```
+
+```{r descriptive-analysis-overview-table}
+# get table of mean rt and acc: overall, in go/nogo in short/long in C+1/E+1
+# put SD in there too
+apa_table(data.frame("placeholder"), caption = "Placeholder Table")
 ```
 

@@ -128,8 +128,10 @@ knitr::dep_auto()
 ::: {#refs custom-style="Bibliography"}
 :::
 
-<!-- Appendix -->
 \newpage
+
+# (APPENDIX) Appendix {-}
+
 ```{r child = "markdown/appendix.Rmd"}
 ```
 
