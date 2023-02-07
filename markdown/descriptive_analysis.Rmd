@@ -85,7 +85,7 @@ descriptive_output <- data.frame(
 )
 ```
 
-```{r descriptive-analysis-classic pes, include = FALSE}
+```{r descriptive-analysis-classic pes, include = FALSE, eval = FALSE}
 # Maybe we'd wanna run this, to compare trials on equal footing
 # nonetheless, a "correct" response means waiting longer, leading to different rt then after an error response
 data %>% 
@@ -100,7 +100,7 @@ data %>%
          n < 50)
 ```
 
-```{r descriptive-analysis-block comparison, include = FALSE, cache = TRUE, dependson='data'}
+```{r descriptive-analysis-block comparison, include = FALSE, cache = TRUE, dependson='data', eval = FALSE}
 data %>% 
   group_by(rsi, block) %>% 
   # filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
@@ -238,7 +238,7 @@ plot_acc_pes <- data %>%
 ```
 
 <!-- # TODO: Something about "fast" vs. "slow" errors -->
-```{r descriptive-analysis-error rate without noresponse, include = FALSE}
+```{r descriptive-analysis-error rate without noresponse, include = FALSE, eval = FALSE}
 data %>% 
   group_by(rsi, error_code) %>% 
   filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
@@ -251,7 +251,7 @@ data %>%
 ```
 
 
-```{r descriptive-analysis-fast slow error, include = FALSE}
+```{r descriptive-analysis-fast slow error, include = FALSE, eval = FALSE}
 data %>% 
   filter(!is.na(error_speed)) %>% 
   filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
@@ -267,7 +267,7 @@ data %>%
 ```
 
 
-```{r descriptive-analysis-condition comparison, include = FALSE}
+```{r descriptive-analysis-condition comparison, include = FALSE, eval = FALSE}
 data %>% 
   group_by(rsi, map_condition) %>% 
   summarize(
@@ -291,6 +291,54 @@ rio::export(descriptive_output, "./markdown/data/descriptive_output.rdata")
 ```{r descriptive-analysis-overview-table}
 # get table of mean rt and acc: overall, in go/nogo in short/long in C+1/E+1
 # put SD in there too
-apa_table(data.frame("placeholder"), caption = "Placeholder Table")
+data %>% 
+  group_by(rsi, trial_type, classic_pes_type) %>% 
+  summarize(
+    across(c("rt", "acc"),
+    list(
+      mean = ~mean(., na.rm = TRUE), 
+      sd = ~sd(., na.rm = TRUE),
+      count = ~n()
+      )
+    )
+  ) %>% 
+  mutate(count = acc_count) %>% 
+  select(-c("rt_count", "acc_count")) %>% 
+  mutate(
+    rt_mean = papaja::apa_num(rt_mean),
+    rt_sd = papaja::apa_num(rt_sd),
+    rt = paste0(rt_mean, " (", rt_sd, ")")
+    ) %>% 
+  mutate(
+    acc_mean = papaja::apa_num(acc_mean, gt1 = FALSE),
+    acc_sd = papaja::apa_num(acc_sd, gt1 = FALSE),
+    acc = paste0(acc_mean, " (", acc_sd, ")")
+    ) %>% 
+  select(-c("rt_mean", "rt_sd", "acc_mean", "acc_sd")) %>% 
+  mutate(
+    classic_pes_type = ifelse(is.na(classic_pes_type), "other", classic_pes_type)
+  ) %>% 
+  mutate(
+    trial_type = recode(trial_type,
+                        "go" = "Go",
+                        "nogo" = "NoGo"),
+    rsi = case_when(
+      rsi == 0.2 ~ "short",
+      rsi == 1 ~ "long"
+    ),
+    classic_pes_type = case_when(
+      classic_pes_type == "post_correct" ~ "C+1",
+      classic_pes_type == "post_error" ~ "E+1"
+    )
+  ) %>% 
+  select(rsi, trial_type, classic_pes_type, rt, acc, count) %>% 
+  rename(
+    "previous accuracy" = classic_pes_type,
+    "RSI" = rsi,
+    "trial type" = trial_type,
+    "RT" = rt,
+    "ACC" = acc
+  ) %>% 
+  apa_table(., caption = "Descriptive Values", note = "Replace this with meaning")
 ```
 

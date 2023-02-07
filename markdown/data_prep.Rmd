@@ -192,7 +192,7 @@ n_outliers <- sum(outliers$outlier)
 outlier_data <- speed_data %>% 
   anti_join(., outliers) %>% 
   filter(rt > 0.15 | is.na(rt)) %>% 
-  group_by(id) %>% # group by participant?
+  group_by(id, rsi) %>% # group by participant and condition
   # summarize( # sanity check
   #   mean_rt = mean(rt, na.rm = TRUE),
   #   sd_rt = sd(rt, na.rm = TRUE),
@@ -206,7 +206,7 @@ outlier_data <- speed_data %>%
   ) %>% 
   ungroup()
   
-final_data <- outlier_data
+final_data <- outlier_data %>% mutate(rt = rt*1000, rt_s = rt)
 
 ```
 
