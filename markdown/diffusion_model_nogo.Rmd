@@ -1,0 +1,37 @@
+---
+editor_options:
+  chunk_output_type: console
+---
+```{r setup}
+# Library calls
+library(tidyverse)
+library(rio)
+library(data.table)
+
+ggplot2::theme_set(theme_classic()) # setting default theme
+
+# Diffusion model packages
+library(brms)
+
+# Rstan
+library(rstan)
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+```
+
+```{r functions}
+# Custom functions
+
+```
+
+```{r data}
+# Reading in data
+data <- rio::import("./markdown/data/analysis_data.rdata")
+data_robust <- rio::import("./markdown/data/diffusion_data_robust.Rdata")
+data_classic <- rio::import("./markdown/data/diffusion_data_classic.rdata")
+```
+
+```{r}
+# Add a script comparing response behavior post-go vs. post-nogo with diffusion model
+```
+
