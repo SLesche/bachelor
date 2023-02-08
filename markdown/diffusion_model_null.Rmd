@@ -51,7 +51,7 @@ formula <- bf(
 auto_prior_robust <- get_prior(
   formula,
   data = data_robust,
-  family = wiener(
+  family = wiener( # check difference in transformation links in null model
     link = "identity",
     link_bs = "identity",
     link_ndt = "identity",
@@ -67,6 +67,17 @@ auto_prior_classic <- get_prior(
     link_bs = "identity",
     link_ndt = "identity",
     link_bias = "identity"
+  )
+)
+
+auto_prior_classic_default <- get_prior(
+  formula,
+  data = data_classic,
+  family = wiener(
+    link = "identity",
+    link_bs = "log",
+    link_bias = "logit",
+    link_ndt = "identity"
   )
 )
 ```
@@ -87,6 +98,14 @@ make_stancode(formula,
                               link_bias = "identity"),
               data = data_classic, 
               prior = auto_prior_classic)
+
+# For classic with default
+make_stancode(formula, 
+              family = wiener(link_bs = "log", 
+                              link_ndt = "identity",
+                              link_bias = "logit"),
+              data = data_classic, 
+              prior = auto_prior_classic_default)
 ```
 
 
@@ -113,6 +132,17 @@ tmp_dat_classic <- make_standata(
   prior = auto_prior_classic
   )
 
+tmp_dat_classic_default <- make_standata(
+  formula, 
+  family = wiener(
+   link_bs = "log", 
+   link_ndt = "identity",
+   link_bias = "logit"
+    ),
+  data = data_classic,
+  prior = auto_prior_classic_default
+  )
+
 ```
 
 ```{r init-function}
@@ -120,7 +150,7 @@ initfun_robust <- function() {# all pars in stancode need init here
   list(
     b = rnorm(tmp_dat_robust$K), 
     b_bs = runif(tmp_dat_robust$K_bs, 1, 2),
-    b_ndt = rep(0.1, tmp_dat_robust$K_ndt)
+    b_ndt = runif(tmp_dat_robust$K_ndt, 0.05, 0.1)
   )
 }
 
@@ -128,7 +158,15 @@ initfun_classic <- function() {# all pars in stancode need init here
   list(
     b = rnorm(tmp_dat_classic$K), 
     b_bs = runif(tmp_dat_classic$K_bs, 1, 2),
-    b_ndt = rep(0.1, tmp_dat_classic$K_ndt)
+    b_ndt = runif(tmp_dat_classic$K_ndt, 0.05, 0.1)
+  )
+}
+
+initfun_classic_default <- function() {# all pars in stancode need init here
+  list(
+    b = rnorm(tmp_dat_classic_default$K), 
+    b_bs = runif(tmp_dat_classic_default$K_bs, 1, 2),
+    b_ndt = runif(tmp_dat_classic_default$K_ndt, 0.05, 0.1)
   )
 }
 ```
@@ -141,32 +179,6 @@ n_cores <- 4
 max_depth <- 15
 adapt_delta <- 0.95
 seed <- 1234
-```
-
-```{r fitting-model-robust}
-fit_wiener_robust_null <- brm(
-  formula, 
-  data = data_robust,
-  family = wiener(
-    link_bs = "identity", 
-    link_ndt = "identity",
-    link_bias = "identity"
-    ),
-  prior = auto_prior_robust, 
-  init = initfun_robust,
-  iter = n_iter, 
-  warmup = n_warmup, 
-  chains = n_chains,
-  cores = n_cores, 
-  control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
-  refresh = 20,
-  seed = seed # reproducibility
-  )
-```
-
-```{r saving-ddm-robust}
-save(fit_wiener_robust_null, file = paste0("./markdown/models/null_brms_wiener_fit_robust_", Sys.Date(), ".rda"),
-     compress = "xz")
 ```
 
 ```{r fitting-model-classic}
@@ -195,3 +207,54 @@ save(fit_wiener_classic_null, file = paste0("./markdown/models/null_brms_wiener_
      compress = "xz")
 ```
 
+```{r fitting-model-classic}
+fit_wiener_classic_default_null <- brm(
+  formula, 
+  data = data_classic,
+  family = wiener(
+    link_bs = "log", 
+    link_ndt = "identity",
+    link_bias = "logit"
+    ),
+  prior = auto_prior_classic_default, 
+  init = initfun_classic_default,
+  iter = n_iter, 
+  warmup = n_warmup, 
+  chains = n_chains,
+  cores = n_cores, 
+  control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  refresh = 20,
+  seed = seed # reproducibility
+  )
+```
+
+```{r saving-ddm-classic}
+save(fit_wiener_classic_default_null, file = paste0("./markdown/models/null_brms_wiener_fit_classic_default", Sys.Date(), ".rda"),
+     compress = "xz")
+```
+
+```{r fitting-model-robust}
+fit_wiener_robust_null <- brm(
+  formula, 
+  data = data_robust,
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  prior = auto_prior_robust, 
+  init = initfun_robust,
+  iter = n_iter, 
+  warmup = n_warmup, 
+  chains = n_chains,
+  cores = n_cores, 
+  control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  refresh = 20,
+  seed = seed # reproducibility
+  )
+```
+
+```{r saving-ddm-robust}
+save(fit_wiener_robust_null, file = paste0("./markdown/models/null_brms_wiener_fit_robust_", Sys.Date(), ".rda"),
+     compress = "xz")
+```

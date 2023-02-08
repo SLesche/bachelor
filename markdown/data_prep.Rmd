@@ -192,24 +192,11 @@ outliers <- speed_data %>%
 
 n_outliers <- nrow(outliers %>% distinct(id))
 
-
+# Don't exclude within participants
 outlier_data <- speed_data %>% 
   filter(!id %in% outliers$id) %>% 
-  filter(rt > 0.15 | is.na(rt)) %>% 
-  group_by(id, rsi) %>% # group by participant and condition
-  # summarize( # sanity check
-  #   mean_rt = mean(rt, na.rm = TRUE),
-  #   sd_rt = sd(rt, na.rm = TRUE),
-  #   ci_upper = mean_rt + 2.5*sd_rt,
-  #   ci_lower = mean_rt - 2.5*sd_rt
-  # )
-  filter(
-    (log(rt) < mean(log(rt), na.rm = TRUE) + 3*sd(log(rt), na.rm = TRUE) &
-      log(rt) > mean(log(rt), na.rm = TRUE) - 3*sd(log(rt), na.rm = TRUE)) 
-    | is.na(rt)
-  ) %>% 
-  ungroup()
-  
+  mutate(rt > 0.15 | is.na(rt))
+
 final_data <- outlier_data %>% mutate(rt = rt*1000, rt_s = rt)
 
 ```
