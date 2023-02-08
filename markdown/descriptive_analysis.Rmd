@@ -100,7 +100,7 @@ data %>%
          n < 50)
 ```
 
-```{r descriptive-analysis-block comparison, include = FALSE, cache = TRUE, dependson='data', eval = FALSE}
+```{r descriptive-analysis-block comparison, include = FALSE, cache = TRUE, dependson='descriptive-analysis-data', eval = FALSE}
 data %>% 
   group_by(rsi, block) %>% 
   # filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
@@ -143,7 +143,7 @@ data %>%
             count = n())
 ```
 
-```{r descriptive-analysis-visualization, include = FALSE, cache = TRUE, dependson='data'}
+```{r descriptive-analysis-visualization, include = FALSE, cache = TRUE, dependson='descriptive-analysis-data'}
 data %>% 
   group_by(rsi, error_code) %>% 
   # filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
@@ -288,7 +288,7 @@ rio::export(descriptive_output, "./markdown/data/descriptive_output.rdata")
 # ggsave(plot_acc_pes, file = "./markdown/images/plot_acc_pes.jpg")
 ```
 
-```{r descriptive-analysis-overview-table}
+```{r descriptive-analysis-overview-table, include = FALSE, cache = TRUE, dependson='descriptive-analysis-data'}
 # get table of mean rt and acc: overall, in go/nogo in short/long in C+1/E+1
 # put SD in there too
 data %>% 
@@ -340,5 +340,36 @@ data %>%
     "ACC" = acc
   ) %>% 
   apa_table(., caption = "Mean response times (RT), mean accuracies (ACC) by condition", note = "SDs in parentheses. RSI = response stimulus interval. Previous accuracy denotes C+1 if the previous trial was a correct NoGo trial and E+1 if there was an erroneous response to the previous NoGo trial, NA is printed if the previous trial was a Go trial.")
+```
+
+```{r descriptive-analysis-checking-nogo-effect, eval = FALSE, cache = TRUE, dependson = 'descriptive-analysis-data'}
+# Check if answers after correct nogo trials are different than answers after correct go trials
+model <- data %>% 
+  group_by(id, block) %>% 
+  mutate(
+    prev_acc = factor(lag(acc)),
+    prev_type = factor(lag(trial_type)),
+    rsi = factor(rsi)
+  ) %>% 
+  ungroup() %>% 
+  # filter(acc == 1) %>%
+  filter(trial_type == "go") %>% 
+  lmerTest::lmer(rt ~ prev_acc*rsi*prev_type + (1 + rsi|id), data = .) 
+
+summary(model)
+emmeans::emmeans(model, ~prev_acc*rsi*prev_type)
+# PES significantly larger if error was commited on nogo trial
+```
+
+```{r descriptive-analysis-checking-full-trial-inclusion, eval = FALSE}
+data %>% 
+  group_by(rsi, block) %>% 
+  mutate(prev_acc = lag(acc),
+         prev_type = lag(trial_type)) %>% 
+  ungroup() %>% 
+  count(id, rsi, prev_acc, prev_type) %>% 
+  filter(!is.na(prev_acc), !is.na(prev_type)) %>% 
+  mutate(quality = ifelse(n < 40, "bad", "good")) %>% 
+  count(rsi, prev_acc, prev_type, quality)
 ```
 
