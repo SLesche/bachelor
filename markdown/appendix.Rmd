@@ -1,5 +1,5 @@
 # Appendix A
-
+## Behavioral analysis
 ```{r appendix-mean-values-power-analysis, results = 'asis'}
 estimated_mean_values_table
 ```
@@ -17,3 +17,6 @@ apa_table(
   note = "`emmean` column denotes estimated mean accuracy as a frequency. Confidence level (CL) is set at 95%"
 )
 ```
+
+# Appendix B
+## Model specification
