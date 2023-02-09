@@ -77,7 +77,7 @@ auto_prior_classic_default <- get_prior(
     link = "identity",
     link_bs = "log",
     link_bias = "logit",
-    link_ndt = "identity"
+    link_ndt = "log"
   )
 )
 ```
@@ -101,8 +101,9 @@ make_stancode(formula,
 
 # For classic with default
 make_stancode(formula, 
-              family = wiener(link_bs = "log", 
-                              link_ndt = "identity",
+              family = wiener(link = "identity",
+                              link_bs = "log", 
+                              link_ndt = "log",
                               link_bias = "logit"),
               data = data_classic, 
               prior = auto_prior_classic_default)
@@ -135,8 +136,9 @@ tmp_dat_classic <- make_standata(
 tmp_dat_classic_default <- make_standata(
   formula, 
   family = wiener(
+   link = "identity",
    link_bs = "log", 
-   link_ndt = "identity",
+   link_ndt = "log",
    link_bias = "logit"
     ),
   data = data_classic,
@@ -172,8 +174,8 @@ initfun_classic_default <- function() {# all pars in stancode need init here
 ```
 
 ```{r setup-model}
-n_iter <- 4000
-n_warmup <- 1500
+n_iter <- 2000
+n_warmup <- 1000
 n_chains <- 4
 n_cores <- 4
 max_depth <- 15
@@ -212,8 +214,9 @@ fit_wiener_classic_default_null <- brm(
   formula, 
   data = data_classic,
   family = wiener(
+    link = "identity",
     link_bs = "log", 
-    link_ndt = "identity",
+    link_ndt = "log",
     link_bias = "logit"
     ),
   prior = auto_prior_classic_default, 
