@@ -31,7 +31,255 @@ data_robust <- rio::import("./markdown/data/diffusion_data_robust.Rdata")
 data_classic <- rio::import("./markdown/data/diffusion_data_classic.rdata")
 ```
 
-```{r}
-# Add a script comparing response behavior post-go vs. post-nogo with diffusion model
+```{r prepping data}
+data_nogo <- data %>%
+  select(id, trial, block, map_condition,
+         trial_type, rsi, 
+         acc, rt,
+         stimulus, correct, response, decision, decision_char) %>% 
+  mutate(
+    rsi = case_when(
+      rsi == 0.2 ~ "short",
+      rsi == 1 ~ "long"
+    ),
+    stimulus = case_when(
+      stimulus == "X" ~ 0,
+      stimulus == "Y" ~ 1
+    )
+  ) %>% 
+  mutate(
+    rsi = factor(rsi),
+    map_condition = factor(map_condition),
+    stimulus = factor(stimulus)
+  ) %>% 
+  group_by(id, block) %>% 
+  mutate(
+    prev_type = factor(lag(trial_type)),
+    prev_acc = ifelse(lag(acc) == 0, "post_error", "post_correct"),
+    rt = rt/1000
+  ) %>% 
+  ungroup() %>% 
+  filter(!is.na(prev_type)) %>% 
+  filter(trial_type == "go", acc == 1)
 ```
 
+```{r formula}
+formula_null <- bf(
+  rt | dec(decision) ~ 0 + prev_type:stimulus,
+  bs ~ 0 + prev_type,
+  ndt ~ 0 + prev_type,
+  bias = 0.5
+)
+
+formula_rsi <- bf(
+  rt | dec(decision) ~ 0 + rsi:prev_type:stimulus,
+  bs ~ 0 + rsi:prev_type,
+  ndt ~ 0 + rsi:prev_type,
+  bias = 0.5
+)
+
+formula_rsi_acc <- bf(
+  rt | dec(decision) ~ 0 + rsi:prev_type:prev_acc:stimulus,
+  bs ~ 0 + rsi:prev_type:prev_acc,
+  ndt ~ 0 + rsi:prev_type:prev_acc,
+  bias = 0.5
+)
+```
+
+```{r prior}
+prior <- c(
+  # drift rate
+ prior("cauchy(0, 5)", class = "b"), # drift rate, population
+
+ # boundary separation
+ set_prior("normal(1.5, 1)", class = "b", dpar = "bs", lb = 0), 
+  # bs restricted to > 0, lb = 0
+
+ # Non-decision time
+ set_prior("normal(0.15, 0.1)", class = "b", dpar = "ndt", lb = 0)
+)
+```
+
+```{r}
+make_stancode(
+  formula_null,
+  data = data_nogo,
+  family = wiener(
+    link_bs = "identity",
+    link_ndt = "identity",
+    link_bias = "identity"
+  ),
+  prior = prior
+)
+
+make_stancode(
+  formula_rsi,
+  data = data_nogo,
+  family = wiener(
+    link_bs = "identity",
+    link_ndt = "identity",
+    link_bias = "identity"
+  ),
+  prior = prior
+)
+
+make_stancode(
+  formula_rsi_acc,
+  data = data_nogo,
+  family = wiener(
+    link_bs = "identity",
+    link_ndt = "identity",
+    link_bias = "identity"
+  ),
+  prior = prior
+)
+```
+
+```{r temp starting}
+tmp_dat_null <- make_standata(
+  formula_null, 
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  data = data_nogo,
+  prior = prior
+  )
+
+tmp_dat_rsi <- make_standata(
+  formula_rsi, 
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  data = data_nogo,
+  prior = prior
+  )
+
+tmp_dat_rsi_acc <- make_standata(
+  formula_rsi_acc, 
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  data = data_nogo,
+  prior = prior
+  )
+```
+
+```{r initfun}
+initfun_null <- function(){
+  list(
+    b = rnorm(tmp_dat_null$K), 
+    b_bs = runif(tmp_dat_null$K_bs, 1, 2),
+    b_ndt = runif(tmp_dat_null$K_ndt, 0.05, 0.1)
+  )
+}
+
+initfun_rsi <- function(){
+  list(
+    b = rnorm(tmp_dat_rsi$K), 
+    b_bs = runif(tmp_dat_rsil$K_bs, 1, 2),
+    b_ndt = runif(tmp_dat_rsi$K_ndt, 0.05, 0.1)
+  )
+}
+
+initfun_rsi_acc <- function(){
+  list(
+    b = rnorm(tmp_dat_rsi_acc$K), 
+    b_bs = runif(tmp_dat_rsi_accl$K_bs, 1, 2),
+    b_ndt = runif(tmp_dat_rsi_acc$K_ndt, 0.05, 0.1)
+  )
+}
+```
+
+```{r model-spec}
+n_iter <- 2000
+n_warmup <- 1000
+n_chains <- 4
+n_cores <- 4
+max_depth <- 15
+adapt_delta <- 0.95
+seed <- 1234
+```
+
+```{r fitting-model-null}
+fit_wiener_nogo_null <- brm(
+  formula_null, 
+  data = data_nogo,
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  prior = prior, 
+  init = initfun_null,
+  iter = n_iter, 
+  warmup = n_warmup, 
+  chains = n_chains,
+  cores = n_cores, 
+  control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  refresh = 20,
+  seed = seed # reproducibility
+  )
+```
+
+```{r saving-ddm-classic}
+save(fit_wiener_nogo_null, file = paste0("./markdown/models/null_brms_wiener_fit_nogo_", Sys.Date(), ".rda"),
+     compress = "xz")
+```
+
+```{r fitting-model-rsi}
+fit_wiener_nogo_rsi <- brm(
+  formula_rsi, 
+  data = data_nogo,
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  prior = prior, 
+  init = initfun_rsi,
+  iter = n_iter, 
+  warmup = n_warmup, 
+  chains = n_chains,
+  cores = n_cores, 
+  control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  refresh = 20,
+  seed = seed # reproducibility
+  )
+```
+
+```{r saving-ddm-classic}
+save(fit_wiener_nogo_rsi, file = paste0("./markdown/models/rsi_brms_wiener_fit_nogo_", Sys.Date(), ".rda"),
+     compress = "xz")
+```
+
+```{r fitting-model-null}
+fit_wiener_nogo_rsi_acc <- brm(
+  formula_rsi_acc, 
+  data = data_nogo,
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  prior = prior, 
+  init = initfun_rsi_acc,
+  iter = n_iter, 
+  warmup = n_warmup, 
+  chains = n_chains,
+  cores = n_cores, 
+  control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  refresh = 20,
+  seed = seed # reproducibility
+  )
+```
+
+```{r saving-ddm-classic}
+save(fit_wiener_nogo_rsi_acc, file = paste0("./markdown/models/rsi_acc_brms_wiener_fit_nogo_", Sys.Date(), ".rda"),
+     compress = "xz")
+```
