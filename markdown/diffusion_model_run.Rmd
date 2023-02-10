@@ -146,7 +146,8 @@ fit_wiener_classic <- brm(
   data = data_classic,
   family = wiener(
     link_bs = "identity", 
-    link_ndt = "identity"
+    link_ndt = "identity",
+    link_bias = "identity"
     ),
   prior = prior, 
   init = initfun_classic,
