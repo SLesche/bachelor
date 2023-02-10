@@ -39,7 +39,7 @@ The diffusion model was estimated using a Bayesian hierarchical approach impleme
 ## Model specification
 A full description of model specification will be found in [Appendix B](##model-specification).
 The parameters drift rate $\delta$, non-decision time $\tau$ and boundary separation $\alpha$ were allowed to vary between participants and trials. For these three parameters, the model estimated fixed effects of the factors RSI (short - long), accuracy of the previous NoGo-trial (C+1 - E+1) and their interaction as well as participant-level random slopes for the factor RSI. All intercepts were fixed to zero in order to estimate group-level parameters for each combination of factors instead of deviations from a baseline, easing specification of priors [@singmann2017intro]. Drift rate was further allowed to vary depending on the true status of the presented stimulus, accounting for differences in drift direction depending on the presented stimulus. Priors for the regression weights of the fixed effects were specified in a weakly informative manner (see Table \@ref(tab:method-prior-table)). Default prior estimates were used for group-level random effects. Bias $\beta$ was set to 0.5 for all participants and trials, as there was no reason to assume any a-priori bias towards one response alternative ("X" / "Y") ^[This assumption was confirmed by exploratory analysis with the bias parameter being allowed to vary freely between participants and response-mapping instructions. The bias parameter was estimated at 0.5 by the model with low individual-level variance.]. 
-Correlations were only estimated between conditions for random effects of each parameter. **explain this better**
+Correlations were only estimated between conditions for random effects of each parameter. **explain this better** **provide proof for bias estimation**
 ```{r method-prior-table, echo = FALSE, warning=FALSE}
 prior_table <- data.table(
   Parameter = c("Drift Rate", "Boundary Separation", "Non-decision time"),
@@ -47,7 +47,7 @@ prior_table <- data.table(
     "$\\delta \\sim Cauchy(0, 5)$", "$\\alpha \\sim Normal(1.5, 1)$", "$\\tau \\sim Normal(0.15, 0.1)$"
   )
 )
-
+# maybe put estimation formula in here?
 apa_table(prior_table, caption = "Prior specification for diffusion model parameters", note = "Boundary separation and non-decision priors received a lower bound = 0. Default priors were used for group-level random effects.", escape = FALSE)
 ```
 
@@ -59,25 +59,16 @@ apa_table(prior_table, caption = "Prior specification for diffusion model parame
 <!-- Formulas -->
 <!-- $$\delta_{ij} = \theta_{RSI(i)} + \beta_{2}A{j} + \beta_{3}A_jC_j + $$ -->
 <!-- maybe use this: equatiomatic::extract_eq(lme4::lmer(rt ~ 0 + rsi*error_factor + (0 + rsi|id), data = data_classic)) -->
-**Give overview of formula and prior specification (informative, or no?)**
 <!-- $$\delta_{(ij)} = \nu_{(i)} + \epsilon_{(ij)}$$ -->
 <!-- $$\epsilon_{(ij)} \sim N(0, \eta^2_{\epsilon})$$ -->
 <!-- $$\nu_{(p)} \sim N(\mu_{\nu}, \sigma^2_{\nu})$$ -->
-<!-- Pros Hierarchical -->
-<!-- - allow random and fixed effects -->
-<!-- - take into account the shared variability between persons (population level) -->
-<!-- - allow estimation of fixed effects of condition parameters (rsi, error) without estimating individual level parameters -->
-<!-- - this lowers the sample size required -->
-<!-- - allow group and subject parameters to be estimated at the same time but on different hierarchical levels -->
 
-<!-- Pros Bayesian -->
-<!-- - incorporating prior beliefs -->
-<!-- - comparative hypothesis testing -->
-<!-- - allow inference of full posterior distribution -> better treatment of uncertainty rather than the frequentist 'most likely value' approach -->
-<!-- - intuitive treatment of uncertainty -->
+## Model fit
+**how was model fit assessed?**
 
+## Model analysis
+**how are we gonna check model results?**
 
-Analysis was conducted using `r r_citations`.
 
 ## Outline Method
 - Introduce Task used

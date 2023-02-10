@@ -4,7 +4,8 @@
 
 ```{r results-source-significance-testing, child = "markdown/significance_testing.rmd"}
 ```
-Participants falsely responded in `r descriptive_output$mean_error_rate_nogo`% of NoGo trials. Mean reaction time in Go trials was `r descriptive_output$mean_rt_go` ms. Further descriptive statistics can be found in Table \@ref(tab:results-descriptive-analysis-overview-table).
+All analysis was conducted using `r r_citations`. Participants falsely responded in `r descriptive_output$mean_error_rate_nogo`% of NoGo trials. Mean reaction time in Go trials was `r descriptive_output$mean_rt_go` ms. Further descriptive statistics can be found in Table \@ref(tab:results-descriptive-analysis-overview-table).
+
 ```{r results-descriptive-analysis-overview-table, results = 'asis'}
 descriptive_analysis_overview_table
 ```

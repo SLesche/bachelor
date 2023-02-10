@@ -1,5 +1,5 @@
-# Appendix A
-## Behavioral analysis
+<!-- First level headers create new appendix section and a label "Appendix N" -->
+# Behavioral analysis
 ```{r appendix-mean-values-power-analysis, results = 'asis'}
 estimated_mean_values_table
 ```
@@ -18,5 +18,4 @@ apa_table(
 )
 ```
 
-# Appendix B
-## Model specification
+# Model specification
