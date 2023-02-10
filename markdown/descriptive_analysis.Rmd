@@ -71,6 +71,14 @@ mean_rt_error_rsi_comp <- data %>%
 # TODO: Create dataframe containing descriptive mean rts and accs for different conditions
 # Want mean rt on 
 
+average_n_nogo_error <- data %>% 
+  group_by(id, trial_type) %>% 
+  count(classic_pes_type) %>% 
+  filter(!is.na(classic_pes_type)) %>% 
+  group_by(classic_pes_type) %>% 
+  summarize(mean = mean(n), sd = sd(n), median = median(n))
+  
+
 descriptive_output <- data.frame(
   mean_error_rate_overall,
   mean_error_rate_nogo,

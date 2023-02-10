@@ -26,6 +26,7 @@ Participants were asked to respond as quickly and accurately as possible. Instru
 
 ## Data preparation
 All response times shorter than 150ms were excluded from analysis. Mean RT and accuracy for each participant in each combination of RSI (short - long) and trial type (Go - NoGo) were considered outliers if the participants' mean deviated more than 3 standard deviations from the mean across participants for that combination of RSI and trial type. A total of `r n_outliers` participants were excluded due to this criterion, leaving `r demo_output$n_subjects - n_outliers` participants for analysis.
+**remove first 10 trials for each participant of the first two blocks?**
 <!-- Within-participant logarithmized response times deviating more than 3 standard deviations from the participants' condition-specific mean were also considered outliers. Of the `r nrow(rt_data)` trials `r paste(formattable::percent((n_outliers*3000) / nrow(final_data)))` of trials were lost due to participant exclusion, `r demo_output$percentage_trials_lost`% of trials were lost due to single trial outliers, leaving `r nrow(final_data)` trials for analysis. -->
 
 ## Behavioral Analysis
@@ -38,12 +39,12 @@ The diffusion model was estimated using a Bayesian hierarchical approach impleme
 
 ## Model specification
 <!-- A full description of model specification will be found in [Appendix B](##model-specification). -->
-Let $\mathbf{Y_{(ij)}}$ denote a response vector of the decision and response time $(X_{(ij)}, T_{(ij)})$ for the $i$th participant, in the $j$th trial. The data is assumed to follow a Wiener distribution,
+Let $\mathbf{Y_{(ij)}}$ represent a response vector of the decision and response time $(X_{(ij)}, T_{(ij)})$ for the $i$th participant, in the $j$th trial. The data is assumed to follow a Wiener distribution,
 $$\mathbf{Y_{(ij)}} \sim Wiener(\alpha_{(ij)}, \beta_{(ij)}, \tau_{(ij)}, \delta_{(ij)})$$
-with the four model parameters boundary separation $\alpha$, bias $\beta$, non-decision time $\tau$ and drift-rate $\delta$. Responses $X_{(ij)}$ can take the values $X_{(ij)} = \{0,1\}$. $X_{(ij)} = 0$ represents the decision that the stimulus shows an _X_, corresponding to the lower response boundary. $X_{(ij)} = 1$ represents the respective decision that the stimulus shows the letter _Y_. Response time (in $s$) can take on any positive value $T_{(ij)} \in (0, 0.8]$.
+with the four model parameters boundary separation $\alpha$, bias $\beta$, non-decision time $\tau$ and drift-rate $\delta$. Responses $X_{(ij)}$ can take the values $X_{(ij)} = \{0,1\}$. $X_{(ij)} = 0$ represents the decision that the stimulus shows the letter _X_, corresponding to the lower response boundary. $X_{(ij)} = 1$ represents the respective decision that the stimulus shows the letter _Y_. Response time (in $s$) can take on any positive value $T_{(ij)} \in (0, 0.8]$.
 
 The parameters drift rate $\delta$, non-decision time $\tau$ and boundary separation $\alpha$ were allowed to vary between participants and trials. For these three parameters, the model estimated fixed effects of the factors RSI (short - long), accuracy of the previous NoGo-trial (C+1 - E+1) and their interaction as well as participant-level random slopes for the factor RSI. All intercepts were fixed to zero in order to estimate group-level parameters for each combination of factors instead of deviations from a baseline, easing specification of priors [@singmann2017intro]. Drift rate was further allowed to vary depending on the true status of the presented stimulus, accounting for differences in drift direction depending on the presented stimulus. Priors for the regression weights of the fixed effects were specified in a weakly informative manner (see Table \@ref(tab:method-prior-table)). Default prior estimates were used for group-level random effects. Bias $\beta$ was set to 0.5 for all participants and trials, as there was no reason to assume any a-priori bias towards one response alternative ("X" / "Y") ^[This assumption was confirmed by exploratory analysis with the bias parameter being allowed to vary freely between participants and response-mapping instructions. The bias parameter was estimated at 0.5 by the model with low individual-level variance.]. 
-Correlations were only estimated between conditions for random effects of each parameter. None of the parameters were transformed before analysis, easing prior specification and model interpretation [@singmann2017intro]. **explain this better** **provide proof for bias estimation**
+Correlations of random effects of each parameter were only estimated between conditions, not across parameters. None of the parameters were transformed before analysis, easing prior specification and model interpretation [@singmann2017intro]. **explain this better** **provide proof for bias estimation** **maybe put in supplementary information link (code)**
 ```{r method-prior-table, echo = FALSE, warning=FALSE}
 prior_table <- data.table(
   Parameter = c("Drift Rate", "Boundary Separation", "Non-decision time"),
@@ -52,7 +53,7 @@ prior_table <- data.table(
   )
 )
 # maybe put estimation formula in here?
-apa_table(prior_table, caption = "Prior specification for diffusion model parameters", note = "Boundary separation and non-decision priors received a lower bound = 0. Default priors were used for group-level random effects.", escape = FALSE)
+apa_table(prior_table, caption = "Prior specification for diffusion model parameters", note = "Boundary separation and non-decision priors received a lower bound of 0. Default priors were used for group-level random effects.", escape = FALSE)
 ```
 
 <!-- Let $\mathbf{Y_{(ij)}}$ denote a response vector of the decision and response time $(X_{(ij)}, T_{(ij)})$ for the _p_ th participant, in the _j_ th trial in  condition _c_ (0,1) with previous accuracy _a_ (0,1). The data is assumed to follow a Wiener distribution, -->
