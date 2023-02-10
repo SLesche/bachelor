@@ -173,6 +173,7 @@ speed_data <- error_data %>%
 # Filter out too fast responses aswell as 
 outliers <- speed_data %>% 
   filter(rt > 0.15 | is.na(rt)) %>% 
+  # filter(block > 1 | (block <= 1 & trial > 10)) %>% 
   group_by(id, rsi, trial_type) %>% 
   summarize(mean_rt = mean(log(rt), na.rm = TRUE),
             mean_acc = mean(acc, na.rm = TRUE)) %>% 
@@ -195,6 +196,7 @@ n_outliers <- nrow(outliers %>% distinct(id))
 # Don't exclude within participants
 outlier_data <- speed_data %>% 
   filter(!id %in% outliers$id) %>% 
+  # filter(block > 1 | (block <= 1 & trial > 10)) %>% 
   mutate(rt > 0.15 | is.na(rt))
 
 final_data <- outlier_data %>% mutate(rt = rt*1000, rt_s = rt)

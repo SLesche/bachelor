@@ -59,12 +59,11 @@ formula <- bf(
 prior <- c(
  # drift rate
  prior("cauchy(0, 5)", class = "b"), # drift rate, population
-  # TODO: Explain why this is used
 
  # boundary separation
  set_prior("normal(1.5, 1)", class = "b", dpar = "bs", lb = 0), 
   # bs restricted to > 0, lb = 0
-
+ 
  # Non-decision time
  set_prior("normal(0.15, 0.1)", class = "b", dpar = "ndt", lb = 0)
 )
