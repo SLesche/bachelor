@@ -291,7 +291,7 @@ rio::export(descriptive_output, "./markdown/data/descriptive_output.rdata")
 ```{r descriptive-analysis-overview-table, include = FALSE, cache = TRUE, dependson='descriptive-analysis-data'}
 # get table of mean rt and acc: overall, in go/nogo in short/long in C+1/E+1
 # put SD in there too
-data %>% 
+descriptive_analysis_overview_table <- data %>% 
   group_by(rsi, trial_type, classic_pes_type) %>% 
   summarize(
     across(c("rt", "acc"),

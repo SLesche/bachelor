@@ -31,34 +31,33 @@ All response times shorter than 150ms were excluded from analysis. Mean RT and a
 ## Behavioral Analysis
 Only errors in NoGo trials were considered _error trials_ relevant for analysis. PES was defined using the traditional approach [@dutilh2012how; @pfister2022]. Mean response times $\overline{RT}$ in Go trials following a false response to a NoGo trial ($E+1$) are compared to mean response times following a correct response to a NoGo trial ($C+1$). 
 $$\Delta_{PES} = \overline{RT_{E+1}} - \overline{RT_{C+1}}$$
-Effects of RSI condition and accuracy of the previous NoGo trial and their interaction on mean response times were then examined using a two-way repeated measures ANOVA. Post-error accuracy (PEA) was examined in a similar manner, comparing mean accuracy following a correct NoGo trial to mean accuracy of trials following an _error trial_.
+Effects of RSI condition and accuracy of the previous NoGo trial and their interaction on mean response times were then examined using a two-way ($RSI \times previous \ accuracy$) repeated measures ANOVA. Post-error accuracy (PEA) was examined in a similar manner, comparing mean accuracy following a correct NoGo trial to mean accuracy of trials following an _error trial_.
 
 ## Bayesian hierarchical drift-diffusion model
-The diffusion model was estimated using a Bayesian hierarchical approach implemented in the `brms` package [@R-brms_a]. Hierarchical approaches to the DDM allow simultaneous estimation of parameter influences on both a population-level aswell as on a subject-level [@vandekerckhove2011; @lee2011; @gelman2006], reducing the number of samples required to estimate model parameters reliably [@wiecki2013; @ratcliff2015]. Bayesian estimation allows hierarchical extensions of the model otherwise not feasible in frequentist approaches using maximum likelihood estimation [@vandekerckhove2011]. A further benefit of the bayesian approach towards DDM is the ability to fully infer posterior distributions and thus allow a more intuitive quantification of uncertainty [@kruschke2010].
+The diffusion model was estimated using a Bayesian hierarchical approach implemented in the R-package `brms` [@R-brms_a]. Hierarchical approaches to the DDM allow simultaneous estimation of parameters on both a population-level and on a subject-level [@vandekerckhove2011; @lee2011; @gelman2006], reducing the number of samples required to estimate model parameters reliably [@wiecki2013; @ratcliff2015; @rouder2005]. Bayesian estimation allows hierarchical extensions of the model otherwise not feasible in frequentist approaches using maximum likelihood estimation [@vandekerckhove2011] and produces more accurate model estimates [@rouder2005]. Individual-level parameters are assumed to be random samples drawn from a group-level distribution. Group-level distributions thus define between-subjects variability of the parameters and are themselves specified by a set of parameters [@matzke2009]. The ability to fully infer posterior distributions and thus allow a more intuitive quantification of uncertainty is a further benefit of bayesian estimation [@kruschke2010].
 
 ## Model specification
 A full description of model specification will be found in [Appendix B](##model-specification).
-The model assumed fixed effects of the factors RSI (short - long) and accuracy of the previous NoGo-trial (C+1 - E+1) as well as participant-level random slopes of RSI. Intercepts in model specification were fixed to zero in order to estimate group-level parameters for each combination of factors instead of deviations from a baseline, easing specification of priors. **here link to tutorial**  **explain this better** 
-Priors were specified in a weakly informative manner (see Table \@ref(tab-method-prior-table)).
-
+The parameters drift rate $\delta$, non-decision time $\tau$ and boundary separation $\alpha$ were allowed to vary between participants and trials. For these three parameters, the model estimated fixed effects of the factors RSI (short - long), accuracy of the previous NoGo-trial (C+1 - E+1) and their interaction as well as participant-level random slopes for the factor RSI. All intercepts were fixed to zero in order to estimate group-level parameters for each combination of factors instead of deviations from a baseline, easing specification of priors [@singmann2017intro]. Drift rate was further allowed to vary depending on the true status of the presented stimulus, accounting for differences in drift direction depending on the presented stimulus. Priors for the regression weights of the fixed effects were specified in a weakly informative manner (see Table \@ref(tab:method-prior-table)). Default prior estimates were used for group-level random effects. Bias $\beta$ was set to 0.5 for all participants and trials, as there was no reason to assume any a-priori bias towards one response alternative ("X" / "Y") ^[This assumption was confirmed by exploratory analysis with the bias parameter being allowed to vary freely between participants and response-mapping instructions. The bias parameter was estimated at 0.5 by the model with low individual-level variance.]. 
+Correlations were only estimated between conditions for random effects of each parameter. **explain this better**
 ```{r method-prior-table, echo = FALSE, warning=FALSE}
 prior_table <- data.table(
-  parameter = c("Drift Rate", "Boundary Separation", "Non-decision time"),
-  prior = c(
-    "\\delta \\sim Test", "Test", "Test", "Test"
+  Parameter = c("Drift Rate", "Boundary Separation", "Non-decision time"),
+  Prior = c(
+    "$\\delta \\sim Cauchy(0, 5)$", "$\\alpha \\sim Normal(1.5, 1)$", "$\\tau \\sim Normal(0.15, 0.1)$"
   )
 )
 
-apa_table(prior_table, caption = "Lol", note = "Test")
+apa_table(prior_table, caption = "Prior specification for diffusion model parameters", note = "Boundary separation and non-decision priors received a lower bound = 0. Default priors were used for group-level random effects.", escape = FALSE)
 ```
 
-Let $\mathbf{Y_{(pcaj)}}$ denote a response vector of the decision and response time $(X_{(pcaj)}, T_{(pcaj)})$ for the _p_ th participant, in the _j_ th trial in  condition _c_ (0,1) with previous accuracy _a_ (0,1). The data is assumed to follow a Wiener distribution,
-$$\mathbf{Y_{(pcaj)}} \sim Wiener(\alpha_{(pcaj)}, \beta_{(pcaj)}, \tau_{(pcaj)}, \delta_{(pcaj)})$$
-with the four model parameters boundary separation $\alpha$, bias $\beta$, non-decision time $\tau$ and drift-rate $\delta$. 
-The index notation suggests that drift rates can differ across participants ($p$), conditions ($c$), previous accuracy ($a$) as well as across trials ($j$). This model was constrained by treating all trials for the same participant with the equal previous accuracy **in the same RSI? ** as identical. At the participant level, three parameters $\alpha$, $\tau$ and $\delta$ were allowed to vary between participants, with $\beta$ being fixed to 0.5. This was done to reduce model complexity, as there is no reason to assume a bias towards any decision. **maybe have it depend on map condition, or do a prior test here?**
-Influence of RSI condition as well as accuracy of the previous trial was investigated for the parameters $\alpha$, $\tau$ and $\delta$ via regression of the parameters on the factors _RSI_ and _previous accuracy_. Random slopes for the factor RSI were included to allow for interindividual differences in mean parameter values and the effect of RSI. **really random intercepts, why not random slopes prev_acc, model test?**
-Formulas
-$$\delta_{pcaj} = \theta_{RSI(i)} + \beta_{2}A{j} + \beta_{3}A_jC_j + $$
+<!-- Let $\mathbf{Y_{(ij)}}$ denote a response vector of the decision and response time $(X_{(ij)}, T_{(ij)})$ for the _p_ th participant, in the _j_ th trial in  condition _c_ (0,1) with previous accuracy _a_ (0,1). The data is assumed to follow a Wiener distribution, -->
+<!-- $$\mathbf{Y_{(ij)}} \sim Wiener(\alpha_{(ij)}, \beta_{(ij)}, \tau_{(ij)}, \delta_{(ij)})$$ -->
+<!-- with the four model parameters boundary separation $\alpha$, bias $\beta$, non-decision time $\tau$ and drift-rate $\delta$.  -->
+<!-- The index notation suggests that drift rates can differ across participants ($i$) as well as across trials ($j$). This model was constrained by treating all trials for the same participant with the equal previous accuracy **in the same RSI? ** as identical. At the participant level, three parameters $\alpha$, $\tau$ and $\delta$ were allowed to vary between participants, with $\beta$ being fixed to 0.5. This was done to reduce model complexity, as there is no reason to assume a bias towards any decision. **maybe have it depend on map condition, or do a prior test here?** -->
+<!-- Influence of RSI condition as well as accuracy of the previous trial was investigated for the parameters $\alpha$, $\tau$ and $\delta$ via regression of the parameters on the factors _RSI_ and _previous accuracy_. Random slopes for the factor RSI were included to allow for interindividual differences in mean parameter values and the effect of RSI. **really random intercepts, why not random slopes prev_acc, model test?** -->
+<!-- Formulas -->
+<!-- $$\delta_{ij} = \theta_{RSI(i)} + \beta_{2}A{j} + \beta_{3}A_jC_j + $$ -->
 <!-- maybe use this: equatiomatic::extract_eq(lme4::lmer(rt ~ 0 + rsi*error_factor + (0 + rsi|id), data = data_classic)) -->
 **Give overview of formula and prior specification (informative, or no?)**
 <!-- $$\delta_{(ij)} = \nu_{(i)} + \epsilon_{(ij)}$$ -->
