@@ -12,3 +12,6 @@ Discuss the reasons for my PES approach (having both post-nogo)
 - describe importance of this body of research
 - limitations: task-used, DDM model can't fit this? stimuli generation usw.
 - **can already discuss some of the limitations!**
+
+## No random effects
+To reduce estimation time and complexity and because individual differences are not of interest here
