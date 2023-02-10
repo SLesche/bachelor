@@ -28,30 +28,32 @@ data_robust <- rio::import("./markdown/data/diffusion_data_robust.Rdata")
 data_classic <- rio::import("./markdown/data/diffusion_data_classic.rdata")
 ```
 
-```{r formula}
+```{r testing intercepts}
+# Have to supress intercept for modeling reasons (that I don't quite understand myself)
+# And combining factors with `:` gives each combination an estimate
+unique(model.matrix(~ 0 + rsi:error_factor:stimulus, data_classic))
+unique(model.matrix(~ 0 + rsi*error_factor, data_robust))
+unique(model.matrix(~ 1 + rsi:error_factor, data_robust))
+unique(model.matrix(~ 1 + rsi*error_factor, data_robust))
+```
+
+```{r set-formula}
 formula <- bf(
   # No intercepts, bc this estimates parameters for each combination of
   # rsi and error_factor
-  rt | dec(decision) ~ 0 + rsi:error_factor:stimulus,
+  rt | dec(decision) ~ 0 + rsi:error_factor:stimulus + (0 + rsi|id),
+    # random slopes just for rsi for now. can do random slopes for error_factor later
     # TODO: Implement this! Model comparison?
-  bs ~ 0 + rsi:error_factor,
+  bs ~ 0 + rsi:error_factor + (0 + rsi|id),
     # because rsi and error_factor are known they can be used here
     # pre-error is not technically "known", but should affect bs and ndt nonetheless
-  ndt ~ 0 + rsi:error_factor,
+  ndt ~ 0 + rsi:error_factor + (0 + rsi|id),
   bias = 0.5 # no reason for bias to vary TODO: intercept for bias
     # just want to estimate intercept for bias?
     # TODO: maybe estimate intercept for bias? 
 )
 ```
 
-```{r testing intercepts}
-# Have to supress intercept for modeling reasons (that I don't quite understand myself)
-# And combining factors with `:` gives each combination an estimate
-unique(model.matrix(~ 0 + rsi:error_factor:stimulus, data_classic))
-unique(model.matrix(~ 0 + rsi*error_factor, data_robust))
-unique(model.matrix(~ 1 + rsi:error_factor:stimulus, data_robust))
-unique(model.matrix(~ 1 + rsi*error_factor, data_robust))
-```
 ```{r set-prior}
 prior <- c(
  # drift rate
@@ -114,7 +116,19 @@ initfun_robust <- function() {# all pars in stancode need init here
   list(
     b = rnorm(tmp_dat_robust$K), 
     b_bs = runif(tmp_dat_robust$K_bs, 1, 2),
-    b_ndt = runif(tmp_dat_robust$K_ndt, 0.001, 0.002)
+    b_ndt = runif(tmp_dat_robust$K_ndt, 0.05, 0.1), # rep for each dim in ndt
+    sd_1 = runif(tmp_dat_robust$M_1, 0.5, 1),
+    z_1 = matrix(rnorm(tmp_dat_robust$M_1*tmp_dat_robust$N_1, 0, 0.01),
+                 tmp_dat_robust$M_1, tmp_dat_robust$N_1),
+    L_1 = diag(tmp_dat_robust$M_1),
+    sd_2 = runif(tmp_dat_robust$M_2, 0.5, 1),
+    z_2 = matrix(rnorm(tmp_dat_robust$M_2*tmp_dat_robust$N_2, 0, 0.01),
+                 tmp_dat_robust$M_2, tmp_dat_robust$N_2),
+    L_2 = diag(tmp_dat_robust$M_2),
+    sd_3 = runif(tmp_dat_robust$M_3, 0.5, 1),
+    z_3 = matrix(rnorm(tmp_dat_robust$M_3*tmp_dat_robust$N_3, 0, 0.01),
+                 tmp_dat_robust$M_3, tmp_dat_robust$N_3),
+    L_3 = diag(tmp_dat_robust$M_3)
   )
 }
 
@@ -122,7 +136,19 @@ initfun_classic <- function() {# all pars in stancode need init here
   list(
     b = rnorm(tmp_dat_classic$K),
     b_bs = runif(tmp_dat_classic$K_bs, 1, 2),
-    b_ndt = runif(tmp_dat_classic$K_ndt, 0.001, 0.002)
+    b_ndt = runif(tmp_dat_classic$K_ndt, 0.05, 0.1), # rep for each dim in ndt
+    sd_1 = runif(tmp_dat_classic$M_1, 0.5, 1),
+    z_1 = matrix(rnorm(tmp_dat_classic$M_1*tmp_dat_classic$N_1, 0, 0.01),
+                 tmp_dat_classic$M_1, tmp_dat_classic$N_1),
+    L_1 = diag(tmp_dat_classic$M_1),
+    sd_2 = runif(tmp_dat_classic$M_2, 0.5, 1),
+    z_2 = matrix(rnorm(tmp_dat_classic$M_2*tmp_dat_classic$N_2, 0, 0.01),
+                 tmp_dat_classic$M_2, tmp_dat_classic$N_2),
+    L_2 = diag(tmp_dat_classic$M_2),
+    sd_3 = runif(tmp_dat_classic$M_3, 0.5, 1),
+    z_3 = matrix(rnorm(tmp_dat_classic$M_3*tmp_dat_classic$N_3, 0, 0.01),
+                 tmp_dat_classic$M_3, tmp_dat_classic$N_3),
+    L_3 = diag(tmp_dat_classic$M_3)
   )
 }
 ```
@@ -146,15 +172,16 @@ fit_wiener_classic <- brm(
   data = data_classic,
   family = wiener(
     link_bs = "identity", 
-    link_ndt = "identity"
+    link_ndt = "identity",
+    link_bias = "identity"
     ),
   prior = prior, 
   init = initfun_classic,
   iter = n_iter, 
   warmup = n_warmup, 
-  chains = 1,
+  chains = n_chains,
   cores = n_cores, 
-  # control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
   refresh = 20,
   seed = seed # reproducibility
   )
@@ -178,7 +205,7 @@ fit_wiener_robust <- brm(
   init = initfun_robust,
   iter = n_iter, 
   warmup = n_warmup, 
-  chains = 1,
+  chains = n_chains,
   cores = n_cores, 
   # control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
   refresh = 100,
