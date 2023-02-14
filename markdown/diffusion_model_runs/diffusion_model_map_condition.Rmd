@@ -38,7 +38,7 @@ formula <- bf(
     # because rsi and error_factor are known they can be used here
     # pre-error is not technically "known", but should affect bs and ndt nonetheless
   ndt ~ 0 + rsi:error_factor,
-  bias = 0.5 # no reason for bias to vary TODO: intercept for bias
+  bias ~ 0 + map_condition # no reason for bias to vary TODO: intercept for bias
     # just want to estimate intercept for bias?
     # TODO: maybe estimate intercept for bias? 
 )
@@ -62,7 +62,10 @@ prior <- c(
   # bs restricted to > 0, lb = 0
  
  # Non-decision time
- set_prior("normal(0.15, 0.1)", class = "b", dpar = "ndt", lb = 0)
+ set_prior("normal(0.15, 0.1)", class = "b", dpar = "ndt", lb = 0),
+ 
+ # bias
+ set_prior("beta(1.3, 1.3)", class = "b", dpar = "bias", lb = 0, ub = 1)
 )
 ```
 
@@ -114,7 +117,8 @@ initfun_robust <- function() {# all pars in stancode need init here
   list(
     b = rnorm(tmp_dat_robust$K), 
     b_bs = runif(tmp_dat_robust$K_bs, 1, 2),
-    b_ndt = runif(tmp_dat_robust$K_ndt, 0.001, 0.002)
+    b_ndt = runif(tmp_dat_robust$K_ndt, 0.001, 0.002),
+    b_bias = runif(tmp_dat_robust$K_bias, 0, 1)
   )
 }
 
@@ -122,14 +126,15 @@ initfun_classic <- function() {# all pars in stancode need init here
   list(
     b = rnorm(tmp_dat_classic$K),
     b_bs = runif(tmp_dat_classic$K_bs, 1, 2),
-    b_ndt = runif(tmp_dat_classic$K_ndt, 0.001, 0.002)
+    b_ndt = runif(tmp_dat_classic$K_ndt, 0.001, 0.002),
+    b_bis = runif(tmp_dat_robust$K_bias, 0, 1)
   )
 }
 ```
 
 ```{r setup-model}
-n_iter <- 4000
-n_warmup <- 2000
+n_iter <- 2000
+n_warmup <- 1000
 n_chains <- 4
 n_cores <- 4
 max_depth <- 15
@@ -153,16 +158,16 @@ fit_wiener_classic <- brm(
   init = initfun_classic,
   iter = n_iter, 
   warmup = n_warmup, 
-  chains = 1,
+  chains = n_chains,
   cores = n_cores, 
-  # control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
   refresh = 20,
   seed = seed # reproducibility
   )
 ```
 
 ```{r saving-ddm-classic}
-save(fit_wiener_classic, file = paste0("./markdown/models/brms_wiener_fit_classic_", Sys.Date(), ".rda"),
+save(fit_wiener_classic, file = paste0("./markdown/models/classic_fullinter_rsi_err_", Sys.Date(), ".rda"),
      compress = "xz")
 ```
 
@@ -181,7 +186,7 @@ fit_wiener_robust <- brm(
   warmup = n_warmup, 
   chains = 1,
   cores = n_cores, 
-  # control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
   refresh = 100,
   seed = seed # reproducibility
   )
