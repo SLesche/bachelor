@@ -60,7 +60,7 @@ data_nogo <- data %>%
   ) %>% 
   ungroup() %>% 
   filter(!is.na(prev_type)) %>% 
-  filter(trial_type == "go", acc == 1)
+  filter(trial_type == "go", acc == 1, prev_acc == 1)
 ```
 
 ```{r formula}
@@ -228,7 +228,7 @@ fit_wiener_nogo_null <- brm(
 ```
 
 ```{r saving-ddm-classic}
-save(fit_wiener_nogo_null, file = paste0("./markdown/models/null_brms_wiener_fit_nogo_", Sys.Date(), ".rda"),
+save(fit_wiener_nogo_null, file = paste0("./markdown/models/nogo_standard_type_", Sys.Date(), ".rda"),
      compress = "xz")
 ```
 
@@ -254,7 +254,7 @@ fit_wiener_nogo_rsi <- brm(
 ```
 
 ```{r saving-ddm-classic}
-save(fit_wiener_nogo_rsi, file = paste0("./markdown/models/rsi_brms_wiener_fit_nogo_", Sys.Date(), ".rda"),
+save(fit_wiener_nogo_rsi, file = paste0("./markdown/models/nogo_standard_type_rsi_", Sys.Date(), ".rda"),
      compress = "xz")
 ```
 

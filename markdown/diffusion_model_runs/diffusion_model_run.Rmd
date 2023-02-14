@@ -162,7 +162,7 @@ fit_wiener_classic <- brm(
 ```
 
 ```{r saving-ddm-classic}
-save(fit_wiener_classic, file = paste0("./markdown/models/classic_fullinter_rsi_err_", Sys.Date(), ".rda"),
+save(fit_wiener_classic, file = paste0("./markdown/models/classic_standard_rsi_err_", Sys.Date(), ".rda"),
      compress = "xz")
 ```
 
@@ -189,6 +189,6 @@ fit_wiener_robust <- brm(
 ```
 
 ```{r saving-ddm-robust}
-save(fit_wiener_robust, file = paste0("./markdown/models/brms_wiener_fit_robust_", Sys.Date(), ".rda"),
+save(fit_wiener_robust, file = paste0("./markdown/models/robust_standard_rsi_err", Sys.Date(), ".rda"),
      compress = "xz")
 ```
