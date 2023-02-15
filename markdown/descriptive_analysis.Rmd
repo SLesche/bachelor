@@ -380,3 +380,109 @@ data %>%
   count(rsi, prev_acc, prev_type, quality)
 ```
 
+```{r descriptive-analysis-rt-overview, eval = FALSE}
+data <- data %>% 
+  group_by(id, block) %>% 
+  mutate(
+    location = case_when(
+      lag(trial_type) == "go" & trial_type == "nogo" & lead(trial_type) == "go" & acc == 0 ~ "E",
+      lag(trial_type) == "go" & trial_type == "nogo" & lead(trial_type) == "go" & acc == 1 ~ "C"
+    )
+  ) %>% 
+  mutate(
+    location = case_when(
+      location == "E" ~ "E+0",
+      location == "C" ~ "C+0",
+      lead(location) == "E" ~ "E-1",
+      lead(location) == "C" ~ "C-1",
+      lag(location) == "E" ~ "E+1",
+      lag(location) == "C" ~ "C+1"
+    )
+  ) %>% 
+  mutate(
+    location = ifelse(
+      lag(location, 2) == "E+0" & is.na(location),
+      "E+2",
+      location
+    )
+  ) %>% 
+  mutate(
+    location = ifelse(
+      lag(location, 2) == "C+0" & is.na(location),
+      "C+2",
+      location
+    )
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    nogo_type = str_extract(location, "^E|C"),
+    distance = str_remove(location, "^E|C") %>% parse_number()
+  )
+
+data %>% 
+  group_by(rsi, nogo_type, distance) %>% 
+  summarize(
+    across(c("rt", "acc"),
+    list(
+      mean = ~mean(., na.rm = TRUE), 
+      sd = ~sd(., na.rm = TRUE),
+      count = ~n()
+      )
+    )
+  ) %>% 
+  # filter(rsi == 1) %>% 
+  filter(!is.na(nogo_type)) %>% 
+  ggplot(
+    aes(
+      x = distance,
+      y = rt_mean,
+      group = interaction(nogo_type, rsi),
+      color = factor(rsi),
+      linetype = nogo_type,
+      shape = nogo_type
+    )
+  )+
+  geom_point()+
+  geom_errorbar(
+    aes(
+      ymin = rt_mean-(rt_sd/sqrt(rt_count)), 
+      ymax = rt_mean+(rt_sd/sqrt(rt_count)), 
+      width = 0.2
+      )
+    )+
+  geom_line()
+
+data %>% 
+  group_by(rsi, nogo_type, distance) %>% 
+  summarize(
+    across(c("rt", "acc"),
+    list(
+      mean = ~mean(., na.rm = TRUE), 
+      sd = ~sd(., na.rm = TRUE),
+      count = ~n()
+      )
+    )
+  ) %>% 
+  # filter(rsi == 1) %>% 
+  filter(!is.na(nogo_type)) %>% 
+  ggplot(
+    aes(
+      x = distance,
+      y = acc_mean,
+      group = interaction(nogo_type, rsi),
+      color = factor(rsi),
+      linetype = nogo_type,
+      shape = nogo_type
+    )
+  )+
+  geom_point()+
+  geom_errorbar(
+    aes(
+      ymin = acc_mean-(acc_sd/sqrt(acc_count)), 
+      ymax = acc_mean+(acc_sd/sqrt(acc_count)), 
+      width = 0.2
+      )
+    )+
+  geom_line()
+```
+
