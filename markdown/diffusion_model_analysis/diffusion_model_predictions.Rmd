@@ -4,28 +4,32 @@ editor_options:
 ---
 ```{r setup}
 # Library calls
-
+library(tidyverse)
+library(brms)
+library(tidybayes)
 ```
 
 ```{r functions}
 # Custom functions
-
+predict_ddm <- function(fit) {
+  pred <- fit$data %>%
+    select(id, rsi, error_factor, stimulus) %>%
+    add_predicted_draws(model = fit,
+                        negative_rt = TRUE,
+                        n = 1000) %>%
+    mutate(decision = ifelse(.prediction > 0, 1, 0),
+           rt = abs(.prediction))
+  pred
+}
 ```
 
 ```{r data}
 # Reading in data
-fit_wiener_robust <- rio::import("./markdown/models/brms_wiener_fit.rda")
-fit_wiener_classic <- rio::import("./markdown/models/brms_wiener_fit.rda")
-```
-
-```{r setup-pred}
-n_pred <- 1000
+fit_wiener_classic <- rio::import("./markdown/models/classic_standard_rsi_err_2023-02-15.rda")
+fit_wiener_robust <- rio::import("./markdown/models/robust_standard_rsi_err2023-02-15.rda")
 ```
 
 ```{r pred-robust}
-pred_robust <- predict(fit_wiener_robust, 
-                       summary = FALSE, 
-                       negative_rt = TRUE, 
-                       ndraws = n_pred)
+pred_classic <- predict_ddm(fit_wiener_classic)
 ```
 
