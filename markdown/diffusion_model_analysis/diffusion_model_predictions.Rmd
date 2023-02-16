@@ -13,10 +13,10 @@ library(tidybayes)
 # Custom functions
 predict_ddm <- function(fit) {
   pred <- fit$data %>%
-    select(id, rsi, error_factor, stimulus) %>%
-    add_predicted_draws(model = fit,
+    select(rsi, error_factor, stimulus) %>%
+    add_predicted_draws(object = fit,
                         negative_rt = TRUE,
-                        n = 1000) %>%
+                        ndraws = 1000) %>%
     mutate(decision = ifelse(.prediction > 0, 1, 0),
            rt = abs(.prediction))
   pred
