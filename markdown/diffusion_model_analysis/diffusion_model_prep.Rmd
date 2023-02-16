@@ -80,6 +80,30 @@ data_classic <- data %>%
     stimulus = factor(stimulus)
   )
 
+data_location <- data %>% 
+  filter(!is.na(location)) %>% 
+  select(id, trial, block, map_condition,
+         trial_type, rsi, 
+         acc, rt,
+         stimulus, correct, response, decision, decision_char,
+         nogo_type, distance, location) %>% 
+  mutate(
+    rsi = case_when(
+      rsi == 0.2 ~ "short",
+      rsi == 1 ~ "long"
+    ),
+    stimulus = case_when(
+      stimulus == "X" ~ 0,
+      stimulus == "Y" ~ 1
+    )
+  ) %>% 
+  mutate(
+    rsi = factor(rsi),
+    error_factor = factor(location),
+    map_condition = factor(map_condition),
+    stimulus = factor(stimulus)
+  ) %>% 
+  filter(!is.na(rt), !is.na(decision), !is.na(acc))
 ```
 
 ```{r no na}
@@ -93,6 +117,7 @@ data_classic_clean <- data_classic %>%
 ```{r export data}
 rio::export(data_classic_clean, "./markdown/data/diffusion_data_classic.rdata")
 rio::export(data_robust_clean, "./markdown/data/diffusion_data_robust.rdata")
+rio::export(data_location, "./markdown/data/diffusion_data_location.rdata")
 ```
 
 ```{r}
