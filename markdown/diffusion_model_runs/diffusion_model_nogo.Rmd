@@ -60,7 +60,7 @@ data_nogo <- data %>%
   ) %>% 
   ungroup() %>% 
   filter(!is.na(prev_type)) %>% 
-  filter(trial_type == "go", acc == 1, prev_acc == "post_correct")
+  filter(trial_type == "go")
 ```
 
 ```{r formula}

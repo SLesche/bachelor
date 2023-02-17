@@ -17,7 +17,9 @@ library(rmarkdown)
 library(knitr)
 library(brms)
 library(tidybayes)
+
 r_refs("r-references.bib")
+
 r_citations <- cite_r(
   file = "r-references.bib",
   pkgs = c("papaja", "tidyverse", "knitr", "afex", "emmeans", "brms", "tidybayes"),

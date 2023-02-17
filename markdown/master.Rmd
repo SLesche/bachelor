@@ -1,5 +1,5 @@
 ---
-title             : "Effects of the Response-Stimulus-Interval on the Nature of Cognitive Processes Underlying Post-Error Slowing – A Diffusion Model Account"
+title             : "The Nature of Cognitive Processes Underlying Post-Error Slowing – A Diffusion Model Account"
 shorttitle        : "Nature of Post-Error Slowing"
 
 author: 
