@@ -51,6 +51,45 @@
         "promises"
       ]
     },
+    "DescTools": {
+      "Package": "DescTools",
+      "Version": "0.99.47",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "0dfe876a22091246e544efb1f508b5e7",
+      "Requirements": [
+        "BH",
+        "Exact",
+        "MASS",
+        "Rcpp",
+        "boot",
+        "data.table",
+        "expm",
+        "gld",
+        "httr",
+        "mvtnorm",
+        "readxl",
+        "rstudioapi"
+      ]
+    },
+    "Exact": {
+      "Package": "Exact",
+      "Version": "3.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "1a43175d291899a4b2965b5d8db260e0",
+      "Requirements": [
+        "rootSolve"
+      ]
+    },
+    "HDInterval": {
+      "Package": "HDInterval",
+      "Version": "0.2.4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "b5b77433b286dd869ff33ee7fd5c545f",
+      "Requirements": []
+    },
     "MASS": {
       "Package": "MASS",
       "Version": "7.3-58.1",
@@ -199,6 +238,16 @@
         "lmerTest",
         "pbkrtest",
         "reshape2"
+      ]
+    },
+    "arrayhelpers": {
+      "Package": "arrayhelpers",
+      "Version": "1.1-0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "3d4e52d458784c335af3846f2de64f75",
+      "Requirements": [
+        "svUnit"
       ]
     },
     "askpass": {
@@ -456,6 +505,16 @@
         "backports"
       ]
     },
+    "class": {
+      "Package": "class",
+      "Version": "7.3-20",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "da09d82223e669d270e47ed24ac8686e",
+      "Requirements": [
+        "MASS"
+      ]
+    },
     "cli": {
       "Package": "cli",
       "Version": "3.5.0",
@@ -644,12 +703,13 @@
     },
     "dplyr": {
       "Package": "dplyr",
-      "Version": "1.0.10",
+      "Version": "1.1.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "539412282059f7f0c07295723d23f987",
+      "Hash": "d3c34618017e7ae252d46d79a1b9ec32",
       "Requirements": [
         "R6",
+        "cli",
         "generics",
         "glue",
         "lifecycle",
@@ -692,6 +752,17 @@
         "magrittr",
         "xts",
         "zoo"
+      ]
+    },
+    "e1071": {
+      "Package": "e1071",
+      "Version": "1.7-12",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "0d776df7577206e100c2c4b508208b10",
+      "Requirements": [
+        "class",
+        "proxy"
       ]
     },
     "ellipsis": {
@@ -826,6 +897,19 @@
       "Hash": "467ec0ca895d4e61a22cfbac9bccddf8",
       "Requirements": []
     },
+    "formattable": {
+      "Package": "formattable",
+      "Version": "0.2.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "870d6d5d39b23923d0c816f904075b4c",
+      "Requirements": [
+        "htmltools",
+        "htmlwidgets",
+        "knitr",
+        "rmarkdown"
+      ]
+    },
     "fs": {
       "Package": "fs",
       "Version": "1.5.2",
@@ -907,6 +991,28 @@
       "Hash": "15e9634c0fcd294799e9b2e929ed1b86",
       "Requirements": []
     },
+    "ggdist": {
+      "Package": "ggdist",
+      "Version": "3.2.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "07207011c0cc24258b8f33cbca3977bb",
+      "Requirements": [
+        "HDInterval",
+        "distributional",
+        "dplyr",
+        "ggplot2",
+        "glue",
+        "numDeriv",
+        "quadprog",
+        "rlang",
+        "scales",
+        "tibble",
+        "tidyselect",
+        "vctrs",
+        "withr"
+      ]
+    },
     "ggplot2": {
       "Package": "ggplot2",
       "Version": "3.4.0",
@@ -938,6 +1044,17 @@
         "ggplot2",
         "scales",
         "withr"
+      ]
+    },
+    "gld": {
+      "Package": "gld",
+      "Version": "2.6.6",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "71173258033324618dc8a09b3e27269e",
+      "Requirements": [
+        "e1071",
+        "lmom"
       ]
     },
     "globals": {
@@ -1311,6 +1428,14 @@
         "lme4",
         "numDeriv"
       ]
+    },
+    "lmom": {
+      "Package": "lmom",
+      "Version": "2.9",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "10c35f3f52a2b375a770c7c45e474816",
+      "Requirements": []
     },
     "loo": {
       "Package": "loo",
@@ -1713,6 +1838,14 @@
         "rlang"
       ]
     },
+    "proxy": {
+      "Package": "proxy",
+      "Version": "0.4-27",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "e0ef355c12942cf7a6b91a6cfaea8b3e",
+      "Requirements": []
+    },
     "ps": {
       "Package": "ps",
       "Version": "1.6.0",
@@ -1731,6 +1864,14 @@
         "magrittr",
         "rlang"
       ]
+    },
+    "quadprog": {
+      "Package": "quadprog",
+      "Version": "1.5-8",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "5f919ae5e7f83a6f91dcf2288943370d",
+      "Requirements": []
     },
     "quantreg": {
       "Package": "quantreg",
@@ -1896,6 +2037,14 @@
         "assertthat",
         "rmarkdown"
       ]
+    },
+    "rootSolve": {
+      "Package": "rootSolve",
+      "Version": "1.8.2.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "b8fbe639ed0e0e4f4c80498f4411ec5f",
+      "Requirements": []
     },
     "rprojroot": {
       "Package": "rprojroot",
@@ -2154,6 +2303,14 @@
         "Matrix"
       ]
     },
+    "svUnit": {
+      "Package": "svUnit",
+      "Version": "1.0.6",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "894d0aff9585344af4ab78e2b4d60ab7",
+      "Requirements": []
+    },
     "sys": {
       "Package": "sys",
       "Version": "3.4.1",
@@ -2207,6 +2364,28 @@
         "pkgconfig",
         "rlang",
         "vctrs"
+      ]
+    },
+    "tidybayes": {
+      "Package": "tidybayes",
+      "Version": "3.0.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "34f98d7837a108f66fa1f47b43a9c2ec",
+      "Requirements": [
+        "arrayhelpers",
+        "coda",
+        "dplyr",
+        "ggdist",
+        "ggplot2",
+        "magrittr",
+        "posterior",
+        "rlang",
+        "tibble",
+        "tidyr",
+        "tidyselect",
+        "vctrs",
+        "withr"
       ]
     },
     "tidyr": {
@@ -2338,10 +2517,10 @@
     },
     "vctrs": {
       "Package": "vctrs",
-      "Version": "0.5.1",
+      "Version": "0.5.2",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "970324f6572b4fd81db507b5d4062cb0",
+      "Hash": "e4ffa94ceed5f124d429a5a5f0f5b378",
       "Requirements": [
         "cli",
         "glue",

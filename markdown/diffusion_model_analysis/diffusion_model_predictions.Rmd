@@ -4,7 +4,10 @@ editor_options:
 ---
 ```{r setup}
 # Library calls
-
+library(brms)
+library(tidyverse)
+library(tidybayes)
+library(emmeans)
 ```
 
 ```{r functions}
@@ -14,18 +17,37 @@ editor_options:
 
 ```{r data}
 # Reading in data
-fit_wiener_robust <- rio::import("./markdown/models/brms_wiener_fit.rda")
-fit_wiener_classic <- rio::import("./markdown/models/brms_wiener_fit.rda")
+fit_wiener_robust <- rio::import("./markdown/models/robust_standard_rsi_err2023-02-15.rda")
+fit_wiener_classic <- rio::import("./markdown/models/classic_standard_rsi_err_2023-02-15.rda")
+fit_wiener_location <- rio::import("./markdown/models/location_standard_rsi_err_2023-02-19.rda")
 ```
 
 ```{r setup-pred}
 n_pred <- 1000
 ```
 
-```{r pred-robust}
+```{r predictions}
+pred_wiener <- predict(fit_wiener_classic,
+                       summary = FALSE,
+                       negative_rt = TRUE,
+                       ndraws = n_pred)
+
 pred_robust <- predict(fit_wiener_robust, 
                        summary = FALSE, 
                        negative_rt = TRUE, 
                        ndraws = n_pred)
+
+pred_location <- predict(fit_wiener_locatioin,
+                       summary = FALSE,
+                       negative_rt = TRUE,
+                       ndraws = n_pred)
+```
+
+```{r saving}
+save(pred_wiener, file = paste0("markdown/models/prediction_classic_standard_", Sys.Date(), ".rda"), compress = "xz")
+
+save(pred_robust, file = paste0("markdown/models/prediction_robust_standard_", Sys.Date(), ".rda"), compress = "xz")
+
+save(pred_location, file = paste0("markdown/models/prediction_location_standard_", Sys.Date(), ".rda"), compress = "xz")
 ```
 
