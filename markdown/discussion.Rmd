@@ -15,3 +15,16 @@ Discuss the reasons for my PES approach (having both post-nogo)
 
 ## No random effects
 To reduce estimation time and complexity and because individual differences are not of interest here
+
+## Nogo debacle
+In robust: Error trials always post-nogo, correct always post-go
+- but: rt post-nogo is faster than post-go (show this) so that doesn't cause pes
+- find out DDM changes post-nogo compared to post-go
+
+In classic: Error trials always post-response, correct always post-inhibition
+- study effects of inhibition on rt and ddm (meaning correct nogo vs. correct go)
+
+Maybe say: Effect of error on rt not generalizable to "errors" in general but more specific to inhibition errors in nogo trials. Should be on the safe side with that.
+
+Effect of error should depend on a) requirements of task and b) the process that failed
+- maybe find some evidence of that

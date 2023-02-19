@@ -19,7 +19,7 @@ library("DescTools") # for CCC
 # Reading in data
 data_robust <- rio::import("./markdown/data/diffusion_data_robust.rdata")
 
-data_model <- rio::import("./markdown/models/classic_fullinter_err_2023-02-14.rda")
+data_model <- rio::import("./markdown/models/classic_standard_rsi_err_2023-02-15.rda")
 ```
 
 ```{r checking rhat}

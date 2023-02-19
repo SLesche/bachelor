@@ -4,7 +4,8 @@
 
 ```{r results-source-significance-testing, child = "markdown/significance_testing.rmd"}
 ```
-All analysis was conducted using `r r_citations` **fix this** After data cleaning, `r nrow(final_data)` trials from `r demo_output$n_subjects - n_outliers` participants remained. Participants falsely responded in `r descriptive_output$mean_error_rate_nogo`% of NoGo trials resulting in a median `r average_n_nogo_error %>% filter(classic_pes_type == "post_error") %>% pull(median)` post-error trials (SD = `r average_n_nogo_error %>% filter(classic_pes_type == "post_error") %>% pull(sd)`) and `r average_n_nogo_error %>% filter(classic_pes_type == "post_correct") %>% pull(median)` (SD = `r average_n_nogo_error %>% filter(classic_pes_type == "post_correct") %>% pull(sd)`) post-correct trials per participant. **per participant descriptives kinda useless, right?** Descriptive statistics can be found in Table \@ref(tab:results-descriptive-analysis-overview-table).
+All analysis was conducted using `r r_citations$r`. `r r_citations$pkgs`
+After data cleaning, `r nrow(final_data)` trials from `r demo_output$n_subjects - n_outliers` participants remained. Participants falsely responded in `r descriptive_output$mean_error_rate_nogo`% of NoGo trials resulting in a median `r average_n_nogo_error %>% filter(classic_pes_type == "post_error") %>% pull(median)` (SD = `r average_n_nogo_error %>% filter(classic_pes_type == "post_error") %>% pull(sd)`) post-error trials and `r average_n_nogo_error %>% filter(classic_pes_type == "post_correct") %>% pull(median)` (SD = `r average_n_nogo_error %>% filter(classic_pes_type == "post_correct") %>% pull(sd)`) post-correct trials per participant. **per participant descriptives kinda useless, right?** Descriptive statistics can be found in Table \@ref(tab:results-descriptive-analysis-overview-table).
 
 ```{r results-descriptive-analysis-overview-table, results = 'asis'}
 descriptive_analysis_overview_table %>% 
