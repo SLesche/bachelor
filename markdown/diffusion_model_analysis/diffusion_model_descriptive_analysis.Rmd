@@ -9,6 +9,7 @@ library(brms)
 library(tidyverse)
 library(tidybayes)
 library(emmeans)
+library(loo)
 ```
 
 ```{r functions}

@@ -37,7 +37,7 @@ pred_robust <- predict(fit_wiener_robust,
                        negative_rt = TRUE, 
                        ndraws = n_pred)
 
-pred_location <- predict(fit_wiener_locatioin,
+pred_location <- predict(fit_wiener_location,
                        summary = FALSE,
                        negative_rt = TRUE,
                        ndraws = n_pred)
