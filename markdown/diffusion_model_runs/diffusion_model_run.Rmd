@@ -50,7 +50,7 @@ formula <- bf(
 unique(model.matrix(~ 0 + rsi:error_factor:stimulus, data_classic))
 unique(model.matrix(~ 0 + rsi*error_factor, data_robust))
 unique(model.matrix(~ 1 + rsi:error_factor:stimulus, data_robust))
-unique(model.matrix(~ 1 + rsi*error_factor, data_robust))
+unique(model.matrix(~ 0 + rsi:error_factor, data_robust))
 ```
 ```{r set-prior}
 prior <- c(

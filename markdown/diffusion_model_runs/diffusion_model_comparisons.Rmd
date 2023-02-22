@@ -28,6 +28,7 @@ rstan_options(auto_write = TRUE)
 # Reading in data
 data_robust <- rio::import("./markdown/data/diffusion_data_robust.Rdata")
 data_classic <- rio::import("./markdown/data/diffusion_data_classic.rdata")
+data_location <- rio::import("./markdown/data/diffusion_data_location.rdata")
 ```
 
 ```{r formulas}
@@ -40,14 +41,43 @@ formula_full <- bf(
     # because rsi and error_factor are known they can be used here
     # pre-error is not technically "known", but should affect bs and ndt nonetheless
   ndt ~ 0 + rsi:error_factor,
-  bias ~ map_condition # no reason for bias to vary TODO: intercept for bias
+  bias = 0.5 # no reason for bias to vary TODO: intercept for bias
+    # just want to estimate intercept for bias?
+    # TODO: maybe estimate intercept for bias? 
+)
+
+
+formula_no_error_ndt <- bf(
+  # No intercepts, bc this estimates parameters for each combination of
+  # rsi and error_factor
+  rt | dec(decision) ~ 0 + rsi:error_factor:stimulus,
+    # TODO: Implement this! Model comparison?
+  bs ~ 0 + rsi:error_factor,
+    # because rsi and error_factor are known they can be used here
+    # pre-error is not technically "known", but should affect bs and ndt nonetheless
+  ndt ~ 0 + rsi,
+  bias = 0.5 # no reason for bias to vary TODO: intercept for bias
+    # just want to estimate intercept for bias?
+    # TODO: maybe estimate intercept for bias? 
+)
+
+formula_no_ndt <- bf(
+  # No intercepts, bc this estimates parameters for each combination of
+  # rsi and error_factor
+  rt | dec(decision) ~ 0 + rsi:error_factor:stimulus,
+    # TODO: Implement this! Model comparison?
+  bs ~ 0 + rsi:error_factor,
+    # because rsi and error_factor are known they can be used here
+    # pre-error is not technically "known", but should affect bs and ndt nonetheless
+  ndt ~ 1,
+  bias = 0.5 # no reason for bias to vary TODO: intercept for bias
     # just want to estimate intercept for bias?
     # TODO: maybe estimate intercept for bias? 
 )
 ```
 
 ```{r priors}
-prior_no_bias <- c(
+prior_all_pars <- c(
  # drift rate
  prior("cauchy(0, 5)", class = "b"), # drift rate, population
 
@@ -58,5 +88,345 @@ prior_no_bias <- c(
  # Non-decision time
  set_prior("normal(0.15, 0.1)", class = "b", dpar = "ndt", lb = 0)
 )
+
+prior_ndt_int <- c(
+ # drift rate
+ prior("cauchy(0, 5)", class = "b"), # drift rate, population
+
+ # boundary separation
+ set_prior("normal(1.5, 1)", class = "b", dpar = "bs", lb = 0), 
+  # bs restricted to > 0, lb = 0
+ 
+ # Non-decision time
+ set_prior("normal(0.15, 0.1)", class = "Intercept", dpar = "ndt", lb = 0)
+)
 ```
 
+```{r tmp_dat}
+tmp_dat_robust_full <- make_standata(
+  formula_full, 
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  data = data_robust,
+  prior = prior_all_pars
+  )
+
+tmp_dat_robust_no_error_ndt <- make_standata(
+  formula_no_error_ndt, 
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  data = data_robust,
+  prior = prior_all_pars
+  )
+
+tmp_dat_robust_no_ndt <- make_standata(
+  formula_no_ndt, 
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  data = data_robust,
+  prior = prior_ndt_int
+  )
+
+tmp_dat_classic_full <- make_standata(
+  formula_full, 
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  data = data_classic,
+  prior = prior_all_pars
+  )
+
+tmp_dat_classic_no_error_ndt <- make_standata(
+  formula_no_error_ndt, 
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  data = data_classic,
+  prior = prior_all_pars
+  )
+
+tmp_dat_classic_no_ndt <- make_standata(
+  formula_no_ndt, 
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  data = data_classic,
+  prior = prior_ndt_int
+  )
+
+tmp_dat_location_full <- make_standata(
+  formula_full, 
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  data = data_location,
+  prior = prior_all_pars
+  )
+
+tmp_dat_location_no_error_ndt <- make_standata(
+  formula_no_error_ndt, 
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  data = data_location,
+  prior = prior_all_pars
+  )
+
+tmp_dat_location_no_ndt <- make_standata(
+  formula_no_ndt, 
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  data = data_location,
+  prior = prior_ndt_int
+  )
+```
+
+```{r initfun}
+initfun_robust_full <- function() {# all pars in stancode need init here
+  list(
+    b = rnorm(tmp_dat_robust_full$K), 
+    b_bs = runif(tmp_dat_robust_full$K_bs, 1, 2),
+    b_ndt = runif(tmp_dat_robust_full$K_ndt, 0.05, 0.1)
+  )
+}
+
+initfun_robust_no_error_ndt <- function() {# all pars in stancode need init here
+  list(
+    b = rnorm(tmp_dat_robust_no_error_ndt$K), 
+    b_bs = runif(tmp_dat_robust_no_error_ndt$K_bs, 1, 2),
+    b_ndt = runif(tmp_dat_robust_no_error_ndt$K_ndt, 0.05, 0.1)
+  )
+}
+
+initfun_robust_no_ndt <- function() {# all pars in stancode need init here
+  list(
+    b = rnorm(tmp_dat_robust_no_ndt$K), 
+    b_bs = runif(tmp_dat_robust_no_ndt$K_bs, 1, 2),
+    Intercept_ndt = runif(tmp_dat_robust_no_ndt$K_ndt, 0.05, 0.1)
+  )
+}
+
+initfun_classic_full <- function() {# all pars in stancode need init here
+  list(
+    b = rnorm(tmp_dat_classic_full$K), 
+    b_bs = runif(tmp_dat_classic_full$K_bs, 1, 2),
+    b_ndt = runif(tmp_dat_classic_full$K_ndt, 0.05, 0.1)
+  )
+}
+
+initfun_classic_no_error_ndt <- function() {# all pars in stancode need init here
+  list(
+    b = rnorm(tmp_dat_classic_no_error_ndt$K), 
+    b_bs = runif(tmp_dat_classic_no_error_ndt$K_bs, 1, 2),
+    b_ndt = runif(tmp_dat_classic_no_error_ndt$K_ndt, 0.05, 0.1)
+  )
+}
+
+initfun_classic_no_ndt <- function() {# all pars in stancode need init here
+  list(
+    b = rnorm(tmp_dat_classic_no_ndt$K), 
+    b_bs = runif(tmp_dat_classic_no_ndt$K_bs, 1, 2),
+    Intercept_ndt = runif(tmp_dat_classic_no_ndt$K_ndt, 0.05, 0.1)
+  )
+}
+
+
+initfun_location_full <- function() {# all pars in stancode need init here
+  list(
+    b = rnorm(tmp_dat_location_full$K), 
+    b_bs = runif(tmp_dat_location_full$K_bs, 1, 2),
+    b_ndt = runif(tmp_dat_location_full$K_ndt, 0.05, 0.1)
+  )
+}
+
+initfun_location_no_error_ndt <- function() {# all pars in stancode need init here
+  list(
+    b = rnorm(tmp_dat_location_no_error_ndt$K), 
+    b_bs = runif(tmp_dat_location_no_error_ndt$K_bs, 1, 2),
+    b_ndt = runif(tmp_dat_location_no_error_ndt$K_ndt, 0.05, 0.1)
+  )
+}
+
+initfun_location_no_ndt <- function() {# all pars in stancode need init here
+  list(
+    b = rnorm(tmp_dat_location_no_ndt$K), 
+    b_bs = runif(tmp_dat_location_no_ndt$K_bs, 1, 2),
+    Intercept_ndt = runif(tmp_dat_location_no_ndt$K_ndt, 0.05, 0.1)
+  )
+}
+```
+
+```{r model setup}
+n_iter <- 2000
+n_warmup <- 1000
+n_chains <- 4
+n_cores <- 4
+max_depth <- 15
+adapt_delta <- 0.95
+seed <- 1234
+```
+
+```{r location noerror}
+fit_location_no_error_ndt <- brm(
+  formula_no_error_ndt, 
+  data = data_location,
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  prior = prior_all_pars, 
+  init = initfun_location_no_error_ndt,
+  iter = n_iter, 
+  warmup = n_warmup, 
+  chains = n_chains,
+  cores = n_cores, 
+  control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  refresh = 100,
+  seed = seed # reproducibility
+  ) %>% 
+  add_loo()
+
+save(fit_location_no_error_ndt, "./markdown/models/model_comp/location_no_error_ndt.rda", compress = "xz")
+```
+
+```{r location noerror}
+fit_location_no_ndt <- brm(
+  formula_no_ndt, 
+  data = data_location,
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  prior = prior_ndt_int, 
+  init = initfun_location_no_ndt,
+  iter = n_iter, 
+  warmup = n_warmup, 
+  chains = n_chains,
+  cores = n_cores, 
+  control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  refresh = 100,
+  seed = seed # reproducibility
+  ) %>% 
+  add_loo()
+
+save(fit_location_no_ndt, "./markdown/models/model_comp/location_no_ndt.rda", compress = "xz")
+```
+```{r robust noerror}
+fit_robust_no_error_ndt <- brm(
+  formula_no_error_ndt, 
+  data = data_robust,
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  prior = prior_all_pars, 
+  init = initfun_robust_no_error_ndt,
+  iter = n_iter, 
+  warmup = n_warmup, 
+  chains = n_chains,
+  cores = n_cores, 
+  control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  refresh = 100,
+  seed = seed # reproducibility
+  ) %>% 
+  add_loo()
+
+save(fit_robust_no_error_ndt, "./markdown/models/model_comp/robust_no_error_ndt.rda", compress = "xz")
+```
+
+```{r robust noerror}
+fit_robust_no_ndt <- brm(
+  formula_no_ndt, 
+  data = data_robust,
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  prior = prior_ndt_int, 
+  init = initfun_robust_no_ndt,
+  iter = n_iter, 
+  warmup = n_warmup, 
+  chains = n_chains,
+  cores = n_cores, 
+  control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  refresh = 100,
+  seed = seed # reproducibility
+  ) %>% 
+  add_loo()
+
+save(fit_robust_no_ndt, "./markdown/models/model_comp/robust_no_ndt.rda", compress = "xz")
+```
+
+```{r classic noerror}
+fit_classic_no_error_ndt <- brm(
+  formula_no_error_ndt, 
+  data = data_classic,
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  prior = prior_all_pars, 
+  init = initfun_classic_no_error_ndt,
+  iter = n_iter, 
+  warmup = n_warmup, 
+  chains = n_chains,
+  cores = n_cores, 
+  control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  refresh = 100,
+  seed = seed # reproducibility
+  ) %>% 
+  add_loo()
+
+save(fit_classic_no_error_ndt, "./markdown/models/model_comp/classic_no_error_ndt.rda", compress = "xz")
+```
+
+```{r classic noerror}
+fit_classic_no_ndt <- brm(
+  formula_no_ndt, 
+  data = data_classic,
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  prior = prior_ndt_int, 
+  init = initfun_classic_no_ndt,
+  iter = n_iter, 
+  warmup = n_warmup, 
+  chains = n_chains,
+  cores = n_cores, 
+  control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  refresh = 100,
+  seed = seed # reproducibility
+  ) %>% 
+  add_loo()
+
+save(fit_classic_no_ndt, "./markdown/models/model_comp/classic_no_ndt.rda", compress = "xz")
+```
