@@ -1,0 +1,136 @@
+---
+editor_options:
+  chunk_output_type: console
+---
+```{r setup}
+library(tidyverse)
+library(rio)
+library(data.table)
+
+ggplot2::theme_set(theme_classic()) # setting default theme
+
+# Diffusion model packages
+library(brms)
+
+# Rstan
+library(rstan)
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+
+```
+
+```{r functions}
+
+```
+
+```{r data}
+data <- rio::import("./markdown/data/diffusion_data_location.rdata") %>% 
+  mutate(nogo_type = factor(nogo_type),
+         distance = factor(distance)) %>% 
+  head(20000)
+```
+
+```{r formula}
+formula <- bf(
+  # No intercepts, bc this estimates parameters for each combination of
+  # rsi and error_factor
+  rt | dec(decision) ~ 1 + rsi*nogo_type*distance*stimulus,
+    # TODO: Implement this! Model comparison?
+  bs ~ 1 + rsi*nogo_type*distance,
+    # because rsi and error_factor are known they can be used here
+    # pre-error is not technically "known", but should affect bs and ndt nonetheless
+  ndt ~ 1 + rsi*nogo_type*distance,
+  bias = 0.5 # no reason for bias to vary TODO: intercept for bias
+    # just want to estimate intercept for bias?
+    # TODO: maybe estimate intercept for bias? 
+)
+
+unique(model.matrix(~ 1 + rsi*nogo_type*distance*stimulus, data))
+
+```
+
+```{r set-prior}
+prior <- c(
+ # drift rate
+ prior("normal(0, 4)", class = "b"), # drift rate, population
+ set_prior("normal(0, 4)", class = "Intercept"),
+ 
+ # boundary separation
+ set_prior("normal(0, 1)", class = "b", dpar = "bs"), 
+  # bs restricted to > 0, lb = 0
+ set_prior("normal(1.5, 1)", class = "Intercept", dpar = "bs"),
+ 
+ # Non-decision time
+ set_prior("normal(0, 0.1)", class = "b", dpar = "ndt"),
+ set_prior("normal(0.15, 0.1)", class = "Intercept", dpar = "ndt")
+)
+```
+
+```{r stan-code-check}
+# Check that all parameters listed
+make_stancode(formula, # default transformations
+              family = wiener(link_bs = "identity", 
+                              link_ndt = "identity",
+                              link_bias = "identity"),
+              data = data, 
+              prior = prior)
+
+```
+
+```{r temp-starting-values}
+tmp_dat <- make_standata(
+  formula, 
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  data = data,
+  prior = prior
+  )
+```
+
+```{r init-function}
+initfun <- function() {# all pars in stancode need init here
+  list(
+    Intercept_ndt = -3
+  )
+}
+
+```
+
+```{r setup-model}
+n_iter <- 2000
+n_warmup <- 1000
+n_chains <- 4
+n_cores <- 4
+max_depth <- 15
+adapt_delta <- 0.95
+seed <- 1234
+
+model_setup_values <- data.frame(n_iter, n_warmup, n_chains, n_cores, max_depth,
+                                 adapt_delta, seed)
+```
+
+```{r fitting-model-classic}
+fit_wiener <- brm(
+  formula, 
+  data = data,
+  family = wiener(),
+  prior = prior, 
+  init = initfun,
+  init_r = 0.05,
+  iter = n_iter,
+  warmup = n_warmup, 
+  chains = n_chains,
+  cores = n_cores, 
+  control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  refresh = 20,
+  seed = seed # reproducibility
+  )
+```
+
+```{r saving-ddm-classic}
+save(fit_wiener, file = paste0("./markdown/models/location_standard_rsi_err_", Sys.Date(), ".rda"),
+     compress = "xz")
+```
