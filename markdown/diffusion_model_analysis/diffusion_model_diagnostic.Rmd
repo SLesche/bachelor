@@ -55,6 +55,8 @@ get_max_cors <- function(model){
   
   hist(cor_long$Freq, breaks = 40)
 }
+
+
 ```
 
 ```{r data}
@@ -69,6 +71,7 @@ data_location <- rio::import("./markdown/data/diffusion_data_location.Rdata")
 
 pred_robust <- rio::import("./markdown/models/prediction_robust_standard_2023-02-20.rda")
 pred_classic <- rio::import("./markdown/models/prediction_classic_standard_2023-02-20.rda")
+pred_location <- rio::import("./markdown/models/prediction_location_standard_2023-02-22.rda")
 ```
 
 ```{r checking rhat}
@@ -78,28 +81,35 @@ max_rhat(fit_wiener_classic)
 
 min_ess(fit_wiener_robust)
 max_rhat(fit_wiener_robust)
+
+min_ess(fit_wiener_location)
+max_rhat(fit_wiener_location)
 ```
 
 ```{r divergent}
 # Number of divergent transitions
 n_divergent(fit_wiener_classic)
 n_divergent(fit_wiener_robust)
+n_divergent(fit_wiener_location)
 ```
 
 ```{r visual-par-inspection}
 inspect_pars(fit_wiener_classic)
 inspect_pars(fit_wiener_robust)
+inspect_pars(fit_wiener_location)
 ```
 
 
 ```{r parameter correlations}
 get_max_cors(fit_wiener_classic)
 get_max_cors(fit_wiener_robust)
+get_max_cors(fit_wiener_location)
 ```
 
 ```{r model-fit}
 combined_data_classic <- as_tibble(cbind(data_classic, as_tibble(t(pred_classic))))
 combined_data_robust <- as_tibble(cbind(data_robust, as_tibble(t(pred_robust))))
+combined_data_location <- as_tibble(cbind(data_location, as_tibble(t(pred_location))))
 ```
 
 ```{r}
@@ -150,6 +160,30 @@ agg_check_robust <- combined_data_robust %>%
                             hhhh = quantile(., probs = 0.99,na.rm = TRUE)
                ))
 
+agg_check_location <- combined_data_location %>% 
+  group_by(rsi, error_factor, stimulus) %>%  # select grouping vars
+  summarise_at(.vars = vars(starts_with("V")), 
+               funs(prob.upper = mean(. > 0),
+                    medrt.lower = median(abs(.[. < 0]) ),
+                    medrt.upper = median(.[. > 0] )
+               )) %>% 
+  ungroup() %>% 
+  gather("key", "value", -rsi, -error_factor, -stimulus) %>% # remove grouping vars
+  separate("key", c("rep", "measure"), sep = "_") %>% 
+  spread(measure, value) %>%
+  group_by(rsi, error_factor, stimulus) %>% # select grouping vars
+  summarise_at(.vars = vars(prob.upper, medrt.lower, medrt.upper), 
+               funs(median = median(., na.rm = TRUE),
+                            llll = quantile(., probs = 0.01,na.rm = TRUE),
+                            lll = quantile(., probs = 0.025,na.rm = TRUE),
+                            ll = quantile(., probs = 0.1,na.rm = TRUE),
+                            l = quantile(., probs = 0.25,na.rm = TRUE),
+                            h = quantile(., probs = 0.75,na.rm = TRUE),
+                            hh = quantile(., probs = 0.9,na.rm = TRUE),
+                            hhh = quantile(., probs = 0.975,na.rm = TRUE),
+                            hhhh = quantile(., probs = 0.99,na.rm = TRUE)
+               ))
+
 agg_total_classic <- data_classic %>% 
   group_by(rsi, error_factor, stimulus) %>% # select grouping vars
   summarise(prob.upper = mean(decision == 1),
@@ -167,6 +201,15 @@ agg_total_robust <- data_robust %>%
   ) %>% 
   ungroup() %>% 
   left_join(agg_check_robust)
+
+agg_total_location <- data_location %>% 
+  group_by(rsi, error_factor, stimulus) %>% # select grouping vars
+  summarise(prob.upper = mean(decision == 1),
+            medrt.upper = median(rt[decision == 1], na.rm = TRUE),
+            medrt.lower = median(rt[decision == 0], na.rm = TRUE)
+  ) %>% 
+  ungroup() %>% 
+  left_join(agg_check_location)
 ```
 
 ```{r}
@@ -179,14 +222,22 @@ agg_total_robust_summary <- agg_total_robust  %>%
   group_by(rsi, error_factor, stimulus) %>% 
   summarise_if(is.numeric, mean, na.rm = TRUE) %>% 
   ungroup()
+
+agg_total_location_summary <- agg_total_location %>% 
+  group_by(rsi, error_factor, stimulus) %>% 
+  summarise_if(is.numeric, mean, na.rm = TRUE) %>% 
+  ungroup()
 ```
 
 ```{r}
-new_x <- with(agg_total_classic_summary, 
-              paste(rep(levels(rsi), each = 4), rep(levels(error_factor), each = 2),
-                    levels(stimulus), sep = "\n"))
+labels <- agg_total_location_summary %>% 
+  mutate(labels = paste0(rsi, "_", error_factor, "_", stimulus)) %>% 
+  pull(labels)
 
-p1 <- ggplot(agg_total_classic_summary, aes(x = rsi:error_factor:stimulus)) +
+labels_upper <- labels[which(str_detect(labels, "_1$"))]
+labels_lower <- labels[which(str_detect(labels, "_0$"))]
+
+p1 <- ggplot(agg_total_location_summary, aes(x = rsi:error_factor:stimulus)) +
   geom_linerange(aes(ymin =  prob.upper_lll, ymax =  prob.upper_hhh), 
                  col = "darkgrey") + 
   geom_linerange(aes(ymin =  prob.upper_ll, ymax =  prob.upper_hh), 
@@ -195,9 +246,9 @@ p1 <- ggplot(agg_total_classic_summary, aes(x = rsi:error_factor:stimulus)) +
   geom_point(aes(y = prob.upper), shape = 4, col = "red") +
   ggtitle("Response Probabilities") + 
   ylab("Probability of upper resonse") + xlab("") +
-  scale_x_discrete(labels = new_x)
+  scale_x_discrete(labels = labels, guide = guide_axis(n.dodge = 2))
 
-p2 <- ggplot(agg_total_classic_summary, aes(x = rsi:error_factor:stimulus)) +
+p2 <- ggplot(agg_total_location_summary %>% filter(stimulus == 1), aes(x = rsi:error_factor)) +
   geom_linerange(aes(ymin =  medrt.upper_lll, ymax =  medrt.upper_hhh), 
                  col = "darkgrey") + 
   geom_linerange(aes(ymin =  medrt.upper_ll, ymax =  medrt.upper_hh), 
@@ -206,9 +257,9 @@ p2 <- ggplot(agg_total_classic_summary, aes(x = rsi:error_factor:stimulus)) +
   geom_point(aes(y = medrt.upper), shape = 4, col = "red") +
   ggtitle("Median RTs upper") + 
   ylab("RT (s)") + xlab("") +
-  scale_x_discrete(labels = new_x)
+  scale_x_discrete(labels = labels_upper, guide = guide_axis(n.dodge = 2))
 
-p3 <- ggplot(agg_total_classic_summary, aes(x = rsi:error_factor:stimulus)) +
+p3 <- ggplot(agg_total_location_summary %>% filter(stimulus == 0), aes(x = rsi:error_factor)) +
   geom_linerange(aes(ymin =  medrt.lower_lll, ymax =  medrt.lower_hhh), 
                  col = "darkgrey") + 
   geom_linerange(aes(ymin =  medrt.lower_ll, ymax =  medrt.lower_hh), 
@@ -217,12 +268,26 @@ p3 <- ggplot(agg_total_classic_summary, aes(x = rsi:error_factor:stimulus)) +
   geom_point(aes(y = medrt.lower), shape = 4, col = "red") +
   ggtitle("Median RTs lower") + 
   ylab("RT (s)") + xlab("") +
-  scale_x_discrete(labels = new_x)
+  scale_x_discrete(labels = labels_lower, guide = guide_axis(n.dodge = 2))
 
 grid.arrange(p1, p2, p3, ncol = 2)
 ```
 
 ```{r checking full rt distributions}
-
+combined_data_robust %>% 
+  group_by(id, rsi, error_factor, stimulus)
+  summarize(
+    across(starts_with("V")),
+    list(
+      median_rt = median(rt)
+    )
+  )
+  ggplot(
+    aes(
+      x = rt,
+    )
+  )+
+  geom_histogram()+
+  geom_histogram(aes(x = rt+0.1), fill = "green", alpha = 0.5)
 ```
 
