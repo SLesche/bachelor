@@ -26,6 +26,7 @@ rstan_options(auto_write = TRUE)
 ```{r data}
 data_robust <- rio::import("./markdown/data/diffusion_data_robust.Rdata")
 data_classic <- rio::import("./markdown/data/diffusion_data_classic.rdata")
+data_location <- rio::import("./markdown/data/diffusion_data_location.rdata")
 ```
 
 ```{r testing intercepts}
@@ -41,7 +42,7 @@ unique(model.matrix(~ 1 + rsi*error_factor, data_robust))
 formula <- bf(
   # No intercepts, bc this estimates parameters for each combination of
   # rsi and error_factor
-  rt | dec(decision) ~ 0 + rsi:error_factor:stimulus + (0 + rsi:error_factor|id),
+  rt | dec(decision) ~ 0 + rsi:error_factor:stimulus + (0 + rsi:error_factor:stimulus|id),
     # random slopes just for rsi for now. can do random slopes for error_factor later
     # TODO: Implement this! Model comparison?
   bs ~ 0 + rsi:error_factor + (0 + rsi:error_factor|id),

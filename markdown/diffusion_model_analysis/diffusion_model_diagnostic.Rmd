@@ -4,10 +4,11 @@ editor_options:
 ---
 ```{r setup}
 # Library calls
-library("brms")
+library(brms)
 library(tidyverse)
-library("gridExtra") # for grid.arrange
-library("DescTools") # for CCC
+library(gridExtra) # for grid.arrange
+library(DescTools) # for CCC
+library(dtplyr)
 ```
 
 ```{r functions}
@@ -274,20 +275,74 @@ grid.arrange(p1, p2, p3, ncol = 2)
 ```
 
 ```{r checking full rt distributions}
-combined_data_robust %>% 
-  group_by(id, rsi, error_factor, stimulus)
-  summarize(
-    across(starts_with("V")),
-    list(
-      median_rt = median(rt)
-    )
+dt_combined_data_robust <- lazy_dt(combined_data_robust)
+dt_combined_data_location <- lazy_dt(combined_data_location)
+
+factor_combinations <- combined_data_location %>% 
+  mutate(labels = paste0(rsi, "_", error_factor, "_", stimulus)) %>% 
+  pull(labels) %>% 
+  unique()
+
+
+return_vector_of_values <- function(data, my_rsi, my_error_factor, my_stimulus){
+  vector <- data %>% 
+    filter(rsi == my_rsi, error_factor == my_error_factor, stimulus == my_stimulus) %>% 
+    select(starts_with("V")) %>% 
+    as.matrix() %>% 
+    c() %>% 
+    abs()
+  return(vector)
+}
+
+for (i in seq_along(factor_combinations)) {
+  vec_rsi = str_extract(factor_combinations[i], "^(long|short)")
+  vec_error_factor = str_extract(factor_combinations[i], "_(.+)_") %>% str_remove_all(., "_")
+  vec_stimulus = str_extract(factor_combinations[i], "(0|1)$")
+  assign(
+    paste0("rt_pred_", factor_combinations[i]),
+    return_vector_of_values(data = combined_data_location,
+                            my_rsi = vec_rsi,
+                            my_error_factor = vec_error_factor,
+                            my_stimulus = vec_stimulus)
   )
-  ggplot(
-    aes(
-      x = rt,
+  
+}
+
+get_name_quotes <- function(object){
+  paste(rlang::get_expr(rlang::enquo(object)))
+}
+
+compare_plot <- function(dataframe, vector){
+  name = get_name_quotes({{vector}})
+  name = str_remove(name, "^rt_pred_")
+  vec_rsi = str_extract(name, "^(long|short)")
+  vec_error_factor = str_extract(name, "_(.+)_") %>% str_remove_all(., "_")
+  vec_stimulus = str_extract(name, "(0|1)$")
+  data = dataframe %>% 
+    filter(rsi == vec_rsi, error_factor == vec_error_factor, stimulus == vec_stimulus) %>% 
+    mutate(type = "empirical") %>% 
+    select(rt, type)
+  vector_data = data.frame(rt =vector, type = "predicted")
+  full_data = rbind(data, vector_data)
+  full_data %>%
+    ggplot(
+      aes(x = rt,
+          group = type,
+          fill = type)
+    )+
+    geom_density(alpha = 0.5)+
+    labs(
+      title = paste(
+        "Comparing empirical to predicted reaction times"
+      ),
+      subtitle = paste0(
+        "RSI = ", vec_rsi,";", " error_factor = ", vec_error_factor,
+        "; ", "stimulus = ", stimulus
+      )
     )
-  )+
-  geom_histogram()+
-  geom_histogram(aes(x = rt+0.1), fill = "green", alpha = 0.5)
+}
+
+compare_plot(combined_data_location, `rt_pred_short_E+1_0`)
 ```
+
 
