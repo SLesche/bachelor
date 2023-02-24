@@ -24,6 +24,8 @@ markdown/*.log
 markdown/*.fff
 markdown/*.ttt
 
+markdown/testing*
+
 psychopy/archive
 psychopy/data
 psychopy/instructions_bat

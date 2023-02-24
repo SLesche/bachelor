@@ -3,20 +3,12 @@ editor_options:
   chunk_output_type: console
 ---
 ```{r setup}
-library(tidyverse)
 library(rio)
-library(data.table)
-
-ggplot2::theme_set(theme_classic()) # setting default theme
-
 # Diffusion model packages
 library(brms)
 
 # Rstan
 library(rstan)
-options(mc.cores = parallel::detectCores())
-rstan_options(auto_write = TRUE)
-
 ```
 
 ```{r functions}
@@ -24,10 +16,8 @@ rstan_options(auto_write = TRUE)
 ```
 
 ```{r data}
-data_robust <- rio::import("./markdown/data/diffusion_data_robust.Rdata")
-data_classic <- rio::import("./markdown/data/diffusion_data_classic.rdata")
-data_location <- rio::import("./markdown/data/diffusion_data_location.rdata") %>% 
-  head(20000)
+load("./markdown/data/final_ddm_data_location.rdata")
+data <- data_location_clean
 ```
 
 ```{r testing intercepts}
@@ -43,13 +33,13 @@ unique(model.matrix(~ 1 + rsi*error_factor, data_robust))
 formula <- bf(
   # No intercepts, bc this estimates parameters for each combination of
   # rsi and error_factor
-  rt | dec(decision) ~ 0 + rsi:error_factor:stimulus + (0 + rsi:error_factor:stimulus|id),
+  rt | dec(decision) ~ 1 + rsi*error_factor*stimulus + (1 + rsi*error_factor|id),
     # random slopes just for rsi for now. can do random slopes for error_factor later
     # TODO: Implement this! Model comparison?
-  bs ~ 0 + rsi:error_factor + (0 + rsi:error_factor|id),
+  bs ~ 1 + rsi*error_factor + (1 + rsi*error_factor|id),
     # because rsi and error_factor are known they can be used here
     # pre-error is not technically "known", but should affect bs and ndt nonetheless
-  ndt ~ 0 + rsi:error_factor + (0 + rsi:error_factor|id),
+  ndt ~ 1 + rsi*error_factor + (1 + rsi*error_factor|id),
   bias = 0.5 # no reason for bias to vary TODO: intercept for bias
     # just want to estimate intercept for bias?
     # TODO: maybe estimate intercept for bias? 
@@ -73,6 +63,15 @@ prior <- c(
  # Group-level
  set_prior("normal(0, 0.3)", class = "sd")
 )
+
+prior <- prior(normal(0, 2), class = Intercept) +
+         prior(normal(0, 2), class = b) +
+         prior(normal(0, 1), class = Intercept, dpar = bs) +
+         prior(normal(0, 1), class = b, dpar = bs) +
+         prior(normal(0, 5), class = Intercept, dpar = ndt) +
+         prior(normal(0, 1), class = b, dpar = ndt) +
+         prior(student_t(3, 0, 1), class = sd, group = id) +
+         prior(lkj(1), class = cor, group = id)
 ```
 
 ```{r stan-code-check}
@@ -258,7 +257,7 @@ save(fit_wiener_classic, file = paste0("./markdown/models/brms_wiener_fit_classi
 ```
 
 ```{r fitting-model-robust}
-fit_wiener_robust_depth <- brm(
+fit_wiener_robust <- brm(
   formula, 
   data = data_robust,
   family = wiener(
@@ -272,14 +271,33 @@ fit_wiener_robust_depth <- brm(
   warmup = n_warmup, 
   chains = n_chains,
   cores = n_cores, 
-  control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
-  refresh = 20,
+  # control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  refresh = 100,
   seed = seed # reproducibility
   )
 # Can run %>% add_loo() here for added model fit parameters? only relevant for model comparison?
 ```
 
 ```{r saving-ddm-robust}
-save(fit_wiener_robust, file = paste0("./markdown/models/test_wiener_fit_robust_", Sys.Date(), ".rda"),
+save(fit_wiener_robust, file = paste0("./markdown/models/brms_wiener_fit_robust_", Sys.Date(), ".rda"),
      compress = "xz")
 ```
+---
+editor_options:
+  chunk_output_type: console
+---
+```{r setup}
+# Library calls
+
+```
+
+```{r functions}
+# Custom functions
+
+```
+
+```{r data}
+# Reading in data
+
+```
+

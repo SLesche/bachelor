@@ -214,6 +214,29 @@ robust_summary_pred <- summarize_med_rt(
   group_id = FALSE
 )
 
+classic_med_rts_pred <- generate_med_rts_pred(
+  combined_data = combined_data_classic,
+  raw_data = data_classic,
+  group_id = FALSE
+)
+
+classic_summary_pred <- summarize_med_rt(
+  classic_med_rts_pred,
+  group_id = FALSE
+)
+
+location_med_rts_pred <- generate_med_rts_pred(
+  combined_data = combined_data_location,
+  raw_data = data_location,
+  group_id = FALSE
+)
+
+location_summary_pred <- summarize_med_rt(
+  location_med_rts_pred,
+  group_id = FALSE
+)
+
+
 ```
 
 ```{r}
@@ -292,11 +315,13 @@ combine_all_pred_plots <- function(data){
 
 ```{r}
 combine_all_pred_plots(robust_summary_pred)
+combine_all_pred_plots(classic_summary_pred)
+combine_all_pred_plots(location_summary_pred)
 ```
 
 ```{r checking full rt distributions}
 get_factor_combinations <- function(data){
-  factor_combinations <- combined_data_robust %>% 
+  factor_combinations <- data %>% 
     mutate(labels = paste0(rsi, "_", error_factor, "_", stimulus)) %>% 
     pull(labels) %>% 
     unique()
@@ -337,12 +362,15 @@ compare_plot <- function(dataframe, vector, my_rsi, my_error_factor, my_stimulus
         "; ", "stimulus = ", my_stimulus
       )
     )+
-    theme_classic()
+    theme_classic()+
+    xlim(0, 1)
 }
 
 compare_all_conditions <- function(data){
   factor_combinations <- get_factor_combinations(data)
   
+  n_factors <- length(factor_combinations)
+  grid_width = floor(n_factors/5)
   # generating list of vectors containing all predicted data for those combinations
   list_objects = list()
   list_plots = list()
@@ -363,11 +391,14 @@ compare_all_conditions <- function(data){
                                  my_stimulus = vec_stimulus)
   }
   
-  grid.arrange(grobs = list_plots, ncol = 2)
+  grid <- grid.arrange(grobs = list_plots, ncol = grid_width)
+  return(grid)
 }
-
-compare_all_conditions(combined_data_robust)
-
 ```
 
+```{r}
+robust_visual_fit <- compare_all_conditions(combined_data_robust)
+classic_visual_fit <- compare_all_conditions(combined_data_classic)
+location_visual_fit <- compare_all_conditions(combined_data_location)
+```
 

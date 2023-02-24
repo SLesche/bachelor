@@ -112,12 +112,20 @@ data_robust_clean <- data_robust %>%
 
 data_classic_clean <- data_classic %>% 
   filter(!is.na(rt) & !is.na(error_factor))
+
+data_location_clean <- data_location %>% 
+  filter(distance != 0) %>% 
+  mutate(error_factor = droplevels(error_factor))
 ```
 
 ```{r export data}
 rio::export(data_classic_clean, "./markdown/data/diffusion_data_classic.rdata")
 rio::export(data_robust_clean, "./markdown/data/diffusion_data_robust.rdata")
 rio::export(data_location, "./markdown/data/diffusion_data_location.rdata")
+
+save(data_classic_clean, file = "./markdown/data/final_ddm_data_classic.rdata")
+save(data_robust_clean, file = "./markdown/data/final_ddm_data_robust.rdata")
+save(data_location_clean, file = "./markdown/data/final_ddm_data_location.rdata")
 ```
 
 ```{r}
