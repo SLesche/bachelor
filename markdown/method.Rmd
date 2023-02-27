@@ -26,10 +26,12 @@ Participants were asked to respond as quickly and accurately as possible. Instru
 
 ## Data preparation
 All response times shorter than 150ms were excluded from analysis. Mean RT and accuracy for each participant in each combination of RSI (short -- long) and trial type (Go -- NoGo) were considered outliers if the participant's mean deviated more than 3 standard deviations from the mean across participants for that combination of RSI and trial type. A total of `r n_outliers` participants were excluded due to this criterion, leaving `r demo_output$n_subjects - n_outliers` participants for analysis.
+
 <!-- Exclude first 10 trials in each first occurence of RSI block -->
 <!-- Within-participant logarithmized response times deviating more than 3 standard deviations from the participants' condition-specific mean were also considered outliers. Of the `r nrow(rt_data)` trials `r paste(formattable::percent((n_outliers*3000) / nrow(final_data)))` of trials were lost due to participant exclusion, `r demo_output$percentage_trials_lost`% of trials were lost due to single trial outliers, leaving `r nrow(final_data)` trials for analysis. -->
 
 ## Behavioral Analysis
+A key 
 Only errors in NoGo trials were considered _error trials_ relevant for analysis. PES was defined using the traditional approach^[We conducted all behavioral and DDM analysis with the robust measure of PES [@dutilh2012how]. Results did not differ significantly, see Appendix //REPLACE// for Detail] [@dutilh2012how; @pfister2022]. Mean response times $\overline{RT}$ in Go trials following a false response to a NoGo trial ($E+1$) are compared to mean response times following a correct response to a NoGo trial ($C+1$). 
 $$\Delta_{PES} = \overline{RT_{E+1}} - \overline{RT_{C+1}}$$
 Effects of RSI condition and accuracy of the previous NoGo trial as well as their interaction on mean response times and accuracy were then examined using a two-way ($RSI \times previous \ accuracy$) repeated measures ANOVA.

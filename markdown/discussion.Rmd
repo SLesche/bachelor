@@ -1,9 +1,12 @@
 # Discussion
+
 ## Problems
 GoNogo task
 participants
 Model stuff (DDM adequate, too low sample size?) Check number of trials per cell (2x2)
 Discuss the reasons for my PES approach (having both post-nogo)
+
+
 ## Outline Discussion
 - give basic overview of hypothesis
 - describe the task and analysis procedure

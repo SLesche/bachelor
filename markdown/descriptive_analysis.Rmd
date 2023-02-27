@@ -78,8 +78,14 @@ average_n_nogo_error <- data %>%
   group_by(classic_pes_type) %>% 
   summarize(mean = mean(n), sd = sd(n), median = median(n))
   
+average__nogo_error_robust <- data %>% 
+  group_by(id, trial_type) %>% 
+  count(error_code) %>% 
+  filter(!is.na(error_code)) %>% 
+  group_by(error_code) %>%
+  summarize(mean = mean(n), sd = sd(n), median = median(n))
 
-descriptive_output <- data.frame(
+    descriptive_output <- data.frame(
   mean_error_rate_overall,
   mean_error_rate_nogo,
   mean_rt,
@@ -342,6 +348,57 @@ descriptive_analysis_overview_table <- data %>%
   select(rsi, trial_type, classic_pes_type, rt, acc, count) %>% 
   rename(
     "previous accuracy" = classic_pes_type,
+    "RSI" = rsi,
+    "trial type" = trial_type,
+    "RT" = rt,
+    "ACC" = acc
+  )
+
+descriptive_analysis_overview_table_robust <- data %>% 
+  group_by(rsi, trial_type, error_code) %>% 
+  summarize(
+    across(c("rt", "acc"),
+    list(
+      mean = ~mean(., na.rm = TRUE), 
+      sd = ~sd(., na.rm = TRUE),
+      count = ~n()
+      )
+    )
+  ) %>% 
+  mutate(count = acc_count) %>% 
+  select(-c("rt_count", "acc_count")) %>% 
+  mutate(
+    rt_mean = papaja::apa_num(rt_mean),
+    rt_sd = papaja::apa_num(rt_sd),
+    rt = paste0(rt_mean, " (", rt_sd, ")")
+    ) %>% 
+  mutate(
+    acc_mean = papaja::apa_num(acc_mean, gt1 = FALSE),
+    acc_sd = papaja::apa_num(acc_sd, gt1 = FALSE),
+    acc = paste0(acc_mean, " (", acc_sd, ")")
+    ) %>% 
+  select(-c("rt_mean", "rt_sd", "acc_mean", "acc_sd")) %>% 
+  mutate(
+    error_code = ifelse(is.na(error_code), "other", error_code)
+  ) %>% 
+  mutate(
+    trial_type = recode(trial_type,
+                        "go" = "Go",
+                        "nogo" = "NoGo"),
+    rsi = case_when(
+      rsi == 0.2 ~ "short",
+      rsi == 1 ~ "long"
+    ),
+    error_code = case_when(
+      error_code == -1 ~ "E-1",
+      error_code == 0 ~ "E",
+      error_code == 1 ~ "E+1",
+      TRUE ~ "other"
+    )
+  ) %>% 
+  select(rsi, trial_type, error_code, rt, acc, count) %>% 
+  rename(
+    "error-condition" = error_code,
     "RSI" = rsi,
     "trial type" = trial_type,
     "RT" = rt,
