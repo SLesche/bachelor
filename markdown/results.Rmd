@@ -45,3 +45,11 @@ apa_print(aov_acc_rsi_error_classic)$table %>%
 ```
 
 ## Diffusion Model
+### Model Fit
+**model comparisons? Describe in method what models are compared?**
+After fitting, the models were subjected to various model diagnostic tests. There were no divergent transitions, $\hat{R} > 1.01$ or other signs of non-convergence in any of the models we tested [@gelman1992]. We visually inspected if the 4 chains mixed well for a few randomly selected parameters, observing no signs of misbehavior in the chains. **correlations among posterior parameters**
+
+We obtained 500 posterior prediction samples and then compared empirical response time distributions to the predicted response time distribution (**see Appendix**). **Say what misfits we observed**
+
+### Modeling Results
+**results go here**

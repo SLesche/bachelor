@@ -49,7 +49,7 @@ with the four model parameters boundary separation $\alpha$, bias $\beta$, non-d
 
 <!-- Sorry for the next sentence, Dirk -->
 The parameters drift rate $\delta$, non-decision time $\tau$ and boundary separation $\alpha$ were allowed to vary between conditions (see Figure \@ref(fig:method-display-model-spec)). All intercepts were fixed to zero in order to estimate group-level parameters for each combination of factors instead of deviations from a baseline, easing specification of priors [@singmann2017intro]. **and estimating uncertainty for each combination of factors, instead of main effect -- thanks valentin //Citation here** Drift rate was further allowed to vary depending on the true status of the presented stimulus, accounting for differences in drift direction depending on the presented stimulus.
-The model estimates parameters defining the group-level distribution from which individual-level parameters are then drawn. Drift rates $\delta_{jk}$ of individual $j$ in condition $k$, for example, are assumed to follow the distribution $\delta_{jk} \sim N(\mu_{\delta k}, \sigma_{\delta k})$. 
+The model estimates parameters defining the group-level distribution from which individual-level parameters are then drawn. Drift rates $\delta_{ik}$ of individual $i$ in condition $k$, for example, are assumed to follow the distribution $\delta_{ik} \sim N(\mu_{\delta k}, \sigma_{\delta k})$. 
 
 (ref:method-display-model-spec-caption) Model Specification
 
@@ -66,7 +66,7 @@ Priors for the group-level parameters were specified in a weakly informative man
 prior_table <- data.table(
   `Group-Level Parameter` = c("$\\mu_{\\delta}$", "$\\sigma_{\\delta}$", "$\\mu_{\\alpha}$", "$\\sigma_{\\alpha}$", "$\\mu_{\\tau}$", "$\\sigma_{\\tau}$"),
   Prior = c(
-    "$\\mu_{\\delta} \\sim Cauchy(0, 5)$", "$\\sigma_{\\delta} \\sim Normal^{+}(0, 0.3)$",  "$\\alpha \\sim Normal^{+}(1.5, 1)$", "$\\sigma_{\\delta} \\sim Normal^{+}(0, 0.3)$", "$\\tau \\sim Normal^{+}(0.15, 0.1)$", "$\\sigma_{\\delta} \\sim Normal^{+}(0, 0.3)$"
+    "$\\mu_{\\delta} \\sim Cauchy(0, 5)$", "$\\sigma_{\\delta} \\sim Normal^{+}(0, 0.3)$",  "$\\mu_{\\alpha} \\sim Normal^{+}(1.5, 1)$", "$\\sigma_{\\alpha} \\sim Normal^{+}(0, 0.3)$", "$\\mu_{\\tau} \\sim Normal^{+}(0.15, 0.1)$", "$\\sigma_{\\tau} \\sim Normal^{+}(0, 0.3)$"
   )
 )
 # maybe put estimation formula in here?
