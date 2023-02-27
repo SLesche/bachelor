@@ -4,13 +4,13 @@
 estimated_mean_values_table
 ```
 
-```{r results-emmeans-rsi-rt, results = 'asis'}
+```{r results-emmeans-rsi-rt, results = 'asis', eval = FALSE}
 apa_table(emmean_rt_rsi_error_classic,
           caption = "Estimated marginal means for reaction times in 2x2 conditions",
           note = "`emmean` column denotes estimated mean reaction time in seconds. Confidence level (CL) is set at 95%")
 ```
 
-```{r results-emmeans-rsi-acc, results = 'asis'}
+```{r results-emmeans-rsi-acc, results = 'asis', eval = FALSE}
 apa_table(
   emmean_acc_rsi_error_classic,
   caption = "Estimated marginal means for reaction times in 2x2 conditions",
@@ -21,17 +21,17 @@ apa_table(
 # Model specification
 
 # Robust approach
-The robust approach to PES aims to measure it by comparing the pair of responses surrounding the error [@dutihl2022how]. Reaction times following the error $\overline{RT_{E+1}}$ is compared to reaction times preceeding the error $\overline{RT_{E-1}}$.
+The robust approach to PES aims to measure it by comparing the pair of responses surrounding the error [@dutilh2012how]. Reaction times following the error $\overline{RT_{E+1}}$ is compared to reaction times preceding the error $\overline{RT_{E-1}}$.
 
 $$ \Delta_{PES} = \overline{RT_{E+1}} - \overline{RT_{E-1}}$$
 
-Analysis is based on a median `r average_n_nogo_error_robust %>% filter(error_code == 1) %>% pull(median)` (SD = `r average_n_nogo_error %>% filter(error_code == 1) %>% pull(sd)`) post-error trials and `r average_n_nogo_error %>% filter(error_code == -1) %>% pull(median)` (SD = `r average_n_nogo_error %>% filter(error_code == -1) %>% pull(sd)`) pre-error trials per participant. Descriptive statistics can be found in Table \@ref(tab:appendix-descriptive-analysis-overview-table-robust).
+Analysis is based on a median `r average_n_nogo_error_robust %>% filter(error_code == 1) %>% pull(median)` (SD = `r average_n_nogo_error_robust %>% filter(error_code == 1) %>% pull(sd)`) post-error trials and `r average_n_nogo_error_robust %>% filter(error_code == -1) %>% pull(median)` (SD = `r average_n_nogo_error_robust %>% filter(error_code == -1) %>% pull(sd)`) pre-error trials per participant. Descriptive statistics can be found in Table \@ref(tab:appendix-descriptive-analysis-overview-table-robust).
 
-```{r results-descriptive-analysis-overview-table, results = 'asis'}
+```{r appendix-descriptive-analysis-overview-table-robust, results = 'asis'}
 descriptive_analysis_overview_table_robust %>% 
   apa_table(., caption = "Mean response times (RT), mean accuracies (ACC) by condition", note = "SDs in parentheses. RSI = response stimulus interval. Error-condition denotes E-1 if the following trial is a NoGo-error, E if the trial itself is the error and E+1 if there was an erroneous response to the previous NoGo trial.")
 ```
 
-Highly significant main effects of RSI, `r apa_print(aov_rt_rsi_error_robust, es = "pes", mse = FALSE)$full_result$rsi` and error-condition, `r apa_print(aov_rt_rsi_error_robust, es = "pes", mse = FALSE)$full_result$classic_pes_type` on reaction time were observed. Critically, the interaction between RSI and error-condition was highly significant, `r apa_print(aov_rt_rsi_error_robust, es = "pes", mse = FALSE)$full_result$rsi_robust_pes_type`. Post-hoc comparison reveals an increased influence of error-condition in the short RSI condition, manifesting in an increase in PES.
+Reaction times and response accuracy were again entered into a 2x2 within-within ANOVA with the factors RSI (short -- long) and error-condition (pre-error -- post-error). Highly significant main effects of RSI, `r apa_print(aov_rt_rsi_error_robust, es = "pes", mse = FALSE)$full_result$rsi` and error-condition, `r apa_print(aov_rt_rsi_error_robust, es = "pes", mse = FALSE)$full_result$error_code` on reaction time were observed. Critically, the interaction between RSI and error-condition was highly significant, `r apa_print(aov_rt_rsi_error_robust, es = "pes", mse = FALSE)$full_result$rsi_error_code`. Post-hoc comparison reveals an increased influence of error-condition in the short RSI condition, manifesting in an increase in PES.
 
-Comparison of mean accuracy between the 2x2 conditions yielded similar patterns of significant main effects of RSI `r apa_print(aov_acc_rsi_error_robust, es = "pes", mse = FALSE)$full_result$rsi` and error-condition `r apa_print(aov_acc_rsi_error_robust, es = "pes", mse = FALSE)$full_result$classic_pes_type` and a significant interaction effect, `r apa_print(aov_acc_rsi_error_robust, es = "pes", mse = FALSE)$full_result$rsi_robust_pes_type`. Errors commited in the short RSI condition lead to a more significant decrease in accuracy on the trial immediately following the error.
+Comparison of mean accuracy between the 2x2 conditions yielded similar patterns of significant main effects of RSI `r apa_print(aov_acc_rsi_error_robust, es = "pes", mse = FALSE)$full_result$rsi` and error-condition `r apa_print(aov_acc_rsi_error_robust, es = "pes", mse = FALSE)$full_result$error_code` and a significant interaction effect, `r apa_print(aov_acc_rsi_error_robust, es = "pes", mse = FALSE)$full_result$rsi_error_code`. Errors commited in the short RSI condition lead to a more significant decrease in accuracy on the trial immediately following the error.

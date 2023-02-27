@@ -78,7 +78,7 @@ average_n_nogo_error <- data %>%
   group_by(classic_pes_type) %>% 
   summarize(mean = mean(n), sd = sd(n), median = median(n))
   
-average__nogo_error_robust <- data %>% 
+average_n_nogo_error_robust <- data %>% 
   group_by(id, trial_type) %>% 
   count(error_code) %>% 
   filter(!is.na(error_code)) %>% 
