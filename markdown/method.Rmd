@@ -31,8 +31,12 @@ All response times shorter than 150ms were excluded from analysis. Mean RT and a
 <!-- Within-participant logarithmized response times deviating more than 3 standard deviations from the participants' condition-specific mean were also considered outliers. Of the `r nrow(rt_data)` trials `r paste(formattable::percent((n_outliers*3000) / nrow(final_data)))` of trials were lost due to participant exclusion, `r demo_output$percentage_trials_lost`% of trials were lost due to single trial outliers, leaving `r nrow(final_data)` trials for analysis. -->
 
 ## Behavioral Analysis
-Only errors in NoGo trials were considered _error trials_ relevant for analysis. PES was defined using the traditional approach^[We conducted all behavioral and DDM analysis with the robust measure of PES [@dutilh2012how]. Results did not differ significantly, see Appendix //REPLACE// for Detail] [@dutilh2012how; @pfister2022]. Mean response times $\overline{RT}$ in Go trials following a false response to a NoGo trial ($E+1$) are compared to mean response times following a correct response to a NoGo trial ($C+1$). 
-$$\Delta_{PES} = \overline{RT_{E+1}} - \overline{RT_{C+1}}$$
+Only errors in NoGo trials were considered _error trials_ relevant for analysis. Inspection of only the effect of accuracy in NoGo trials allows classification of Go trials based on the accuracy of the most proximate NoGo trial. Go trials following a NoGo-error are defined as trials _E+1_, Go trials following a correct response to a NoGo-trial as _C+1_. We also added the locations _E-1_, _C-1_, _E+2_ and _C+2_ depending on the distance and accuracy of the most proximate NoGo trial. All other Go trials were classified as _baseline_ trials. This location-approach allows for the classification of PES as done by traditional methods, $$\Delta_{PES} = \overline{RT_{E+1}} - \overline{RT_{C+1}}$$ 
+as well as the robust approach to PES [@dutilh2012how].
+$$ \Delta_{PES} = \overline{RT_{E+1}} - \overline{RT_{E-1}}$$
+We will conduct main analyses using the classical definition of PES^[We conducted all behavioral and DDM analysis with the robust measure of PES [@dutilh2012how]. Results did not differ significantly, see Appendix //REPLACE// for Detail], to avoid potential overestimation of PES caused by _pre-error speeding_ [@pfister2022].
+<!-- PES was defined using the traditional approach^[We conducted all behavioral and DDM analysis with the robust measure of PES [@dutilh2012how]. Results did not differ significantly, see Appendix //REPLACE// for Detail] [@dutilh2012how; @pfister2022]. Mean response times $\overline{RT}$ in Go trials following a false response to a NoGo trial ($E+1$) are compared to mean response times following a correct response to a NoGo trial ($C+1$).  -->
+<!-- $$\Delta_{PES} = \overline{RT_{E+1}} - \overline{RT_{C+1}}$$ -->
 Effects of RSI condition and accuracy of the previous NoGo trial as well as their interaction on mean response times and accuracy were then examined using a two-way ($RSI \times previous \ accuracy$) repeated measures ANOVA.
 
 ## Bayesian hierarchical drift-diffusion model
@@ -40,7 +44,7 @@ The diffusion model was estimated using a Bayesian hierarchical approach impleme
 
 ## Model specification
 <!-- A full description of model specification will be found in [Appendix B](##model-specification). -->
-To allow for an in-depth overview of the effect of errors on cognitive processes we not only looked at post-correct trials (C+1) and post-error trials (E+1) but extended our model to include pre-error (E-1), pre-correct (C-1) and trials 2 responses after a NoGo-trial (E+2 -- C+2). This model allows for comparisons drawn by traditional ($\Delta_{PES} = \overline{RT_{E+1}} - \overline{RT_{C+1}}$) as well as robust ($\Delta_{PES} = \overline{RT_{E+1}} - \overline{RT_{E-1}}$) definitions of PES. It furthermore allows for comparisons of trials preceding either an error or a correct-trial and investigating the duration of error-related effects by inspecting the change from trials immediately following the error to trials 2 responses after the error. 
+<!-- To allow for an in-depth overview of the effect of errors on cognitive processes we not only looked at post-correct trials (C+1) and post-error trials (E+1) but extended our model to include pre-error (E-1), pre-correct (C-1) and trials 2 responses after a NoGo-trial (E+2 -- C+2). This model allows for comparisons drawn by traditional ($\Delta_{PES} = \overline{RT_{E+1}} - \overline{RT_{C+1}}$) as well as robust ($\Delta_{PES} = \overline{RT_{E+1}} - \overline{RT_{E-1}}$) definitions of PES. It furthermore allows for comparisons of trials preceding either an error or a correct-trial and investigating the duration of error-related effects by inspecting the change from trials immediately following the error to trials 2 responses after the error.  -->
 
 Let $\mathbf{Y_{(ijk)}}$ represent a response vector of the decision and response time $(X_{(ijk)}, T_{(ijk)})$ for the $i$th participant, in the $j$th trial of the $k$th condition. The data is assumed to follow a Wiener distribution,
 $$\mathbf{Y_{(ijk)}} \sim Wiener(\alpha_{(ijk)}, \beta_{(ijk)}, \tau_{(ijk)}, \delta_{(ijk)})$$
@@ -60,9 +64,19 @@ knitr::include_graphics(
 ```
 
 
-Priors for the group-level parameters were specified in a weakly informative manner (see Table \@ref(tab:method-spec-table)). Bias $\beta$ was set to 0.5 for all participants and trials, as there was no reason to assume any a-priori bias towards one response alternative ("X" - "Y") ^[This assumption was confirmed by exploratory analysis with the bias parameter being allowed to vary freely between participants and response-mapping instructions. The bias parameter was estimated at 0.5 by the model for both mapping conditions. Consult Appendix REPLACE for further details]. None of the parameters were transformed before analysis, easing prior specification and model interpretation [@singmann2017intro]. **provide proof for bias estimation (Appendix)** 
+Priors for the group-level parameters were specified in a weakly informative manner.
+
+$$\mu_{\delta} \sim Cauchy(0, 5)$$
+$$\sigma_{\delta} \sim Normal^{+}(0, 0.3)$$
+$$\mu_{\alpha} \sim Normal^{+}(1.5, 1)$$
+$$\sigma_{\alpha} \sim Normal^{+}(0, 0.3)$$
+$$\mu_{\tau} \sim Normal^{+}(0.15, 0.1)$$
+$$\sigma_{\tau} \sim Normal^{+}(0, 0.3)$$
+
+
+Bias $\beta$ was set to 0.5 for all participants and trials, as there was no reason to assume any a-priori bias towards one response alternative ("X" - "Y") ^[This assumption was confirmed by exploratory analysis with the bias parameter being allowed to vary freely between participants and response-mapping instructions. The bias parameter was estimated at 0.5 by the model for both mapping conditions. Consult Appendix REPLACE for further details]. None of the parameters were transformed before analysis, easing prior specification and model interpretation [@singmann2017intro]. **provide proof for bias estimation (Appendix)** 
 **random effects correlations prior**
-```{r method-spec-table, echo = FALSE, warning=FALSE}
+```{r method-spec-table, echo = FALSE, warning=FALSE, eval = FALSE}
 prior_table <- data.table(
   `Group-Level Parameter` = c("$\\mu_{\\delta}$", "$\\sigma_{\\delta}$", "$\\mu_{\\alpha}$", "$\\sigma_{\\alpha}$", "$\\mu_{\\tau}$", "$\\sigma_{\\tau}$"),
   Prior = c(

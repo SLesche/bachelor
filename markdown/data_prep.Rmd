@@ -144,38 +144,28 @@ error_data <- rt_data %>%
   group_by(id, block) %>% 
   mutate(
     location = case_when(
-      lag(trial_type) == "go" & trial_type == "nogo" & lead(trial_type) == "go" & acc == 0 ~ "E",
-      lag(trial_type) == "go" & trial_type == "nogo" & lead(trial_type) == "go" & acc == 1 ~ "C"
+      trial_type == "go" & lead(trial_type) == "nogo" & lead(acc) == 1 ~ "C-1",
+      trial_type == "go" & lead(trial_type) == "nogo" & lead(acc) == 0 ~ "E-1",
+      trial_type == "nogo" & acc == 1 ~ "C",
+      trial_type == "nogo" & acc == 0 ~ "E",
+      trial_type == "go" & lag(trial_type) == "nogo" & lag(acc) == 0 ~ "E+1",
+      trial_type == "go" & lag(trial_type) == "nogo" & lag(acc) == 1 ~ "C+1",
+      # For +2 Location I am not always mutually exclusive, so extra precaution needed
+      trial_type == "go" & lag(trial_type) == "go" 
+      & lag(trial_type, 2) == "nogo" & lag(acc, 2) == 0 
+      & lead(trial_type) != "nogo" ~ "E+2",
+      trial_type == "go" & lag(trial_type) == "go" 
+      & lag(trial_type, 2) == "nogo" & lag(acc, 2) == 1
+      & lead(trial_type) != "nogo" ~ "C+2"
     )
   ) %>% 
   mutate(
-    location = case_when(
-      location == "E" ~ "E+0",
-      location == "C" ~ "C+0",
-      lead(location) == "E" ~ "E-1",
-      lead(location) == "C" ~ "C-1",
-      lag(location) == "E" ~ "E+1",
-      lag(location) == "C" ~ "C+1"
-    )
-  ) %>% 
-  mutate(
-    location = ifelse(
-      lag(location, 2) == "E+0" & is.na(location) & trial_type == "go",
-      "E+2",
-      location
-    )
-  ) %>% 
-  mutate(
-    location = ifelse(
-      lag(location, 2) == "C+0" & is.na(location) & trial_type == "go",
-      "C+2",
-      location
-    )
-  ) %>% 
+    location = ifelse(is.na(location) & trial_type == "go", "baseline", location)
+  ) %>%
   ungroup() %>% 
   mutate(
-    nogo_type = str_extract(location, "^E|C"),
-    distance = str_remove(location, "^E|C") %>% parse_number()
+    nogo_type = ifelse(location == "baseline", "baseline", str_extract(location, "^E|C")),
+    distance = ifelse(location == "baseline", 9, str_remove(location, "^E|C") %>% parse_number())
   )
 ```
 

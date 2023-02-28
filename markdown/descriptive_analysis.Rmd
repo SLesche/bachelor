@@ -504,3 +504,40 @@ data %>%
     )+
   geom_line()
 ```
+
+```{r descriptive-analysis-error-speed-analysis, eval = FALSE}
+median_speed_go_correct_short <- data %>% 
+  filter(!is.na(rt)) %>% 
+  group_by(trial_type, acc, rsi) %>% 
+  summarize(median_rt = median(rt, na.rm = TRUE)) %>% 
+  filter(acc == 1, trial_type == "go", rsi == 0.2) %>% 
+  pull(median_rt)
+
+median_speed_go_correct_long <- data %>% 
+  filter(!is.na(rt)) %>% 
+  group_by(trial_type, acc, rsi) %>% 
+  summarize(median_rt = median(rt, na.rm = TRUE)) %>% 
+  filter(acc == 1, trial_type == "go", rsi == 1) %>% 
+  pull(median_rt)
+
+
+data %>% 
+  filter(trial_type == "nogo", acc == 0, rsi == 0.2) %>% 
+  mutate(
+    speed = ifelse(rt > median_speed_go_correct_short, "slower", "faster")
+  ) %>% 
+  ggplot(
+    aes(x = rt,
+        group = speed,
+        fill = speed)
+  )+
+  geom_histogram()
+
+data %>% 
+  filter(trial_type == "nogo", acc == 0, rsi == 1) %>% 
+  mutate(
+    speed = ifelse(rt > median_speed_go_correct_long, "slower", "faster")
+  ) %>% 
+  count(speed)
+```
+
