@@ -305,8 +305,9 @@ rio::export(descriptive_output, "./markdown/data/descriptive_output.rdata")
 ```{r descriptive-analysis-overview-table, include = FALSE, cache = TRUE, dependson='descriptive-analysis-data'}
 # get table of mean rt and acc: overall, in go/nogo in short/long in C+1/E+1
 # put SD in there too
+# Refactor Location level
 descriptive_analysis_overview_table <- data %>% 
-  group_by(rsi, trial_type, classic_pes_type) %>% 
+  group_by(rsi, trial_type, location) %>% 
   summarize(
     across(c("rt", "acc"),
     list(
@@ -330,9 +331,6 @@ descriptive_analysis_overview_table <- data %>%
     ) %>% 
   select(-c("rt_mean", "rt_sd", "acc_mean", "acc_sd")) %>% 
   mutate(
-    classic_pes_type = ifelse(is.na(classic_pes_type), "other", classic_pes_type)
-  ) %>% 
-  mutate(
     trial_type = recode(trial_type,
                         "go" = "Go",
                         "nogo" = "NoGo"),
@@ -340,14 +338,15 @@ descriptive_analysis_overview_table <- data %>%
       rsi == 0.2 ~ "short",
       rsi == 1 ~ "long"
     ),
-    classic_pes_type = case_when(
-      classic_pes_type == "post_correct" ~ "C+1",
-      classic_pes_type == "post_error" ~ "E+1"
-    )
+    location = factor(location)
   ) %>% 
-  select(rsi, trial_type, classic_pes_type, rt, acc, count) %>% 
+  select(rsi, trial_type, location, rt, acc, count) %>% 
+  mutate(
+    location = fct_relevel(location, "C-1", "C", "C+1", "C+2", "E-1", "E", "E+1", "E+2", "baseline")
+  ) %>% 
+  arrange(rsi, location) %>% 
   rename(
-    "previous accuracy" = classic_pes_type,
+    "location" = location,
     "RSI" = rsi,
     "trial type" = trial_type,
     "RT" = rt,
@@ -404,6 +403,117 @@ descriptive_analysis_overview_table_robust <- data %>%
     "RT" = rt,
     "ACC" = acc
   )
+```
+
+```{r descriptive-analysis-overview-plot, cache = TRUE, dependson = 'descriptive-analysis-data', warning = FALSE, eval = TRUE}
+descriptive_location_plot_rt <- data %>% 
+  group_by(rsi, trial_type, location, distance, nogo_type) %>% 
+  summarize(
+    across(c("rt", "acc"),
+    list(
+      mean = ~mean(., na.rm = TRUE), 
+      sd = ~sd(., na.rm = TRUE),
+      count = ~n()
+      )
+    )
+  ) %>% 
+  mutate(count = acc_count,
+         distance = ifelse(is.na(distance), 0, distance)) %>% 
+  mutate(distance = ifelse(distance == 9, "baseline", as.character(distance))) %>% 
+  select(-c("rt_count", "acc_count")) %>% 
+  # filter(rsi == 0.2) %>% 
+  mutate(distance = factor(distance)) %>%
+  mutate(nogo_type = ifelse(nogo_type == "baseline", "C,E", nogo_type)) %>% 
+  mutate(distance = fct_relevel(distance, "-1", "0", "1", "2", "baseline")) %>% 
+  separate_rows(nogo_type, sep = ",") %>% 
+  # filter(!is.na(rt_mean)) %>% 
+  ggplot(
+    aes(
+      x = distance,
+      y = rt_mean,
+      group = nogo_type,
+      color = nogo_type
+    )
+  )+
+ geom_point(size = 2)+
+ geom_line()+
+  geom_errorbar(
+    aes(
+      ymin = rt_mean-(rt_sd/sqrt(count)), 
+      ymax = rt_mean+(rt_sd/sqrt(count)), 
+      width = 0.2
+      )
+    )+
+scale_color_manual(
+    values = c("C" = "forestgreen",
+               "E" = "red"),
+    name = "NoGo-Accuracy",
+    labels = c("Correct", "Error")
+  )+
+  scale_x_discrete(
+    labels = c("-1", "NoGo", "+1", "+2", "baseline - Go")
+  )+
+  labs(
+    x = "Location",
+    y = "Response Time",
+    caption = "Error bars represent standard errors"
+  )+
+  facet_wrap(~rsi)
+
+descriptive_location_plot_acc <- data %>% 
+  group_by(rsi, trial_type, location, distance, nogo_type) %>% 
+  summarize(
+    across(c("rt", "acc"),
+    list(
+      mean = ~mean(., na.rm = TRUE), 
+      sd = ~sd(., na.rm = TRUE),
+      count = ~n()
+      )
+    )
+  ) %>% 
+  mutate(count = acc_count,
+         distance = ifelse(is.na(distance), 0, distance)) %>% 
+  mutate(distance = ifelse(distance == 9, "baseline", as.character(distance))) %>% 
+  select(-c("rt_count", "acc_count")) %>% 
+  # filter(rsi == 0.2) %>% 
+  mutate(distance = factor(distance)) %>%
+  mutate(nogo_type = ifelse(nogo_type == "baseline", "C,E", nogo_type)) %>% 
+  mutate(distance = fct_relevel(distance, "-1", "0", "1", "2", "baseline")) %>% 
+  separate_rows(nogo_type, sep = ",") %>% 
+  # filter(!is.na(rt_mean)) %>% 
+  ggplot(
+    aes(
+      x = distance,
+      y = acc_mean,
+      group = nogo_type,
+      color = nogo_type
+    )
+  )+
+ geom_point(size = 2)+
+ geom_line()+
+  geom_errorbar(
+    aes(
+      ymin = acc_mean-(acc_sd/sqrt(count)), 
+      ymax = acc_mean+(acc_sd/sqrt(count)), 
+      width = 0.2
+      )
+    )+
+scale_color_manual(
+    values = c("C" = "forestgreen",
+               "E" = "red"),
+    name = "NoGo-Accuracy",
+    labels = c("Correct", "Error")
+  )+
+  scale_x_discrete(
+    labels = c("-1", "NoGo", "+1", "+2", "baseline - Go")
+  )+
+  labs(
+    x = "Location",
+    y = "Accuracy",
+    caption = "Error bars represent standard errors"
+  )+
+  facet_wrap(~rsi)+
+  theme_classic()
 ```
 
 ```{r descriptive-analysis-checking-nogo-effect, eval = FALSE, cache = TRUE, dependson = 'descriptive-analysis-data'}
@@ -540,4 +650,5 @@ data %>%
   ) %>% 
   count(speed)
 ```
+
 

@@ -1,31 +1,41 @@
 # Discussion
+-describe theory
+-describe what was done
+- task, PES spec, model
+- describe results
+- say what that means theoretically, show what accounts it contributes with
+- boundary separation last
+- discuss potential reasons for this
+- discuss how Damaso 2022 found same thing (Lex Task, with Confidence ratings, huge RSI)
+- Might be due to confounding problems
+- Might be due to errors being post-NoGo - that would only show in "robust" comparison
+	- Find some evidence of post-Nogo effects?
+- Might be due to errors being post-response - that would only show in "classic" condition
+	- Find some evidence of post-inhibition response?
+- Compare post-NoGo to post-Go (C-1 -- C+1) to fix first or C+1 -- C-1
+- Ultimately, you cannot separate a response following an error from also following a failed inhibition trial
+- Maybe compare effects of Go-errors? Don't have any go-errors (practically) that aren't NA responses
 
-## Problems
-GoNogo task
-participants
-Model stuff (DDM adequate, too low sample size?) Check number of trials per cell (2x2)
-Discuss the reasons for my PES approach (having both post-nogo)
+might be due to real decreases in boundary separation
+- talk about error types
+- talk about post-error recklessness
+	- Damaso et al (2020) say post-error recklessness, lending to post-error speeding is found mainly after evidence-quality errors
 
 
-## Outline Discussion
-- give basic overview of hypothesis
-- describe the task and analysis procedure
-- review important findings of current study
-- check theoretical implications (find anything of interest)?
-- describe importance of this body of research
-- limitations: task-used, DDM model can't fit this? stimuli generation usw.
-- **can already discuss some of the limitations!**
+## further research
+Better task! This one allowed the location model, but it's also shit
+Investigate group-level sd in E-1 compared to E+1, more variance following an error? -> individual differences in error processing. Tentative suggestions at best
+Just talk about the influence of tasks, error types and response instructions more generally. It seems to make a huge difference!
 
-## No random effects
-To reduce estimation time and complexity and because individual differences are not of interest here
+Speed and accuracy instruction seems to matter (Damaso, 2022), maybe take a look at whether individuals preferred speed/accuracy? Or manipulate that in later research
 
-## Nogo debacle
-In robust: Error trials always post-nogo, correct always post-go
-- but: rt post-nogo is faster than post-go (show this) so that doesn't cause pes
-- find out DDM changes post-nogo compared to post-go
+## Limitations
+Discuss model fit here
+Discuss the paper suggesting LBA modelling here
+- Damaso et al. suggest DDM bad because it doesn't separate error and correct responses -> bring up the error rate in trials analysed. 
+- max error rate in my experiment is 5% - 480/7200 trials errors. (E+1)
+Error types: Do I find evidence for response quality errors? Percent of error responses to nogo-trials slower than correct responses? Somewhat pointless because of inhibition.
 
-In classic: Error trials always post-response, correct always post-inhibition
-- study effects of inhibition on rt and ddm (meaning correct nogo vs. correct go)
 
 Maybe say: Effect of error on rt not generalizable to "errors" in general but more specific to inhibition errors in nogo trials. Should be on the safe side with that.
 

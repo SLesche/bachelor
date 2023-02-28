@@ -4,18 +4,32 @@
 estimated_mean_values_table
 ```
 
-```{r results-emmeans-rsi-rt, results = 'asis', eval = FALSE}
+```{r appendix-emmeans-rsi-rt, results = 'asis', eval = FALSE}
 apa_table(emmean_rt_rsi_error_classic,
           caption = "Estimated marginal means for reaction times in 2x2 conditions",
           note = "`emmean` column denotes estimated mean reaction time in seconds. Confidence level (CL) is set at 95%")
 ```
 
-```{r results-emmeans-rsi-acc, results = 'asis', eval = FALSE}
+```{r appendix-emmeans-rsi-acc, results = 'asis', eval = FALSE}
 apa_table(
   emmean_acc_rsi_error_classic,
   caption = "Estimated marginal means for reaction times in 2x2 conditions",
   note = "`emmean` column denotes estimated mean accuracy as a frequency. Confidence level (CL) is set at 95%"
 )
+```
+
+
+```{r appendix-descriptive-analysis-overview-table, results = 'asis'}
+descriptive_analysis_overview_table %>% 
+  apa_table(., caption = "Mean response times (RT), mean accuracies (ACC) by condition", note = "SDs in parentheses. RSI = response stimulus interval. Previous accuracy denotes C+1 if the previous trial was a correct NoGo trial and E+1 if there was an erroneous response to the previous NoGo trial, NA is printed if the previous trial was a Go trial.")
+```
+
+```{r appendix-descriptive-location-plot-rt, fig.cap = 'Mean response time (ms) depending on RSI and location'}
+descriptive_location_plot_rt
+```
+
+```{r appendix-descriptive-location-plot-acc, fig.cap = 'Mean trial accuracy depending on RSI and location'}
+descriptive_location_plot_acc
 ```
 
 # Model specification

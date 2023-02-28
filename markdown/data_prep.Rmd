@@ -116,7 +116,7 @@ rt_data <- dec_data %>%
   filter(!is.na(block)) # n.obs should be multiple of 3000
 ```
 
-```{r data-prep-coding error types, cache = TRUE, dependson='data-prep-importing-data'}
+```{r data-prep-coding error types, cache = TRUE, warning = FALSE, dependson='data-prep-importing-data'}
 # just coding errors in nogo trials as error
 error_data <- rt_data %>% 
   group_by(id, block) %>%  # consecutive errors have to be within a participant and block
