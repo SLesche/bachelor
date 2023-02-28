@@ -307,6 +307,7 @@ rio::export(descriptive_output, "./markdown/data/descriptive_output.rdata")
 # put SD in there too
 # Refactor Location level
 descriptive_analysis_overview_table <- data %>% 
+  # filter(!is.na(rt)) %>% 
   group_by(rsi, trial_type, location) %>% 
   summarize(
     across(c("rt", "acc"),
@@ -345,6 +346,7 @@ descriptive_analysis_overview_table <- data %>%
     location = fct_relevel(location, "C-1", "C", "C+1", "C+2", "E-1", "E", "E+1", "E+2", "baseline")
   ) %>% 
   arrange(rsi, location) %>% 
+  filter(location != "baseline") %>% 
   rename(
     "location" = location,
     "RSI" = rsi,
@@ -426,6 +428,7 @@ descriptive_location_plot_rt <- data %>%
   mutate(nogo_type = ifelse(nogo_type == "baseline", "C,E", nogo_type)) %>% 
   mutate(distance = fct_relevel(distance, "-1", "0", "1", "2", "baseline")) %>% 
   separate_rows(nogo_type, sep = ",") %>% 
+  filter(location != "baseline") %>% 
   # filter(!is.na(rt_mean)) %>% 
   ggplot(
     aes(
@@ -480,6 +483,7 @@ descriptive_location_plot_acc <- data %>%
   mutate(nogo_type = ifelse(nogo_type == "baseline", "C,E", nogo_type)) %>% 
   mutate(distance = fct_relevel(distance, "-1", "0", "1", "2", "baseline")) %>% 
   separate_rows(nogo_type, sep = ",") %>% 
+  filter(location != "baseline") %>% 
   # filter(!is.na(rt_mean)) %>% 
   ggplot(
     aes(

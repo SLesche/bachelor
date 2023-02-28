@@ -1,4 +1,8 @@
 # Discussion
+This study aimed to investigate the cognitive processes relevant for slower response times following an error depending on the time passed since that error. If the onset of trial _n+1_ is only shortly after an error in trial _n_, then cognitive processes leading to attentional deficits are proposed to be relevant for PES. Is the onset of the post-error trial after a longer time, cognitive processes leading to improved accuracy such as increased cognitive control, should be more relevant for PES. We realized two different RSI conditions to systematically vary the length of the time between an error response and the onset of the following trial and employed a Drift Diffusion Model to investigate cognitive processes underlying response behavior in trials proximate to error responses as opposed to trials following correct responses. 
+**behavioral data?**
+Drift rate following an error was reduced in both conditions
+
 -describe theory
 -describe what was done
 - task, PES spec, model

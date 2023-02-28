@@ -103,7 +103,8 @@ data_location <- data %>%
     map_condition = factor(map_condition),
     stimulus = factor(stimulus)
   ) %>% 
-  filter(!is.na(rt), !is.na(decision), !is.na(acc))
+  filter(!is.na(rt), !is.na(decision), !is.na(acc)) %>% 
+  filter(location != "baseline")
 ```
 
 ```{r no na}
