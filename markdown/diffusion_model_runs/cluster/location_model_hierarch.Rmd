@@ -80,7 +80,7 @@ initfun_location <- function() {# all pars in stancode need init here
                  tmp_dat_location$M_2, tmp_dat_location$N_2),
     sd_3 = runif(tmp_dat_location$M_3, 0.5, 1),
     z_3 = matrix(rnorm(tmp_dat_location$M_3*tmp_dat_location$N_3, 0, 0.01),
-                 tmp_dat_location$M_3, tmp_dat_location$N_3),
+                 tmp_dat_location$M_3, tmp_dat_location$N_3)
   )
 }
 ```
@@ -114,6 +114,30 @@ fit_wiener_location <- brm(
   warmup = n_warmup, 
   chains = 1,
   cores = n_cores, 
+  # control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
+  refresh = 20,
+  seed = seed # reproducibility
+  )
+```
+
+```{r fitting-model-location-cmdstanr}
+library(cmdstanr)
+fit_wiener_location <- brm(
+  formula, 
+  data = data_location,
+  family = wiener(
+    link_bs = "identity", 
+    link_ndt = "identity",
+    link_bias = "identity"
+    ),
+  prior = prior, 
+  init = initfun_location,
+  iter = n_iter, 
+  # init_r = 0.1,
+  warmup = n_warmup, 
+  chains = 4,
+  backend = "cmdstanr",
+  threads = threading(floor(parallel::detectCores()/n_chains)),
   # control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
   refresh = 20,
   seed = seed # reproducibility
