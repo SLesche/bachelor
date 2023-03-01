@@ -64,7 +64,6 @@ summary <- data %>%
     )
 
 summary %>% 
-  filter(rsi == "long") %>% 
   ggplot(
     aes(
       x = location,
@@ -74,7 +73,8 @@ summary %>%
     )
   )+
   geom_point()+
-  geom_line()
+  geom_line()+
+  facet_wrap(~rsi, scales = "free")
 
 summary %>% 
   filter(rsi == "short") %>% 

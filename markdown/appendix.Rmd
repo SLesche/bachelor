@@ -19,16 +19,16 @@ apa_table(
 ```
 
 
-```{r appendix-descriptive-analysis-overview-table, results = 'asis'}
+```{r appendix-descriptive-analysis-overview-table, results = 'asis', warning = FALSE}
 descriptive_analysis_overview_table %>% 
   apa_table(., caption = "Mean response times (RT), mean accuracies (ACC) by condition", note = "SDs in parentheses. RSI = response stimulus interval. Previous accuracy denotes C+1 if the previous trial was a correct NoGo trial and E+1 if there was an erroneous response to the previous NoGo trial, NA is printed if the previous trial was a Go trial.")
 ```
 
-```{r appendix-descriptive-location-plot-rt, fig.cap = 'Mean response time (ms) depending on RSI and location'}
+```{r appendix-descriptive-location-plot-rt, fig.cap = 'Mean response time (ms) depending on RSI and location', warning = FALSE}
 descriptive_location_plot_rt
 ```
 
-```{r appendix-descriptive-location-plot-acc, fig.cap = 'Mean trial accuracy depending on RSI and location'}
+```{r appendix-descriptive-location-plot-acc, fig.cap = 'Mean trial accuracy depending on RSI and location', warning = FALSE}
 descriptive_location_plot_acc
 ```
 

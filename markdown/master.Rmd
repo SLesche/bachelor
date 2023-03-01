@@ -111,15 +111,15 @@ knitr::dep_auto()
 ```
 
 <!-- Method -->
-```{r child = "markdown/method.Rmd"}
+```{r child = "markdown/method.Rmd", eval = TRUE}
 ```
 
 <!-- Results -->
-```{r child = "markdown/results.Rmd"}
+```{r child = "markdown/results.Rmd", eval = TRUE}
 ```
 
 <!-- Discussion -->
-```{r child = "markdown/discussion.Rmd"}
+```{r child = "markdown/discussion.Rmd", eval = TRUE}
 ```
 
 <!-- References -->

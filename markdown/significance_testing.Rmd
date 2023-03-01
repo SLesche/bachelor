@@ -139,6 +139,12 @@ aov_rt_rsi_error_robust <- aov_car(
   anova_table = list(es = c("ges","pes"))
 )
 
+omega_sq_rt_rsi_error_robust <- effectsize::omega_squared(
+  aov_rt_rsi_error_robust,
+  partial = FALSE,
+  ci = 0.95
+)
+
 aov_rt_rsi_error_classic <- aov_car(
   formula = rt_mean ~ rsi*classic_pes_type + Error(id/rsi*classic_pes_type),
   data = mean_data_rsi_classic,
