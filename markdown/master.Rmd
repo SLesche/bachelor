@@ -12,10 +12,10 @@ author:
       - "Conceptualization"
       - "Writing - Original Draft Preparation"
       - "Writing - Review & Editing"
-  - name          : "Kathrin Sadus"
-    affiliation   : "1"
-    role:
-      - "Supervision"
+  # - name          : "Kathrin Sadus"
+  #   affiliation   : "1"
+  #   role:
+  #     - "Supervision"
 
 affiliation:
   - id            : "1"
@@ -132,6 +132,6 @@ knitr::dep_auto()
 
 # (APPENDIX) Appendix {-}
 
-```{r child = "markdown/appendix.Rmd"}
+```{r child = "markdown/appendix.Rmd", eval = TRUE}
 ```
 
