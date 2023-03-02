@@ -70,7 +70,8 @@ demo_data <- data %>%
 # From logbuch_ba
 demo_data[1:7, "alter"] <- c(20, 19, 21, 19, 23, 20, 21)
 demo_data[4, "studiengang"] <- "Bildungswissenschaften, Nebenfach Psychologie"
-
+demo_data <- demo_data %>% 
+  filter(!is.na(id))
 # No demo data was collected for first 7 participants (have in logbuch_ba.xlsx)
 ```
 
