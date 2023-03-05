@@ -1,7 +1,8 @@
 <!-- First level headers create new appendix section and a label "Appendix N" -->
 # Behavioral analysis
-```{r appendix-mean-values-power-analysis, results = 'asis'}
-estimated_mean_values_table
+```{r appendix-mean-values-power-analysis, results = 'asis', eval = FALSE}
+# estimated_mean_values_table 
+# commented out because no power analysis reported anymore
 ```
 
 ```{r appendix-emmeans-rsi-rt, results = 'asis', eval = FALSE}
