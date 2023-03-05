@@ -17,7 +17,7 @@ library(Superpower)
 
 ```
 
-```{r power-analysis-setting-values, cache = TRUE, include = FALSE}
+```{r power-analysis-setting-values, cache = TRUE, include = FALSE, eval = FALSE}
 my_design <- "2w*2w" # 2 within factors (pre- vs. post-error; short/long rsi)
 
 alpha_level_power <- 0.025 # alpha level of tests
@@ -51,7 +51,7 @@ my_labelnames <- c(
   ) # names of factors
 ```
 
-```{r power-analysis-fitting-design, cache = TRUE, dependson ='power-analysis-setting-values', include = FALSE}
+```{r power-analysis-fitting-design, cache = TRUE, dependson ='power-analysis-setting-values', include = FALSE, eval = FALSE}
 # Fitting design for drift rate
 design_result_drift <- ANOVA_design(
   design = my_design,
@@ -73,7 +73,7 @@ design_result_boundary <- ANOVA_design(
 )
 ```
 
-```{r power-analysis-exact-power, cache = TRUE, dependson='power-analysis-fitting-design', include = FALSE}
+```{r power-analysis-exact-power, cache = TRUE, dependson='power-analysis-fitting-design', include = FALSE, eval = FALSE}
 # Drift rate
 # Compute exact power and effect sizes for simulated data
 exact_result_drift <- ANOVA_exact(design_result_drift,
@@ -89,7 +89,7 @@ exact_result_boundary <- ANOVA_exact(design_result_boundary,
 partial_eta_interaction_boundary <- exact_result_boundary$main_results$partial_eta_squared[3] %>% round(., 2)
 ```
 
-```{r power-analysis-power-plots, cache = TRUE, dependson = 'power-analysis-fitting-design', include = FALSE}
+```{r power-analysis-power-plots, cache = TRUE, dependson = 'power-analysis-fitting-design', include = FALSE, eval = FALSE}
 power_drift <- plot_power(# estimating power for different sample sizes
   design_result_drift,
   min_n = 30,
@@ -115,7 +115,7 @@ required_n_boundary <- power_boundary$anova_n$n[which(power_boundary$anova$varia
 ```
 
 
-```{r power-analysis-estimated-mean-values-table, cache = TRUE, dependson = 'power-analysis-setting-values', results = 'asis', eval = TRUE}
+```{r power-analysis-estimated-mean-values-table, cache = TRUE, dependson = 'power-analysis-setting-values', results = 'asis', eval = FALSE}
 estimated_mean_values_table <- tibble(
   type = c("Pre-error & Short RSI",
            "Pre-error & Long RSI",
@@ -174,3 +174,23 @@ estimated_mean_values_table <- tibble(
   align(i = 1, j = 1, align = "left", part = "footer") %>%
   autofit() 
 ```
+
+```{r power-analysis-sensitivity}
+num_df_sensitivity <- 1
+den_df_sensitivity <- 88
+alpha_level_sensitivity <- 0.05
+
+sensitivity <- morey_plot.ftest(
+  es = seq(0, 1, 0.01),
+  num_df = num_df_sensitivity,
+  den_df = den_df_sensitivity,
+  alpha_level = alpha_level_sensitivity
+)
+
+cohen_f_sensitivity_80 <- sensitivity$data[which(sensitivity$data$power > 80), "cohen_f"][1]
+omega_sq_sensitivity_80 <- effectsize::f_to_eta2(cohen_f_sensitivity_80)
+
+cohen_f_sensitivity_95 <- sensitivity$data[which(sensitivity$data$power > 95), "cohen_f"][1]
+omega_sq_sensitivity_95 <- effectsize::f_to_eta2(cohen_f_sensitivity_95)
+```
+

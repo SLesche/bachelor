@@ -2,8 +2,8 @@
 # Diffusion model packages
 library(brms)
 
-# cmdstanr
-library(cmdstanr)
+# Rstan
+library(rstan)
 
 
 ## ----functions--------------------------------------------------------------------------------
@@ -21,29 +21,29 @@ formula <- bf(
   # rsi and error_factor
   rt | dec(decision) ~ 0 + rsi:error_factor:stimulus + (0 + rsi:error_factor:stimulus||id),
   bs ~ 0 + rsi:error_factor + (0 + rsi:error_factor||id),
-  # because rsi and error_factor are known they can be used here
-  # pre-error is not technically "known", but should affect bs and ndt nonetheless
+    # because rsi and error_factor are known they can be used here
+    # pre-error is not technically "known", but should affect bs and ndt nonetheless
   ndt ~ 0 + rsi:error_factor + (0 + rsi:error_factor||id),
   bias = 0.5 # no reason for bias to vary TODO: intercept for bias
-  # just want to estimate intercept for bias?
-  # TODO: maybe estimate intercept for bias? 
+    # just want to estimate intercept for bias?
+    # TODO: maybe estimate intercept for bias? 
 )
 
 
 ## ----set-prior--------------------------------------------------------------------------------
 prior <- c(
-  # drift rate
-  prior("normal(0, 5)", class = "b"), # drift rate, population
-  
-  # boundary separation
-  set_prior("normal(1.5, 1)", class = "b", dpar = "bs", lb = 0), 
+ # drift rate
+ prior("normal(0, 5)", class = "b"), # drift rate, population
+
+ # boundary separation
+ set_prior("normal(1.5, 1)", class = "b", dpar = "bs", lb = 0), 
   # bs restricted to > 0, lb = 0
-  
-  # Non-decision time
-  set_prior("normal(0.15, 0.1)", class = "b", dpar = "ndt", lb = 0),
-  
-  # Group-level
-  set_prior("normal(0, 0.3)", class = "sd")
+ 
+ # Non-decision time
+ set_prior("normal(0.15, 0.1)", class = "b", dpar = "ndt", lb = 0),
+ 
+ # Group-level
+ set_prior("normal(0, 0.3)", class = "sd")
 )
 
 
@@ -54,10 +54,10 @@ tmp_dat_location <- make_standata(
     link_bs = "identity", 
     link_ndt = "identity",
     link_bias = "identity"
-  ),
+    ),
   data = data_location,
   prior = prior
-)
+  )
 
 
 ## ----init-function----------------------------------------------------------------------------
@@ -83,13 +83,12 @@ initfun_location <- function() {# all pars in stancode need init here
 n_iter <- 3000
 n_warmup <- 1000
 n_chains <- 4
-n_cores <- 16
-n_threads <- floor(n_cores/n_chains)
+n_cores <- 4
 max_depth <- 15
 adapt_delta <- 0.99
 seed <- 1234
 
-model_setup_values <- data.frame(n_iter, n_warmup, n_chains, n_cores, n_threads, max_depth,
+model_setup_values <- data.frame(n_iter, n_warmup, n_chains, n_cores, max_depth,
                                  adapt_delta, seed)
 
 
@@ -101,22 +100,20 @@ fit_wiener_location <- brm(
     link_bs = "identity", 
     link_ndt = "identity",
     link_bias = "identity"
-  ),
+    ),
   prior = prior, 
   init = initfun_location,
   iter = n_iter, 
   # init_r = 0.1,
   warmup = n_warmup, 
   chains = n_chains,
-  backend = "cmdstanr",
-  cores = n_cores,
-  threads = threading(n_threads), 
+  cores = n_cores, 
   control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
   seed = seed # reproducibility
-)
+  )
 
 
 ## ----saving-ddm-classic-----------------------------------------------------------------------
-save(fit_wiener_location, file = paste0("./bachelor/models/full_effect_location_", Sys.Date(), ".rda"),
+save(fit_wiener_location, file = paste0("./bachelor/models/full_effect_location_rstan_", Sys.Date(), ".rda"),
      compress = "xz")
 

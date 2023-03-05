@@ -33,6 +33,7 @@ data_robust <- data %>%
          trial_type, rsi, 
          acc, rt,
          stimulus, correct, response, decision, decision_char,
+         previous_stimulus, previous_trial_type, previous_acc,
          error_code) %>% 
   mutate(
     rsi = case_when(
@@ -62,6 +63,7 @@ data_classic <- data %>%
          trial_type, rsi, 
          acc, rt,
          stimulus, correct, response, decision, decision_char,
+         previous_stimulus, previous_trial_type, previous_acc,
          classic_pes_type) %>% 
   mutate(
     rsi = case_when(
@@ -86,6 +88,7 @@ data_location <- data %>%
          trial_type, rsi, 
          acc, rt,
          stimulus, correct, response, decision, decision_char,
+         previous_stimulus, previous_trial_type, previous_acc,
          nogo_type, distance, location) %>% 
   mutate(
     rsi = case_when(

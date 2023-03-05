@@ -83,7 +83,7 @@ initfun_robust <- function() {# all pars in stancode need init here
 n_iter <- 3000
 n_warmup <- 1000
 n_chains <- 4
-n_cores <- 8
+n_cores <- 16
 n_threads <- floor(n_cores/n_chains)
 max_depth <- 15
 adapt_delta <- 0.99
@@ -109,6 +109,7 @@ fit_wiener_robust <- brm(
   warmup = n_warmup, 
   chains = n_chains,
   backend = "cmdstanr",
+  cores = n_cores,
   threads = threading(n_threads), 
   control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
   seed = seed # reproducibility

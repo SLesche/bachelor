@@ -40,6 +40,7 @@ data <- list.files(
     "acc" = key_resp_trial_corr,
     "rt" = key_resp_trial_rt
   )
+
 ```
 
 ```{r data-prep-checking condition mappings}
@@ -117,9 +118,19 @@ rt_data <- dec_data %>%
   filter(!is.na(block)) # n.obs should be multiple of 3000
 ```
 
+```{r data-prep-adding-prev-trial}
+trial_data <- rt_data %>% 
+  group_by(id, block) %>% 
+  mutate(
+    previous_stimulus = lag(stimulus),
+    previous_trial_type = lag(trial_type),
+    previous_acc = lag(acc)
+  )
+```
+
 ```{r data-prep-coding error types, cache = TRUE, warning = FALSE, dependson='data-prep-importing-data'}
 # just coding errors in nogo trials as error
-error_data <- rt_data %>% 
+error_data <- trial_data %>% 
   group_by(id, block) %>%  # consecutive errors have to be within a participant and block
   mutate(
     error_type = case_when(
@@ -166,7 +177,7 @@ error_data <- rt_data %>%
   ungroup() %>% 
   mutate(
     nogo_type = ifelse(location == "baseline", "baseline", str_extract(location, "^E|C")),
-    distance = ifelse(location == "baseline", 9, str_remove(location, "^E|C") %>% parse_number())
+    distance = ifelse(location == "baseline", 9, parse_number(location))
   )
 ```
 

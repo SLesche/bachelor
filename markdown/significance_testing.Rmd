@@ -46,7 +46,7 @@ data <- rio::import("./markdown/data/analysis_data.Rdata") %>%
 # Assumption of homogeneity of variance violated in factors rsi/error_code
 ```
 
-```{r significance-testing-condition, include = FALSE, cache = TRUE, dependson='significance-testing-data'}
+```{r significance-testing-condition, include = FALSE, cache = TRUE, dependson='significance-testing-data', eval = FALSE}
 data %>% 
   filter(trial_type == "go") %>% 
   group_by(id, map_condition) %>% 
@@ -141,7 +141,7 @@ aov_rt_rsi_error_robust <- aov_car(
 
 omega_sq_rt_rsi_error_robust <- effectsize::omega_squared(
   aov_rt_rsi_error_robust,
-  partial = FALSE,
+  partial = TRUE,
   ci = 0.95
 )
 
