@@ -24,7 +24,7 @@ formula <- bf(
     # because rsi and error_factor are known they can be used here
     # pre-error is not technically "known", but should affect bs and ndt nonetheless
   ndt ~ 0 + rsi:error_factor,
-  bias ~ 0 + previous_stimulus:previous_trial_type:previous_acc # no reason for bias to vary TODO: intercept for bias
+  bias ~ 0 + previous_stimulus:error_factor # no reason for bias to vary TODO: intercept for bias
     # just want to estimate intercept for bias?
     # TODO: maybe estimate intercept for bias? 
 )

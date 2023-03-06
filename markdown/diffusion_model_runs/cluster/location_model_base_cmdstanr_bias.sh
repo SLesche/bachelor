@@ -1,10 +1,11 @@
 #!/bin/bash
-#SBATCH --job-name=location-model-hierarch-bias
+#SBATCH --job-name=location-model-base-final
 #SBATCH --time=48:00:00
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=32
 #SBATCH --mail-type=all
 #SBATCH --mail-user=sven.lesche@stud.uni-heidelberg.de
+#SBATCH --output=location-base-final
 
 module load math/R/4.1.2
 module load devel/tbb/2021.4.0
