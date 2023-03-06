@@ -156,8 +156,10 @@ error_data <- trial_data %>%
   group_by(id, block) %>% 
   mutate(
     location = case_when(
-      trial_type == "go" & lead(trial_type) == "nogo" & lead(acc) == 1 ~ "C-1",
-      trial_type == "go" & lead(trial_type) == "nogo" & lead(acc) == 0 ~ "E-1",
+      trial_type == "go" & lead(trial_type) == "nogo" & lead(acc) == 1 
+      & !is.na(rt) & !is.na(lag(rt)) ~ "C-1",
+      trial_type == "go" & lead(trial_type) == "nogo" & lead(acc) == 0 
+      & !is.na(rt) & !is.na(lag(rt)) ~ "E-1",
       trial_type == "nogo" & acc == 1 ~ "C",
       trial_type == "nogo" & acc == 0 ~ "E",
       trial_type == "go" & lag(trial_type) == "nogo" & lag(acc) == 0 & !is.na(rt) ~ "E+1",
