@@ -160,14 +160,16 @@ error_data <- trial_data %>%
       trial_type == "go" & lead(trial_type) == "nogo" & lead(acc) == 0 ~ "E-1",
       trial_type == "nogo" & acc == 1 ~ "C",
       trial_type == "nogo" & acc == 0 ~ "E",
-      trial_type == "go" & lag(trial_type) == "nogo" & lag(acc) == 0 ~ "E+1",
-      trial_type == "go" & lag(trial_type) == "nogo" & lag(acc) == 1 ~ "C+1",
+      trial_type == "go" & lag(trial_type) == "nogo" & lag(acc) == 0 & !is.na(rt) ~ "E+1",
+      trial_type == "go" & lag(trial_type) == "nogo" & lag(acc) == 1 & !is.na(rt) ~ "C+1",
       # For +2 Location I am not always mutually exclusive, so extra precaution needed
       trial_type == "go" & lag(trial_type) == "go" 
       & lag(trial_type, 2) == "nogo" & lag(acc, 2) == 0 
+      & !is.na(lag(rt)) & !is.na(rt) # dont want responses after no-responses in here
       & lead(trial_type) != "nogo" ~ "E+2",
       trial_type == "go" & lag(trial_type) == "go" 
       & lag(trial_type, 2) == "nogo" & lag(acc, 2) == 1
+      & !is.na(lag(rt)) & !is.na(rt)
       & lead(trial_type) != "nogo" ~ "C+2"
     )
   ) %>% 
