@@ -23,6 +23,7 @@ ggplot2::theme_set(theme_classic()) # setting default theme
 data <- rio::import("./markdown/data/analysis_data.Rdata") %>% 
   mutate(rsi = factor(rsi),
          error_code = factor(error_code),
+         location = factor(location),
          id = factor(id))
 ```
 
@@ -126,6 +127,35 @@ mean_data_rsi_classic <- data %>%
          classic_pes_type = factor(classic_pes_type)
          )
 
+mean_data_rsi_location <- data %>% 
+  filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
+  # Get error_proximity and nogo_proximity
+  filter(nogo_type == "E" | nogo_type == "C") %>% 
+  filter(distance == -1 | distance == 1) %>% 
+  mutate(
+    nogo_type = droplevels(factor(nogo_type)),
+    distance = droplevels(factor(distance))
+  ) %>% 
+  group_by(id, rsi, nogo_type, distance) %>%
+  summarize(
+    across(
+      c("rt", "acc"),
+      list(mean = ~mean(., na.rm = TRUE), sd = ~sd(., na.rm = TRUE))
+    )
+  ) %>% 
+  ungroup() %>% 
+  mutate(id = factor(id),
+         rsi = factor(rsi, 
+                      levels = c(0.2, 1),
+                      labels = c("short", "long")),
+         nogo_type = factor(nogo_type,
+                            levels = c("E", "C"),
+                            labels = c("NoGo-Error", "NoGO-Correct")),
+         distance = factor(distance,
+                           levels = c(-1, 1),
+                           labels = c("pre-NoGo", "post-NoGo"))
+         )
+
 # t_test_rt_rsi <- t.test(
 #   rt_mean ~ rsi,
 #   data = mean_data_rsi_classic,
@@ -162,6 +192,21 @@ aov_acc_rsi_error_classic <- aov_car(
   data = mean_data_rsi_classic,
   anova_table = list(es = c("ges","pes"))
 )
+
+aov_rt_rsi_error_location <- aov_car(
+  formula = rt_mean ~ rsi*nogo_type*distance + Error(id/rsi*nogo_type*distance),
+  data = mean_data_rsi_location,
+  anova_table = list(es = c("ges", "pes"))
+)
+
+aov_acc_rsi_error_location <- aov_car(
+  formula = acc_mean ~ rsi*nogo_type*distance + Error(id/rsi*nogo_type*distance),
+  data = mean_data_rsi_location,
+  anova_table = list(es = c("ges", "pes"))
+)
+
+emmeans_rt_location <- aov_rt_rsi_error_location %>% 
+  emmeans(~distance*nogo_type*rsi)
 ```
 
 ```{r significance-testing-emmeans, include = FALSE, cache = TRUE, dependson='significance-testing-data'}

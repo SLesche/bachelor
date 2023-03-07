@@ -4,7 +4,7 @@ The present study aimed to expand the study of cognitive processes underlying po
 Drift rates were decreased following an error in both the short and long RSI condition, implying errors lead to attentional deficits affecting response behavior even after 1000ms. The strength of the maladaptive impact of errors on drift rate was however greater in the short RSI condition. This suggests that maladaptive effects as captured by a decrease in drift rate affect response behavior more strongly if little time has passed since the error.
 
 
-
+**Error rate long/short is not an issue for "orienting account"**
 <!-- -describe theory -->
 <!-- -describe what was done -->
 <!-- - task, PES spec, model -->

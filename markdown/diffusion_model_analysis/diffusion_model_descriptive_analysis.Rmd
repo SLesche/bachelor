@@ -36,9 +36,16 @@ data <- fixef(fit_wiener_location) %>%
 
 
 summary <- data %>% 
+  filter(!str_detect(param, "bias")) %>% 
   separate(param,
            into = c("rsi", "error_factor", "stimulus"),
            sep = ":") %>% 
+  mutate(rsi = ifelse(str_detect(rsi, "^rsi"), paste0("drift_", rsi), rsi)) %>% 
+  separate(
+    rsi,
+    into = c("param", "rsi"),
+    sep = "_"
+  ) %>% 
   mutate(
     rsi = str_remove(rsi, "rsi"),
     error_factor = str_remove(error_factor, "error_factor"),
@@ -56,7 +63,7 @@ summary <- data %>%
     )
   ) %>% 
   mutate(mean_corrected = abs(mean), lower_corrected = abs(lower), upper_corrected = abs(upper)) %>% 
-  group_by(rsi, type, location) %>% 
+  group_by(param, rsi, type, location) %>% 
   summarize(
     mean = mean(mean_corrected),
     lower = mean(lower_corrected), 
@@ -64,6 +71,7 @@ summary <- data %>%
     )
 
 summary %>% 
+  filter(param == "drift") %>% 
   ggplot(
     aes(
       x = location,
@@ -74,10 +82,10 @@ summary %>%
   )+
   geom_point()+
   geom_line()+
-  facet_wrap(~rsi, scales = "free")
+  facet_wrap(~rsi)
 
 summary %>% 
-  filter(rsi == "short") %>% 
+  filter(param == "bs") %>% 
   ggplot(
     aes(
       x = location,
@@ -87,10 +95,11 @@ summary %>%
     )
   )+
   geom_point()+
-  geom_line()
+  geom_line()+
+  facet_wrap(~rsi)
 
 summary %>% 
-  filter(rsi == "bs_short") %>% 
+  filter(param == "ndt") %>% 
   ggplot(
     aes(
       x = location,
@@ -100,10 +109,12 @@ summary %>%
     )
   )+
   geom_point()+
-  geom_line()
+  geom_line()+
+  facet_wrap(~rsi)
+
 
 summary %>% 
-  filter(rsi == "bs_long") %>% 
+  filter(param == "bias") %>% 
   ggplot(
     aes(
       x = location,
@@ -113,32 +124,8 @@ summary %>%
     )
   )+
   geom_point()+
-  geom_line()
+  geom_line()+
+  facet_wrap(~rsi)
 
-summary %>% 
-  filter(rsi == "ndt_long") %>% 
-  ggplot(
-    aes(
-      x = location,
-      y = mean,
-      color = type,
-      group = type
-    )
-  )+
-  geom_point()+
-  geom_line()
-
-summary %>% 
-  filter(rsi == "ndt_short") %>% 
-  ggplot(
-    aes(
-      x = location,
-      y = mean,
-      color = type,
-      group = type
-    )
-  )+
-  geom_point()+
-  geom_line()
 ```
 
