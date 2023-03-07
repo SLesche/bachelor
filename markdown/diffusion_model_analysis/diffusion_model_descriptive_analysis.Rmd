@@ -36,7 +36,8 @@ data <- fixef(fit_wiener_location) %>%
 
 
 summary <- data %>% 
-  filter(!str_detect(param, "bias")) %>% 
+  mutate(param = str_replace(param, "previous_stimulus", "prevstim")) %>% 
+  # filter(!str_detect(param, "bias")) %>% 
   separate(param,
            into = c("rsi", "error_factor", "stimulus"),
            sep = ":") %>% 
@@ -115,6 +116,13 @@ summary %>%
 
 summary %>% 
   filter(param == "bias") %>% 
+  mutate(mean = ifelse(
+    rsi == "prevstimX",
+    1 - mean,
+    mean
+  )) %>% 
+  group_by(location, type) %>% 
+  summarize(mean = mean(mean)) %>% 
   ggplot(
     aes(
       x = location,
@@ -125,7 +133,8 @@ summary %>%
   )+
   geom_point()+
   geom_line()+
-  facet_wrap(~rsi)
-
+  labs(
+    title = "Bias towards the previously not shown response"
+  )
 ```
 

@@ -19,14 +19,11 @@ formula <- bf(
   # No intercepts, bc this estimates parameters for each combination of
   # rsi and error_factor
   rt | dec(decision) ~ 0 + rsi:error_factor:stimulus,
-    # TODO: Implement this! Model comparison?
   bs ~ 0 + rsi:error_factor,
     # because rsi and error_factor are known they can be used here
     # pre-error is not technically "known", but should affect bs and ndt nonetheless
   ndt ~ 0 + rsi:error_factor,
-  bias ~ 0 + previous_stimulus:error_factor # no reason for bias to vary TODO: intercept for bias
-    # just want to estimate intercept for bias?
-    # TODO: maybe estimate intercept for bias? 
+  bias ~ 0 + rsi:previous_stimulus:error_factor
 )
 
 
@@ -121,6 +118,6 @@ fit_wiener <- brm(
 
 
 ## ----saving-ddm-classic-----------------------------------------------------------------------
-save(fit_wiener, file = paste0("./bachelor/models/location_standard_bias_", Sys.Date(), ".rda"),
+save(fit_wiener, file = paste0("./bachelor/models/location_rsi_bias_", Sys.Date(), ".rda"),
      compress = "xz")
 

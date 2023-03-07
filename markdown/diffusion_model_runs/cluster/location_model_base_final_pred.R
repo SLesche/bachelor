@@ -1,10 +1,10 @@
 library(dplyr)
 
-fit <- rio::import("./bachelor/models/location_standard_bias_final_2023-03-07.rda")
+fit <- rio::import("./bachelor/models/location_standard_bias_2023-03-07.rda")
 
 pred <- predict(fit,
                 negative_rt = TRUE,
                 summary = FALSE,
                 ndraws = 500)
 
-save(pred, file = "./bachelor/predictions/prediction_location_base_final.rdata")
+save(pred, file = "./bachelor/predictions/prediction_location_base.rdata")
