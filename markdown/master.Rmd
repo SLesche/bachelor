@@ -8,10 +8,10 @@ author:
     corresponding : yes    # Define only one corresponding author
     address       : "Im Neuenheimer Feld 695, 69120 Heidelberg"
     email         : "sven.lesche@stud.uni-heidelberg.de"
-    role:         # Contributorship roles (e.g., CRediT, https://casrai.org/credit/)
-      - "Conceptualization"
-      - "Writing - Original Draft Preparation"
-      - "Writing - Review & Editing"
+    # role:         # Contributorship roles (e.g., CRediT, https://casrai.org/credit/)
+    #   - "Conceptualization"
+    #   - "Writing - Original Draft Preparation"
+    #   - "Writing - Review & Editing"
   # - name          : "Kathrin Sadus"
   #   affiliation   : "1"
   #   role:
