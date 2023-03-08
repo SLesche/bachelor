@@ -150,7 +150,7 @@ mean_data_rsi_location <- data %>%
                       labels = c("short", "long")),
          nogo_type = factor(nogo_type,
                             levels = c("E", "C"),
-                            labels = c("NoGo-Error", "NoGO-Correct")),
+                            labels = c("NoGo-Error", "NoGo-Correct")),
          distance = factor(distance,
                            levels = c(-1, 1),
                            labels = c("pre-NoGo", "post-NoGo"))
