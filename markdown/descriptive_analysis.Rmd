@@ -85,7 +85,14 @@ average_n_nogo_error_robust <- data %>%
   group_by(error_code) %>%
   summarize(mean = mean(n), sd = sd(n), median = median(n))
 
-    descriptive_output <- data.frame(
+average_n_location <- data %>% 
+  group_by(id, location) %>% 
+  count(location) %>% 
+  filter(!is.na(location)) %>% 
+  group_by(location) %>% 
+  summarize(mean = mean(n), sd = sd(n), median = median(n))
+
+descriptive_output <- data.frame(
   mean_error_rate_overall,
   mean_error_rate_nogo,
   mean_rt,

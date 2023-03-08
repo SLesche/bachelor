@@ -50,20 +50,39 @@ All response times shorter than 150ms were excluded from analysis. Mean RT and a
 <!-- Within-participant logarithmized response times deviating more than 3 standard deviations from the participants' condition-specific mean were also considered outliers. Of the `r nrow(rt_data)` trials `r paste(formattable::percent((n_outliers*3000) / nrow(final_data)))` of trials were lost due to participant exclusion, `r demo_output$percentage_trials_lost`% of trials were lost due to single trial outliers, leaving `r nrow(final_data)` trials for analysis. -->
 
 ## Behavioral Analysis
-Only errors in NoGo trials were considered _error trials_ relevant for analysis. Inspection of only the effect of accuracy in NoGo trials allows classification of Go trials based on the accuracy of the most proximate NoGo trial. Go trials following a NoGo-error are defined as trials _E+1_, Go trials following a correct response to a NoGo-trial as _C+1_. We also added the locations _E-1_, _C-1_, _E+2_ and _C+2_ depending on the distance to and accuracy of the most proximate NoGo trial^[A more in-depth definition of the criteria used in trial specification is provided in the appendix **NUMBER**]. This location-approach allows for the classification of PES as done by traditional methods, $$\Delta_{PES} = \overline{RT_{E+1}} - \overline{RT_{C+1}}$$ 
+Because very few errors of commission occurred in Go trials, only errors in NoGo trials were considered _error trials_ relevant for analysis. Inspection of only the effect of accuracy in NoGo trials allows classification of Go trials based on the accuracy of the most proximate NoGo trial. Go trials following a NoGo-error are defined as trials _E+1_, Go trials following a correct response to a NoGo-trial as _C+1_. We also added the locations _E-1_, _C-1_, _E+2_ and _C+2_ depending on the distance to and accuracy of the most proximate NoGo trial^[A more in-depth definition of the criteria used in trial specification is provided in the appendix **NUMBER**]. 
+
+This location-approach allows for the classification of PES as done by traditional methods, $$\Delta_{PES} = \overline{RT_{E+1}} - \overline{RT_{C+1}}$$ 
 as well as the robust approach to PES [@dutilh2012how].
 $$ \Delta_{PES} = \overline{RT_{E+1}} - \overline{RT_{E-1}}$$
-The classic approad represents main effect of in 
-The robust effect represents main effect od in
-But I want:
-So I am using interaction term
-Whenever the findings differ in either the classical or robust approach I will mention this
-Can find all analysis done with classical/robust approaches in appendix
 
-We will conduct main analyses using the classical definition of PES^[We conducted all behavioral and DDM analysis with the robust measure of PES [@dutilh2012how]. Results did not differ significantly, see Appendix //REPLACE// for Detail] to avoid potential overestimation of PES caused by _pre-error speeding_ [@pfister2022].
+The unique nature of our experiment allows us to investigate the effect of accuracy of the most proximate NoGo trial both prior to and after the NoGo trial has occurred. Data belonging to the locations _E-1_, _E+1_, _C-1_ and _C+1_ can be categorized into a 2x2 factorial design with the factor _NoGo-accuracy_ describing the accuracy of the NoGo trial, regardless whether the Go-trial occured before or after the NoGo trial and the factor _distance_ describing wether a trial occured before or after a NoGo trial, regardless of the accuracy of that NoGo trial. The traditional account of PES is captured by the main effect of _NoGo-accuracy_ given that the _distance_ is 1 (after a NoGo trial). The robust account is the main effect of _distance_ given that the _NoGo-accuracy_ is 0 (an error).
+Investigating the effect of one parameter while restricting the other however grants only partial insight into the effect of an error on trials following it. If there are differences in responses prior to a NoGo trial depending on the accuracy of the following NoGo trial, these effects are not post-error related and should be accounted for.
+
+We will therefore consider the interaction between the two factors _NoGo-accuracy_ and _distance_ as evidence for post-error changes to information processing. When the effect of NoGo-accuracy is dependent on the distance to the NoGo trial and responses close to an error deviate more significantly from responses close to a correct response _after_ the NoGo trial, this difference is solely attributable to post-error effects.
+
+Effects of the factors _RSI_, _NoGo-accuracy_ and _distance_ as well as their interaction on mean response times and accuracy are examined using a three-way ($RSI \times NoGo-accuracy \times distance$) repeated measures ANOVA. ^[All analysis will also be conducted using the traditional and robust approaches to post-error slowing. Results will be reported whenever they differ from our new approach. A full overview of analyses conducted using the other approaches can be found in the appendix.]
+
+<!-- Herein lies the problem with using the traditional or robust approach in our experimental design. By restricting one factor and estimating the effects of the other, differences are not solely attributable to an error. In the traditional approach, differences between _C+1_ and _E+1_ might be due to global parameter differences near correct NoGo trials versus near incorrect NoGo trials. Phases in which participants respond less accurately increase the odds of an inaccurate response to a NoGo trial -->
+<!-- - traditional doesnt account for differences between -1 and 1 distance -> if differences between correct go trials and error go trials are present even before the error occurs, (WHY would they, explain this), then traditional approach does not take these baselines into account -->
+<!-- - problem with robust approach is that is does not take into account the effect of a NoGo-trials -->
+<!-- We will determine PES -->
+
+<!-- **cant really get a number ms-slowing, only the effect of errors on their trial** -->
+
+<!-- The classic approad represents main effect of in  -->
+<!-- The robust effect represents main effect od in -->
+<!-- But I want: -->
+<!-- So I am using interaction term -->
+<!-- Whenever the findings differ in either the classical or robust approach I will mention this -->
+<!-- Can find all analysis done with classical/robust approaches in appendix -->
+
+<!-- We will conduct main analyses using the classical definition of PES^[We conducted all behavioral and DDM analysis with the robust measure of PES [@dutilh2012how]. Results did not differ significantly, see Appendix //REPLACE// for Detail] to avoid potential overestimation of PES caused by _pre-error speeding_ [@pfister2022]. -->
+
 <!-- PES was defined using the traditional approach^[We conducted all behavioral and DDM analysis with the robust measure of PES [@dutilh2012how]. Results did not differ significantly, see Appendix //REPLACE// for Detail] [@dutilh2012how; @pfister2022]. Mean response times $\overline{RT}$ in Go trials following a false response to a NoGo trial ($E+1$) are compared to mean response times following a correct response to a NoGo trial ($C+1$).  -->
 <!-- $$\Delta_{PES} = \overline{RT_{E+1}} - \overline{RT_{C+1}}$$ -->
-Effects of RSI condition and accuracy of the previous NoGo trial as well as their interaction on mean response times and accuracy are examined using a two-way ($RSI \times previous \ accuracy$) repeated measures ANOVA.
+
+<!-- Effects of RSI condition and accuracy of the previous NoGo trial as well as their interaction on mean response times and accuracy are examined using a two-way ($RSI \times previous \ accuracy$) repeated measures ANOVA. -->
 
 ## Bayesian hierarchical drift-diffusion model
 The diffusion model was estimated using a Bayesian hierarchical approach implemented in the R-package `brms` [@R-brms_a]. Hierarchical approaches to the DDM allow simultaneous estimation of parameters on both a population-level and on a subject-level [@vandekerckhove2011; @lee2011; @gelman2006], reducing the number of samples required to estimate model parameters reliably [@wiecki2013; @ratcliff2015; @rouder2005]. Bayesian estimation allows hierarchical extensions of the model otherwise not feasible in frequentist approaches using maximum likelihood estimation [@vandekerckhove2011] and produces more accurate model estimates [@rouder2005]. Individual-level parameters are assumed to be random samples drawn from a group-level distribution. Group-level distributions thus define between-subjects variability of the parameters and are themselves specified by a set of parameters [@matzke2009]. The ability to fully infer posterior distributions and thus allow a more intuitive quantification of uncertainty is a further benefit of bayesian estimation [@kruschke2010].
