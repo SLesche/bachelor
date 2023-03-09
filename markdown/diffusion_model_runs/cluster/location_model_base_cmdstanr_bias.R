@@ -14,6 +14,7 @@ library(cmdstanr)
 data <- rio::import("./bachelor/data/diffusion_data_location.rdata")
 
 
+
 ## ----formula----------------------------------------------------------------------------------
 formula <- bf(
   # No intercepts, bc this estimates parameters for each combination of

@@ -60,61 +60,11 @@ get_max_cors <- function(model){
 
 ```
 
-```{r data}
-# Reading in data
-fit_wiener_robust <- rio::import("./markdown/models/robust_standard_rsi_err2023-02-15.rda")
-fit_wiener_classic <- rio::import("./markdown/models/classic_standard_rsi_err_2023-02-15.rda")
-fit_wiener_location <- rio::import("./markdown/models/location_standard_rsi_err_2023-02-19.rda")
-
-data_robust <- rio::import("./markdown/data/diffusion_data_robust.Rdata")
-data_classic <- rio::import("./markdown/data/diffusion_data_classic.Rdata")
-data_location <- rio::import("./markdown/data/diffusion_data_location.Rdata")
-
-pred_robust <- rio::import("./markdown/models/prediction_robust_standard_2023-02-20.rda")
-pred_classic <- rio::import("./markdown/models/prediction_classic_standard_2023-02-20.rda")
-pred_location <- rio::import("./markdown/models/prediction_location_standard_2023-02-22.rda")
-```
-
-```{r checking rhat}
-# Checking parameters with highest rhat
-min_ess(fit_wiener_classic)
-max_rhat(fit_wiener_classic)
-
-min_ess(fit_wiener_robust)
-max_rhat(fit_wiener_robust)
-
-min_ess(fit_wiener_location)
-max_rhat(fit_wiener_location)
-```
-
-```{r divergent}
-# Number of divergent transitions
-n_divergent(fit_wiener_classic)
-n_divergent(fit_wiener_robust)
-n_divergent(fit_wiener_location)
-```
-
-```{r visual-par-inspection}
-inspect_pars(fit_wiener_classic)
-inspect_pars(fit_wiener_robust)
-inspect_pars(fit_wiener_location)
-```
-
-
-```{r parameter correlations}
-get_max_cors(fit_wiener_classic)
-get_max_cors(fit_wiener_robust)
-get_max_cors(fit_wiener_location)
-```
-
 ```{r model-fit}
 combine_data <- function(raw_data, prediction){
   combined <- as_tibble(cbind(raw_data, as_tibble(t(prediction))))
   return(combined)
 }
-combined_data_classic <- combine_data(data_classic, pred_classic)
-combined_data_robust <- combine_data(data_robust, pred_robust)
-combined_data_location <- combine_data(data_location, pred_location)
 ```
 
 ```{r}
@@ -203,43 +153,6 @@ summarize_med_rt <- function(object, group_id = FALSE){
 ```
 
 ```{r}
-robust_med_rts_pred <- generate_med_rts_pred(
-  combined_data = combined_data_robust,
-  raw_data = data_robust,
-  group_id = FALSE
-)
-
-robust_summary_pred <- summarize_med_rt(
-  robust_med_rts_pred,
-  group_id = FALSE
-)
-
-classic_med_rts_pred <- generate_med_rts_pred(
-  combined_data = combined_data_classic,
-  raw_data = data_classic,
-  group_id = FALSE
-)
-
-classic_summary_pred <- summarize_med_rt(
-  classic_med_rts_pred,
-  group_id = FALSE
-)
-
-location_med_rts_pred <- generate_med_rts_pred(
-  combined_data = combined_data_location,
-  raw_data = data_location,
-  group_id = FALSE
-)
-
-location_summary_pred <- summarize_med_rt(
-  location_med_rts_pred,
-  group_id = FALSE
-)
-
-
-```
-
-```{r}
 generate_plot_resp_prob <- function(data){
   labels <- data %>% 
     mutate(labels = paste0(rsi, "_", error_factor, "_", stimulus)) %>% 
@@ -313,11 +226,6 @@ combine_all_pred_plots <- function(data){
 }
 ```
 
-```{r}
-combine_all_pred_plots(robust_summary_pred)
-combine_all_pred_plots(classic_summary_pred)
-combine_all_pred_plots(location_summary_pred)
-```
 
 ```{r checking full rt distributions}
 get_factor_combinations <- function(data){
@@ -347,7 +255,7 @@ compare_plot <- function(dataframe, vector, my_rsi, my_error_factor, my_stimulus
     filter(rsi == my_rsi, error_factor == my_error_factor, stimulus == my_stimulus) %>% 
     mutate(type = "empirical") %>% 
     select(rt, type)
-  vector_data = data.frame(rt =vector, type = "predicted")
+  vector_data = data.frame(rt = vector, type = "predicted")
   full_data = rbind(data, vector_data)
   plot = full_data %>%
     ggplot(
@@ -368,9 +276,9 @@ compare_plot <- function(dataframe, vector, my_rsi, my_error_factor, my_stimulus
 }
 
 compare_all_conditions <- function(data){
-  factor_combinations <- get_factor_combinations(data)
+  factor_combinations = get_factor_combinations(data)
   
-  n_factors <- length(factor_combinations)
+  n_factors = length(factor_combinations)
   grid_width = floor(n_factors/5)
   # generating list of vectors containing all predicted data for those combinations
   list_objects = list()
@@ -387,19 +295,142 @@ compare_all_conditions <- function(data){
                                               my_stimulus = vec_stimulus)
     list_plots[[i]] = compare_plot(data = data,
                                    vector = list_objects[[i]],
-                                 my_rsi = vec_rsi,
-                                 my_error_factor = vec_error_factor,
-                                 my_stimulus = vec_stimulus)
+                                   my_rsi = vec_rsi,
+                                   my_error_factor = vec_error_factor,
+                                   my_stimulus = vec_stimulus)
   }
-  
-  grid <- grid.arrange(grobs = list_plots, ncol = grid_width)
-  return(grid)
+  return(list_plots)
 }
+```
+
+```{r data}
+# Reading in data
+fit_wiener_robust <- rio::import("./markdown/models/robust_standard_rsi_err2023-02-15.rda")
+fit_wiener_classic <- rio::import("./markdown/models/classic_standard_rsi_err_2023-02-15.rda")
+fit_wiener_location <- rio::import("./markdown/models/location_standard_rsi_err_2023-02-19.rda")
+
+data_robust <- rio::import("./markdown/data/diffusion_data_robust.Rdata")
+data_classic <- rio::import("./markdown/data/diffusion_data_classic.Rdata")
+data_location <- rio::import("./markdown/data/diffusion_data_location.Rdata")
+
+pred_robust <- rio::import("./markdown/models/prediction_robust_standard_2023-02-20.rda")
+pred_classic <- rio::import("./markdown/models/prediction_classic_standard_2023-02-20.rda")
+pred_location <- rio::import("./markdown/models/prediction_location_standard_2023-02-22.rda")
+
+# Investigate cluster
+fit <- rio::import("./markdown/diffusion_model_runs/cluster/output/location_standard_bias_final_2023-03-07.rda")
+pred <- rio::import("./markdown/diffusion_model_runs/cluster/output/prediction_location_base.rdata")
+data <- fit$data
+```
+
+```{r comine-data}
+combined_data_classic <- combine_data(data_classic, pred_classic)
+combined_data_robust <- combine_data(data_robust, pred_robust)
+combined_data_location <- combine_data(data_location, pred_location)
+combined_data <- combine_data(data, pred)
+```
+
+```{r checking rhat}
+# Checking parameters with highest rhat
+min_ess(fit_wiener_classic)
+max_rhat(fit_wiener_classic)
+
+min_ess(fit_wiener_robust)
+max_rhat(fit_wiener_robust)
+
+min_ess(fit_wiener_location)
+max_rhat(fit_wiener_location)
+
+min_ess(fit)
+max_rhat(fit)
+```
+
+```{r divergent}
+# Number of divergent transitions
+n_divergent(fit_wiener_classic)
+n_divergent(fit_wiener_robust)
+n_divergent(fit_wiener_location)
+n_divergent(fit)
+```
+
+```{r visual-par-inspection}
+inspect_pars(fit_wiener_classic)
+inspect_pars(fit_wiener_robust)
+inspect_pars(fit_wiener_location)
+inspect_pars(fit)
+```
+
+```{r parameter correlations}
+get_max_cors(fit_wiener_classic)
+get_max_cors(fit_wiener_robust)
+get_max_cors(fit_wiener_location)
+get_max_cors(fit)
+```
+
+```{r}
+robust_med_rts_pred <- generate_med_rts_pred(
+  combined_data = combined_data_robust,
+  raw_data = data_robust,
+  group_id = FALSE
+)
+
+robust_summary_pred <- summarize_med_rt(
+  robust_med_rts_pred,
+  group_id = FALSE
+)
+
+classic_med_rts_pred <- generate_med_rts_pred(
+  combined_data = combined_data_classic,
+  raw_data = data_classic,
+  group_id = FALSE
+)
+
+classic_summary_pred <- summarize_med_rt(
+  classic_med_rts_pred,
+  group_id = FALSE
+)
+
+location_med_rts_pred <- generate_med_rts_pred(
+  combined_data = combined_data_location,
+  raw_data = data_location,
+  group_id = FALSE
+)
+
+location_summary_pred <- summarize_med_rt(
+  location_med_rts_pred,
+  group_id = FALSE
+)
+
+inspect_med_rts_pred <- generate_med_rts_pred(
+  combined_data = combined_data,
+  raw_data = data,
+  group_id = FALSE
+)
+
+inspect_summary_pred <- summarize_med_rt(
+  inspect_med_rts_pred,
+  group_id = FALSE
+)
+```
+
+
+```{r}
+combine_all_pred_plots(robust_summary_pred)
+combine_all_pred_plots(classic_summary_pred)
+combine_all_pred_plots(location_summary_pred)
+combine_all_pred_plots(inspect_summary_pred)
 ```
 
 ```{r}
 robust_visual_fit <- compare_all_conditions(combined_data_robust)
 classic_visual_fit <- compare_all_conditions(combined_data_classic)
 location_visual_fit <- compare_all_conditions(combined_data_location)
+compare_all_conditions(combined_data)
+
+list_plots[3]
+grid.arrange(grobs = list_plots[1:12], ncol = 4)
+grid.arrange(grobs = list_plots[13:24], ncol = 4)
+grid.arrange(grobs = list_plots[1:24], ncol = 4)
+
 ```
 
