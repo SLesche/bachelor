@@ -349,7 +349,7 @@ compare_plot <- function(dataframe, vector, my_rsi, my_error_factor, my_stimulus
     select(rt, type)
   vector_data = data.frame(rt =vector, type = "predicted")
   full_data = rbind(data, vector_data)
-  full_data %>%
+  plot = full_data %>%
     ggplot(
       aes(x = rt,
           group = type,
@@ -364,6 +364,7 @@ compare_plot <- function(dataframe, vector, my_rsi, my_error_factor, my_stimulus
     )+
     theme_classic()+
     xlim(0, 1)
+  return(plot)
 }
 
 compare_all_conditions <- function(data){
