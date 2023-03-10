@@ -3,9 +3,10 @@
 library(brms)
 # cmdstanr
 library(cmdstanr)
+library(dplyr)
 
 ## ----data-------------------------------------------------------------------------------------
-data <- rio::import("./bachelor/data/diffusion_data_location.rdata")
+data <- rio::import("./bachelor/data/diffusion_data_robust.rdata")
 
 
 ## ----formula
@@ -17,7 +18,7 @@ formula <- bf(
   # because rsi and error_factor are known they can be used here
   # pre-error is not technically "known", but should affect bs and ndt nonetheless
   ndt ~ 0 + rsi:error_factor,
-  bias ~ 0 + rsi:previous_stimulus:error_factor
+  bias ~ 0 + previous_stimulus:error_factor
 )
 
 
@@ -67,7 +68,7 @@ initfun <- function() {# all pars in stancode need init here
 n_iter <- 3000
 n_warmup <- 1000
 n_chains <- 4
-n_cores <- 64
+n_cores <- 4
 n_threads <- floor(n_cores/n_chains)
 max_depth <- 15
 adapt_delta <- 0.95
@@ -94,12 +95,16 @@ fit_wiener <- brm(
   backend = "cmdstanr",
   cores = n_cores,
   threads = threading(n_threads),
+  save_pars = save_pars(all = TRUE),
   control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
-  refresh = 100,
+  refresh = 500,
   seed = seed # reproducibility
-)
+) %>% 
+  add_criterion(
+    criterion = "loo"
+  )
 
 ## ----saving-ddm-classic-----------------------------------------------------------------------
-save(fit_wiener, file = paste0("./bachelor/models/base_model_", Sys.Date(), ".rda"),
+save(fit_wiener, file = paste0("./bachelor/models/no_rsi_bias", Sys.Date(), ".rda"),
      compress = "xz")
 

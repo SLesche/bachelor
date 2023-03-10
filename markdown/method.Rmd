@@ -84,7 +84,7 @@ Effects of the factors _RSI_, _NoGo-accuracy_ and _distance_ as well as their in
 
 <!-- Effects of RSI condition and accuracy of the previous NoGo trial as well as their interaction on mean response times and accuracy are examined using a two-way ($RSI \times previous \ accuracy$) repeated measures ANOVA. -->
 
-## Bayesian hierarchical drift-diffusion model
+<!-- ## Bayesian hierarchical drift-diffusion model -->
 The diffusion model was estimated using a Bayesian hierarchical approach implemented in the R-package `brms` [@R-brms_a]. Hierarchical approaches to the DDM allow simultaneous estimation of parameters on both a population-level and on a subject-level [@vandekerckhove2011; @lee2011; @gelman2006], reducing the number of samples required to estimate model parameters reliably [@wiecki2013; @ratcliff2015; @rouder2005]. Bayesian estimation allows hierarchical extensions of the model otherwise not feasible in frequentist approaches using maximum likelihood estimation [@vandekerckhove2011] and produces more accurate model estimates [@rouder2005]. Individual-level parameters are assumed to be random samples drawn from a group-level distribution. Group-level distributions thus define between-subjects variability of the parameters and are themselves specified by a set of parameters [@matzke2009]. The ability to fully infer posterior distributions and thus allow a more intuitive quantification of uncertainty is a further benefit of bayesian estimation [@kruschke2010].
 
 ## Model specification

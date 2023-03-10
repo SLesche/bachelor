@@ -18,7 +18,9 @@ ggplot2::theme_set(theme_classic()) # setting default theme
 ```{r data}
 data <- rio::import("./markdown/data/analysis_data.rdata") %>% 
   mutate(id = factor(id)) %>% 
-  mutate(rt = rt/1000)
+  mutate(rt = rt/1000) %>% 
+  filter(!is.na(rt), !is.na(decision), !is.na(location), !is.na(previous_stimulus),
+         !is.na(previous_acc), !is.na(previous_trial_type))
 ```
 
 # Preparing diffusion model
@@ -106,8 +108,7 @@ data_location <- data %>%
     map_condition = factor(map_condition),
     stimulus = factor(stimulus)
   ) %>% 
-  filter(!is.na(rt), !is.na(decision), !is.na(acc)) %>% 
-  filter(location != "baseline")
+  filter(!is.na(rt), !is.na(decision), !is.na(acc))
 ```
 
 ```{r no na}

@@ -13,7 +13,7 @@ library(tidybayes)
 
 
 ## ----data-------------------------------------------------------------------------------------
-data <- rio::import("./bachelor/data/diffusion_data_location.rdata")
+data <- rio::import("./bachelor/data/diffusion_data_robust.rdata")
 
 
 ## ----formula----------------------------------------------------------------------------------
