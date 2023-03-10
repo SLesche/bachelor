@@ -25,7 +25,7 @@ fit_wiener_location <- rio::import("./markdown/models/location_standard_rsi_err_
 ```
 
 ```{r}
-data <- fixef(fit_wiener_location) %>%
+data <- fixef(fit) %>%
   as.data.frame() %>% 
   rownames_to_column() %>% 
   select(param = rowname,
@@ -37,16 +37,20 @@ data <- fixef(fit_wiener_location) %>%
 
 summary <- data %>% 
   mutate(param = str_replace(param, "previous_stimulus", "prevstim")) %>% 
+  mutate(param = str_replace(param, "^rsi", "drift_rsi")) %>% 
   # filter(!str_detect(param, "bias")) %>% 
   separate(param,
            into = c("rsi", "error_factor", "stimulus"),
            sep = ":") %>% 
-  mutate(rsi = ifelse(str_detect(rsi, "^rsi"), paste0("drift_", rsi), rsi)) %>% 
+  # mutate(rsi = ifelse(str_detect(rsi, "^rsi"), paste0("drift_", rsi), rsi)) %>% 
   separate(
     rsi,
     into = c("param", "rsi"),
     sep = "_"
-  ) %>% 
+  )
+summary[which(summary$param == "bias"), c("error_factor", "stimulus")] <- summary[which(summary$param == "bias"), c("stimulus", "error_factor")]
+ 
+summary <- summary %>% 
   mutate(
     rsi = str_remove(rsi, "rsi"),
     error_factor = str_remove(error_factor, "error_factor"),
@@ -64,15 +68,21 @@ summary <- data %>%
     )
   ) %>% 
   mutate(mean_corrected = abs(mean), lower_corrected = abs(lower), upper_corrected = abs(upper)) %>% 
-  group_by(param, rsi, type, location) %>% 
+  group_by(param, rsi, type, location, stimulus) %>% 
   summarize(
     mean = mean(mean_corrected),
     lower = mean(lower_corrected), 
     upper = mean(upper_corrected)
     )
 
+
+
 summary %>% 
   filter(param == "drift") %>% 
+  group_by(rsi, location, type) %>% 
+  summarize(
+    mean = mean(mean)
+  ) %>% 
   ggplot(
     aes(
       x = location,
@@ -117,11 +127,11 @@ summary %>%
 summary %>% 
   filter(param == "bias") %>% 
   mutate(mean = ifelse(
-    rsi == "prevstimX",
+    stimulus == "prevstimX",
     1 - mean,
     mean
   )) %>% 
-  group_by(location, type) %>% 
+  group_by(location, rsi, type) %>% 
   summarize(mean = mean(mean)) %>% 
   ggplot(
     aes(
@@ -135,6 +145,8 @@ summary %>%
   geom_line()+
   labs(
     title = "Bias towards the previously not shown response"
-  )
+  )+
+  facet_wrap(~rsi)
+  
 ```
 

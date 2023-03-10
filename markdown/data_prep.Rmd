@@ -172,7 +172,25 @@ error_data <- trial_data %>%
       trial_type == "go" & lag(trial_type) == "go" 
       & lag(trial_type, 2) == "nogo" & lag(acc, 2) == 1
       & !is.na(lag(rt))
-      & lead(trial_type) != "nogo" ~ "C+2"
+      & lead(trial_type) != "nogo" ~ "C+2",
+      trial_type == "go" & lag(trial_type) == "go" & lag(trial_type, 2) == "go"
+      & lag(trial_type, 3) == "nogo" & lag(acc, 3) == 0 
+      & !is.na(lag(rt)) # dont want responses after no-responses in here
+      & lead(trial_type) != "nogo" ~ "E+3",
+      trial_type == "go" & lag(trial_type) == "go" & lag(trial_type, 2) == "go"
+      & lag(trial_type, 3) == "nogo" & lag(acc, 3) == 1 
+      & !is.na(lag(rt)) # dont want responses after no-responses in here
+      & lead(trial_type) != "nogo" ~ "C+3",
+      trial_type == "go" & lag(trial_type) == "go" & lag(trial_type, 2) == "go"
+      & lag(trial_type, 3) == "go"
+      & lag(trial_type, 4) == "nogo" & lag(acc, 4) == 0 
+      & !is.na(lag(rt)) # dont want responses after no-responses in here
+      & lead(trial_type) != "nogo" ~ "E+4",
+      trial_type == "go" & lag(trial_type) == "go" & lag(trial_type, 2) == "go"
+      & lag(trial_type, 3) == "go"
+      & lag(trial_type, 4) == "nogo" & lag(acc, 4) == 1
+      & !is.na(lag(rt)) # dont want responses after no-responses in here
+      & lead(trial_type) != "nogo" ~ "C+4",
     )
   ) %>% 
   mutate(
