@@ -3,7 +3,7 @@ library(tidybayes)
 
 predict_ddm <- function(fit){
   pred = fit$data %>%
-    select(rsi, error_factor, stimulus, previous_stimulus) %>%
+    select(-rt, -decision) %>%
     add_predicted_draws(model = fit,
                         negative_rt = TRUE,
                         n = 500) %>%
@@ -12,12 +12,12 @@ predict_ddm <- function(fit){
   return(pred)
 }
 
-input <- list.files("./bachelor/models/", pattern = "no_rsi_")
+input <- list.files("./bachelor/models/", pattern = "no_rsi_", full.names = TRUE)
+file_name <- list.files("./bachelor/models/", pattern = "no_rsi_", full.names = FALSE)
+outut <- paste0("./bachelor/predictions/pred_", file_name)
 
-
-for (i in input){
-  fit = rio::import(input)
+for (i in seq_along(input)){
+  fit = rio::import(input[i])
   pred = predict_ddm(fit)
-  output = 
-  save(pred, paste0("./bachelor/predictions/"))
+  save(pred, file = output[i])
 }

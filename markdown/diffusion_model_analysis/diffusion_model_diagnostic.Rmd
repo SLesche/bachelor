@@ -318,8 +318,8 @@ pred_classic <- rio::import("./markdown/models/prediction_classic_standard_2023-
 pred_location <- rio::import("./markdown/models/prediction_location_standard_2023-02-22.rda")
 
 # Investigate cluster
-fit <- rio::import("./markdown/diffusion_model_runs/cluster/output/location_standard_bias_final_2023-03-07.rda")
-pred <- rio::import("./markdown/diffusion_model_runs/cluster/output/prediction_location_base.rdata")
+fit <- rio::import("./markdown/diffusion_model_runs/cluster/output/location_rsi_bias_2023-03-09.rda")
+pred <- rio::import("./markdown/models/prediction_location_base.rdata")
 data <- fit$data
 ```
 
@@ -425,12 +425,11 @@ combine_all_pred_plots(inspect_summary_pred)
 robust_visual_fit <- compare_all_conditions(combined_data_robust)
 classic_visual_fit <- compare_all_conditions(combined_data_classic)
 location_visual_fit <- compare_all_conditions(combined_data_location)
-compare_all_conditions(combined_data)
+visual_fit <- compare_all_conditions(combined_data)
 
-list_plots[3]
-grid.arrange(grobs = list_plots[1:12], ncol = 4)
-grid.arrange(grobs = list_plots[13:24], ncol = 4)
-grid.arrange(grobs = list_plots[1:24], ncol = 4)
+grid.arrange(grobs = visual_fit[1:12], ncol = 4)
+grid.arrange(grobs = visual_fit[13:24], ncol = 4)
+grid.arrange(grobs = visual_fit[1:24], ncol = 4)
 
 ```
 
