@@ -63,13 +63,13 @@ initfun <- function() {# all pars in stancode need init here
 
 
 ## ----setup-model------------------------------------------------------------------------------
-n_iter <- 3000
+n_iter <- 2000
 n_warmup <- 1000
 n_chains <- 4
 n_cores <- 32
 n_threads <- floor(n_cores/n_chains)
 max_depth <- 15
-adapt_delta <- 0.99
+adapt_delta <- 0.95
 seed <- 1234
 
 model_setup_values <- data.frame(n_iter, n_warmup, n_chains, n_cores, n_threads, max_depth,
@@ -109,7 +109,7 @@ save(fit_wiener, file = paste0("./bachelor/models/model_comp/base_model_robust.r
 
 pred <- predict(fit_wiener,
                 summary = FALSE,
-                negativ_rt = TRUE,
+                negative_rt = TRUE,
                 ndraws = 500)
 
 save(pred, file = "./bachelor/predictions/pred_base_model_robust.rda")

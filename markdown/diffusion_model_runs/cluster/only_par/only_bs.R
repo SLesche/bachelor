@@ -66,13 +66,13 @@ initfun <- function() {# all pars in stancode need init here
 
 
 ## ----setup-model------------------------------------------------------------------------------
-n_iter <- 3000
+n_iter <- 2000
 n_warmup <- 1000
 n_chains <- 4
 n_cores <- 8
 n_threads <- floor(n_cores/n_chains)
 max_depth <- 15
-adapt_delta <- 0.99
+adapt_delta <- 0.95
 seed <- 1234
 
 model_setup_values <- data.frame(n_iter, n_warmup, n_chains, n_cores, n_threads, max_depth,

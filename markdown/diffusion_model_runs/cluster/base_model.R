@@ -100,6 +100,12 @@ fit_wiener <- brm(
 )
 
 ## ----saving-ddm-classic-----------------------------------------------------------------------
-save(fit_wiener, file = paste0("./bachelor/models/base_model_", Sys.Date(), ".rda"),
+save(fit_wiener, file = paste0("./bachelor/models/base_model.rda"),
      compress = "xz")
 
+pred <- predict(fit_wiener,
+                summary = FALSE,
+                negative_rt = TRUE,
+                ndraws = 500)
+
+save(pred, file = "./bachelor/predictions/pred_base_model.rda")
