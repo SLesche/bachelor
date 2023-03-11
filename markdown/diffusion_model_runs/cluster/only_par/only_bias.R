@@ -29,14 +29,14 @@ prior <- c(
   prior("normal(0, 5)", class = "b"), # drift rate, population
   
   # boundary separation
-  set_prior("gamma(10, 5)", class = "b", dpar = "bs"), 
+  set_prior("gamma(10, 5)", class = "b", dpar = "bs", lb = 0), 
   # bs restricted to > 0, lb = 0
   
   # Non-decision time
-  set_prior("gamma(1, 5)", class = "b", dpar = "ndt"),
+  set_prior("gamma(1, 5)", class = "b", dpar = "ndt", lb = 0),
   
   # Bias
-  set_prior("beta(4, 4)", class = "b", dpar = "bias")
+  set_prior("beta(4, 4)", class = "b", dpar = "bias", lb = 0, ub = 1)
 )
 
 
@@ -57,12 +57,11 @@ tmp_dat <- make_standata(
 initfun <- function() {# all pars in stancode need init here
   list(
     b = rnorm(tmp_dat$K), 
-    b_bs = runif(tmp_dat$K_bs, 1.5, 3.5),
+    b_bs = runif(tmp_dat$K_bs, 1, 2),
     b_ndt = runif(tmp_dat$K_ndt, 0.05, 0.1),
     b_bias = runif(tmp_dat$K_bias, 0.4, 0.6)
   )
 }
-
 
 
 ## ----setup-model------------------------------------------------------------------------------
