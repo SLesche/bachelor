@@ -68,10 +68,10 @@ initfun <- function() {# all pars in stancode need init here
 n_iter <- 3000
 n_warmup <- 1000
 n_chains <- 4
-n_cores <- 4
+n_cores <- 8
 n_threads <- floor(n_cores/n_chains)
 max_depth <- 15
-adapt_delta <- 0.95
+adapt_delta <- 0.99
 seed <- 1234
 
 model_setup_values <- data.frame(n_iter, n_warmup, n_chains, n_cores, n_threads, max_depth,
@@ -102,10 +102,17 @@ fit_wiener <- brm(
 )
 
 ## ----saving-ddm-classic-----------------------------------------------------------------------
-save(fit_wiener, file = paste0("./bachelor/models/no_rsi_ndt", Sys.Date(), ".rda"),
+save(fit_wiener, file = paste0("./bachelor/models/no_rsi_ndt.rda"),
      compress = "xz")
 
 fit_wiener <- add_criterion(fit_wiener, criterion = "loo")
 
-save(fit_wiener, file = paste0("./bachelor/models/no_rsi_ndt", Sys.Date(), ".rda"),
+save(fit_wiener, file = paste0("./bachelor/models/model_comp/no_rsi_ndt.rda"),
      compress = "xz")
+
+pred <- predict(fit_wiener,
+                summary = FALSE,
+                negative_rt = TRUE,
+                ndraws = 500)
+
+save(pred, file = "./bachelor/predictions/pred_no_rsi_ndt.rda")
