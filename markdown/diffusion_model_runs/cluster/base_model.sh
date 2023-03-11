@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=base-model
-#SBATCH --time=72:00:00
+#SBATCH --time=48:00:00
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=64
 #SBATCH --mail-type=all

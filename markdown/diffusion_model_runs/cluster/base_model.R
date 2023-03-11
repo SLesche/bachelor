@@ -27,14 +27,14 @@ prior <- c(
   prior("normal(0, 5)", class = "b"), # drift rate, population
   
   # boundary separation
-  set_prior("gamma(10, 5)", class = "b", dpar = "bs"), 
+  set_prior("normal(2.5, 2)", class = "b", dpar = "bs"), 
   # bs restricted to > 0, lb = 0
   
   # Non-decision time
-  set_prior("gamma(1, 5)", class = "b", dpar = "ndt"),
+  set_prior("normal(0.1, 0.05)", class = "b", dpar = "ndt"),
   
   # Bias
-  set_prior("beta(4, 4)", class = "b", dpar = "bias")
+  set_prior("normal(0.5, 0.25)", class = "b", dpar = "bias")
 )
 
 
@@ -100,6 +100,12 @@ fit_wiener <- brm(
 )
 
 ## ----saving-ddm-classic-----------------------------------------------------------------------
-save(fit_wiener, file = paste0("./bachelor/models/base_model_", Sys.Date(), ".rda"),
+save(fit_wiener, file = paste0("./bachelor/models/base_model.rda"),
      compress = "xz")
 
+pred <- predict(fit_wiener,
+                summary = FALSE,
+                negative_rt = TRUE,
+                ndraws = 500)
+
+save(pred, file = "./bachelor/predictions/pred_base_model.rda")

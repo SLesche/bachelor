@@ -29,14 +29,14 @@ prior <- c(
   prior("normal(0, 5)", class = "b"), # drift rate, population
   
   # boundary separation
-  set_prior("gamma(10, 5)", class = "b", dpar = "bs"), 
+  set_prior("normal(2.5, 2)", class = "b", dpar = "bs"), 
   # bs restricted to > 0, lb = 0
   
   # Non-decision time
-  set_prior("gamma(1, 5)", class = "b", dpar = "ndt"),
+  set_prior("normal(0.1, 0.05)", class = "b", dpar = "ndt"),
   
   # Bias
-  set_prior("beta(4, 4)", class = "b", dpar = "bias")
+  set_prior("normal(0.5, 0.25)", class = "b", dpar = "bias")
 )
 
 
@@ -66,13 +66,13 @@ initfun <- function() {# all pars in stancode need init here
 
 
 ## ----setup-model------------------------------------------------------------------------------
-n_iter <- 3000
-n_warmup <- 1000
+n_iter <- 1000
+n_warmup <- 500
 n_chains <- 4
 n_cores <- 8
 n_threads <- floor(n_cores/n_chains)
 max_depth <- 15
-adapt_delta <- 0.99
+adapt_delta <- 0.95
 seed <- 1234
 
 model_setup_values <- data.frame(n_iter, n_warmup, n_chains, n_cores, n_threads, max_depth,
@@ -114,6 +114,6 @@ save(fit_wiener, file = paste0("./bachelor/models/model_comp/only_bias.rda"),
 pred <- predict(fit_wiener,
                 summary = FALSE,
                 negative_rt = TRUE,
-                ndraws = 500)
+                ndraws = 200)
 
 save(pred, file = "./bachelor/predictions/pred_only_bias.rda")
