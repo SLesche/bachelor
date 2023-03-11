@@ -14,11 +14,11 @@ data <- rio::import("./bachelor/data/diffusion_data_robust.rdata")
 formula <- bf(
   # No intercepts, bc this estimates parameters for each combination of
   # rsi and error_factor
-  rt | dec(decision) ~ 0 + rsi:error_factor:stimulus,
+  rt | dec(decision) ~ 0 + rsi:stimulus,
   bs ~ 0 + rsi,
   # because rsi and error_factor are known they can be used here
   # pre-error is not technically "known", but should affect bs and ndt nonetheless
-  ndt ~ 0 + rsi,
+  ndt ~ 0 + rsi:error_factor,
   bias ~ 0 + rsi:previous_stimulus
 )
 
@@ -96,16 +96,19 @@ fit_wiener <- brm(
   backend = "cmdstanr",
   cores = n_cores,
   threads = threading(n_threads),
-  save_pars = save_pars(all = TRUE),
+  # save_pars = save_pars(all = TRUE),
   control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
   refresh = 500,
   seed = seed # reproducibility
-) %>% 
-  add_criterion(
-    criterion = "loo"
-  )
+)
 
 ## ----saving-ddm-classic-----------------------------------------------------------------------
-save(fit_wiener, file = paste0("./bachelor/models/only_drift_", Sys.Date(), ".rda"),
+save(fit_wiener, file = paste0("./bachelor/models/only_ndt_", Sys.Date(), ".rda"),
      compress = "xz")
+
+fit_wiener <- add_criterion(fit_wiener, criterion = "loo")
+
+save(fit_wiener, file = paste0("./bachelor/models/only_ndt_", Sys.Date(), ".rda"),
+     compress = "xz")
+
 

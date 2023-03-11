@@ -95,16 +95,17 @@ fit_wiener <- brm(
   backend = "cmdstanr",
   cores = n_cores,
   threads = threading(n_threads),
-  save_pars = save_pars(all = TRUE),
+  # save_pars = save_pars(all = TRUE),
   control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
   refresh = 500,
   seed = seed # reproducibility
-) %>% 
-  add_criterion(
-    criterion = "loo"
-  )
+)
 
 ## ----saving-ddm-classic-----------------------------------------------------------------------
 save(fit_wiener, file = paste0("./bachelor/models/no_rsi_", Sys.Date(), ".rda"),
      compress = "xz")
 
+fit_wiener <- add_criterion(fit_wiener, criterion = "loo")
+
+save(fit_wiener, file = paste0("./bachelor/models/no_rsi_", Sys.Date(), ".rda"),
+     compress = "xz")
