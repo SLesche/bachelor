@@ -9,9 +9,7 @@ library(tidyverse)
 library(gridExtra) # for grid.arrange
 library(DescTools) # for CCC
 library(dtplyr)
-```
 
-```{r functions}
 # Custom functions
 min_ess <- function(model){
   model$fit %>% 
@@ -57,17 +55,11 @@ get_max_cors <- function(model){
   hist(cor_long$Freq, breaks = 40)
 }
 
-
-```
-
-```{r model-fit}
 combine_data <- function(raw_data, prediction){
   combined <- as_tibble(cbind(raw_data, as_tibble(t(prediction))))
   return(combined)
 }
-```
 
-```{r}
 generate_med_rts_pred <- function(combined_data, raw_data, group_id = FALSE){
   if (group_id == FALSE){
     pred_rts = combined_data %>% 
@@ -150,9 +142,7 @@ summarize_med_rt <- function(object, group_id = FALSE){
       ungroup()
   }
 }
-```
 
-```{r}
 generate_plot_resp_prob <- function(data){
   labels <- data %>% 
     mutate(labels = paste0(rsi, "_", error_factor, "_", stimulus)) %>% 
@@ -224,10 +214,7 @@ combine_all_pred_plots <- function(data){
   
   grid.arrange(p1, p2, p3, ncol = 2)
 }
-```
 
-
-```{r checking full rt distributions}
 get_factor_combinations <- function(data){
   factor_combinations <- data %>% 
     mutate(labels = paste0(rsi, "_", error_factor, "_", stimulus)) %>% 
