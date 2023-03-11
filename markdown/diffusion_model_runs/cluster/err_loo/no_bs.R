@@ -1,22 +1,15 @@
 ## ----setup------------------------------------------------------------------------------------
 # Diffusion model packages
 library(brms)
-
 # cmdstanr
 library(cmdstanr)
-
-# tidybayes
-library(tidybayes)
-
-## ----functions--------------------------------------------------------------------------------
-
-
+library(dplyr)
 
 ## ----data-------------------------------------------------------------------------------------
 data <- rio::import("./bachelor/data/diffusion_data_robust.rdata")
 
 
-## ----formula----------------------------------------------------------------------------------
+## ----formula
 formula <- bf(
   # No intercepts, bc this estimates parameters for each combination of
   # rsi and error_factor
@@ -35,33 +28,22 @@ prior <- c(
   prior("normal(0, 5)", class = "b"), # drift rate, population
   
   # boundary separation
-  set_prior("normal(2.5, 1)", class = "b", dpar = "bs", lb = 0), 
+  set_prior("gamma(10, 5)", class = "b", dpar = "bs"), 
   # bs restricted to > 0, lb = 0
   
   # Non-decision time
-  set_prior("gamma(1, 5)", class = "b", dpar = "ndt", lb = 0),
+  set_prior("gamma(1, 5)", class = "b", dpar = "ndt"),
   
   # Bias
-  set_prior("normal(0.5, 0.25)", class = "b", dpar = "bias", lb = 0, ub = 1)
+  set_prior("beta(4, 4)", class = "b", dpar = "bias")
 )
-
-
-## ----stan-code-check--------------------------------------------------------------------------
-# Check that all parameters listed
-make_stancode(formula, # default transformations
-              family = wiener(link_bs = "identity", 
-                              link_ndt = "identity",
-                              link_bias = "identity"),
-              data = data, 
-              prior = prior)
-
 
 
 ## ----temp-starting-values---------------------------------------------------------------------
 tmp_dat <- make_standata(
   formula, 
   family = wiener(
-    link_bs = "identity", 
+    link_bs = "identity",
     link_ndt = "identity",
     link_bias = "identity"
   ),
@@ -86,7 +68,7 @@ initfun <- function() {# all pars in stancode need init here
 n_iter <- 3000
 n_warmup <- 1000
 n_chains <- 4
-n_cores <- 32
+n_cores <- 4
 n_threads <- floor(n_cores/n_chains)
 max_depth <- 15
 adapt_delta <- 0.95
@@ -113,15 +95,17 @@ fit_wiener <- brm(
   backend = "cmdstanr",
   cores = n_cores,
   threads = threading(n_threads),
-  save_pars = save_pars(all = TRUE),
+  # save_pars = save_pars(all = TRUE),
   control = list(max_treedepth = max_depth, adapt_delta = adapt_delta),
   refresh = 500,
   seed = seed # reproducibility
-) %>% 
-  add_loo()
-
+)
 
 ## ----saving-ddm-classic-----------------------------------------------------------------------
-save(fit_wiener, file = paste0("./bachelor/models/no_bs_", Sys.Date(), ".rda"),
+save(fit_wiener, file = paste0("./bachelor/models/no_err_bs", Sys.Date(), ".rda"),
      compress = "xz")
 
+fit_wiener <- add_criterion(fit_wiener, criterion = "loo")
+
+save(fit_wiener, file = paste0("./bachelor/models/no_err_bs", Sys.Date(), ".rda"),
+     compress = "xz")

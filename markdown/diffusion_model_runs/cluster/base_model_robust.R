@@ -3,7 +3,7 @@
 library(brms)
 # cmdstanr
 library(cmdstanr)
-
+library(dplyr)
 ## ----data-------------------------------------------------------------------------------------
 data <- rio::import("./bachelor/data/diffusion_data_robust.rdata")
 
@@ -103,3 +103,7 @@ fit_wiener <- brm(
 save(fit_wiener, file = paste0("./bachelor/models/base_model_robust_", Sys.Date(), ".rda"),
      compress = "xz")
 
+fit_wiener <- add_criterion(fit_wiener, criterion = "loo")
+
+save(fit_wiener, file = paste0("./bachelor/models/base_model_robust_", Sys.Date(), ".rda"),
+     compress = "xz")
