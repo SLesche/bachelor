@@ -350,10 +350,10 @@ descriptive_analysis_overview_table <- data %>%
   ) %>% 
   select(rsi, trial_type, location, rt, acc, count) %>% 
   mutate(
-    location = fct_relevel(location, "C-1", "C", "C+1", "C+2", "E-1", "E", "E+1", "E+2", "baseline")
+    location = fct_relevel(location, "C-1", "C", "C+1", "C+2", "C+3", "C+4", "E-1", "E", "E+1", "E+2", "E+3", "E+4", "baseline")
   ) %>% 
   arrange(rsi, location) %>% 
-  filter(location != "baseline") %>% 
+  # filter(location != "baseline") %>% 
   rename(
     "location" = location,
     "RSI" = rsi,
@@ -433,9 +433,9 @@ descriptive_location_plot_rt <- data %>%
   # filter(rsi == 0.2) %>% 
   mutate(distance = factor(distance)) %>%
   mutate(nogo_type = ifelse(nogo_type == "baseline", "C,E", nogo_type)) %>% 
-  mutate(distance = fct_relevel(distance, "-1", "0", "1", "2", "baseline")) %>% 
+  mutate(distance = fct_relevel(distance, "-1", "0", "1", "2", "3", "4", "baseline")) %>% 
   separate_rows(nogo_type, sep = ",") %>% 
-  filter(location != "baseline") %>% 
+  # filter(location != "baseline") %>% 
   # filter(!is.na(rt_mean)) %>% 
   ggplot(
     aes(
@@ -461,7 +461,7 @@ scale_color_manual(
     labels = c("Correct", "Error")
   )+
   scale_x_discrete(
-    labels = c("-1", "NoGo", "+1", "+2", "baseline - Go")
+    labels = c("-1", "NoGo", "+1", "+2", "+3", "+4", "baseline - Go")
   )+
   labs(
     x = "Location",
@@ -488,9 +488,9 @@ descriptive_location_plot_acc <- data %>%
   # filter(rsi == 0.2) %>% 
   mutate(distance = factor(distance)) %>%
   mutate(nogo_type = ifelse(nogo_type == "baseline", "C,E", nogo_type)) %>% 
-  mutate(distance = fct_relevel(distance, "-1", "0", "1", "2", "baseline")) %>% 
+  mutate(distance = fct_relevel(distance, "-1", "0", "1", "2", "3", "4", "baseline")) %>% 
   separate_rows(nogo_type, sep = ",") %>% 
-  filter(location != "baseline") %>% 
+  # filter(location != "baseline") %>% 
   # filter(!is.na(rt_mean)) %>% 
   ggplot(
     aes(
@@ -516,7 +516,7 @@ scale_color_manual(
     labels = c("Correct", "Error")
   )+
   scale_x_discrete(
-    labels = c("-1", "NoGo", "+1", "+2", "baseline - Go")
+    labels = c("-1", "NoGo", "+1", "+2", "+3", "+4", "baseline - Go")
   )+
   labs(
     x = "Location",

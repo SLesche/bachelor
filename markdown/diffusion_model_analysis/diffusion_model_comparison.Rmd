@@ -395,6 +395,8 @@ no_err_drift_combine <- combine_data(no_err_drift_model$data, no_err_drift_pred)
 no_err_ndt_combine <- combine_data(no_err_ndt_model$data, no_err_ndt_pred)
 no_err_bs_combine <- combine_data(no_err_bs_model$data, no_err_bs_pred)
 no_err_bias_combine <- combine_data(no_err_bias_model$data, no_err_bias_pred)
+
+optimized_combine <- combine_data(optimized_model$data, optimized_pred)
 ```
 
 ```{r plots}
@@ -417,6 +419,7 @@ generate_median_pred_plots(no_err_bias_combine, no_err_bias_model$data)
 generate_median_pred_plots(no_err_drift_combine, no_err_drift_model$data)
 generate_median_pred_plots(no_err_ndt_combine, no_err_ndt_model$data)
 
+generate_median_pred_plots(optimized_combine, optimized_model$data)
 # No rsi and err effects on bs, no err on ndt seems to be good for model fit to data
 ```
 
@@ -444,6 +447,8 @@ only_bs_fit <- compare_all_conditions(only_bs_combine)
 only_ndt_fit <- compare_all_conditions(only_ndt_combine)
 only_bias_fit <- compare_all_conditions(only_bias_combine)
 
+
+optimized_fit <- compare_all_conditions(optimized_combine)
 # remove the combine elements clouding up wm
 # rm(list=ls(pattern="combine$"))
 
@@ -463,5 +468,6 @@ grid.arrange(grobs = only_bs_fit, ncol = 4, top = "Only bs affected by errors")
 grid.arrange(grobs = only_bias_fit, ncol = 4, top = "Only bias affected by errors")
 grid.arrange(grobs = only_ndt_fit, ncol = 4, top = "Only ndt affected by errors")
 
+grid.arrange(grobs = optimized_fit, ncol = 4, top = "No effect of RSI on both bs and bias")
 ```
 

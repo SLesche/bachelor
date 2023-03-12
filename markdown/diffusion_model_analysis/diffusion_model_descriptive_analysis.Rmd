@@ -22,9 +22,12 @@ library(loo)
 fit_wiener_robust <- rio::import("./markdown/models/robust_standard_rsi_err2023-02-15.rda")
 fit_wiener_classic <- rio::import("./markdown/models/classic_standard_rsi_err_2023-02-15.rda")
 fit_wiener_location <- rio::import("./markdown/models/location_standard_rsi_err_2023-02-19.rda")
+
+fit <- rio::import("./markdown/diffusion_model_runs/cluster/output/second_base_model.rda")
+fit_robust <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model_robust.rda")
 ```
 
-```{r}
+```{r base-model}
 data <- fixef(fit) %>%
   as.data.frame() %>% 
   rownames_to_column() %>% 
@@ -35,7 +38,7 @@ data <- fixef(fit) %>%
          upper = Q97.5)
 
 
-summary <- data %>% 
+working <- data %>% 
   mutate(param = str_replace(param, "previous_stimulus", "prevstim")) %>% 
   mutate(param = str_replace(param, "^rsi", "drift_rsi")) %>% 
   # filter(!str_detect(param, "bias")) %>% 
@@ -48,13 +51,20 @@ summary <- data %>%
     into = c("param", "rsi"),
     sep = "_"
   )
-summary[which(summary$param == "bias"), c("error_factor", "stimulus")] <- summary[which(summary$param == "bias"), c("stimulus", "error_factor")]
+working[which(working$param == "bias"), c("error_factor", "stimulus")] <- working[which(working$param == "bias"), c("stimulus", "error_factor")]
  
-summary <- summary %>% 
+summary <- working %>% 
   mutate(
     rsi = str_remove(rsi, "rsi"),
     error_factor = str_remove(error_factor, "error_factor"),
     stimulus = str_remove(stimulus, "stimulus")
+  ) %>% 
+  mutate(
+    error_factor = ifelse(str_detect(error_factor, "baseline"), "C, E", error_factor)
+  ) %>% 
+  separate_rows(
+    error_factor,
+    sep = ","
   ) %>% 
   mutate(
     type = ifelse(str_detect(error_factor, "E"), "nogo_error", "nogo_correct")
@@ -64,7 +74,11 @@ summary <- summary %>%
       str_detect(error_factor, "M1") ~ -1,
       str_detect(error_factor, "P0") ~ 0,
       str_detect(error_factor, "P1") ~ 1,
-      str_detect(error_factor, "P2") ~ 2
+      str_detect(error_factor, "P2") ~ 2,
+      str_detect(error_factor, "P3") ~ 3,
+      str_detect(error_factor, "P4") ~ 4,
+      str_detect(error_factor, "C") ~ 5,
+      str_detect(error_factor, "E") ~ 5
     )
   ) %>% 
   mutate(mean_corrected = abs(mean), lower_corrected = abs(lower), upper_corrected = abs(upper)) %>% 
@@ -73,7 +87,8 @@ summary <- summary %>%
     mean = mean(mean_corrected),
     lower = mean(lower_corrected), 
     upper = mean(upper_corrected)
-    )
+    ) %>% 
+  filter(location != 5)
 
 
 
@@ -150,3 +165,139 @@ summary %>%
   
 ```
 
+```{r robust}
+data_robust <- fixef(fit_obust) %>%
+  as.data.frame() %>% 
+  rownames_to_column() %>% 
+  select(param = rowname,
+         mean = Estimate,
+         error = `Est.Error`,
+         lower = Q2.5,
+         upper = Q97.5)
+
+
+working <- data %>% 
+  mutate(param = str_replace(param, "previous_stimulus", "prevstim")) %>% 
+  mutate(param = str_replace(param, "^rsi", "drift_rsi")) %>% 
+  # filter(!str_detect(param, "bias")) %>% 
+  separate(param,
+           into = c("rsi", "error_factor", "stimulus"),
+           sep = ":") %>% 
+  # mutate(rsi = ifelse(str_detect(rsi, "^rsi"), paste0("drift_", rsi), rsi)) %>% 
+  separate(
+    rsi,
+    into = c("param", "rsi"),
+    sep = "_"
+  )
+working[which(working$param == "bias"), c("error_factor", "stimulus")] <- working[which(working$param == "bias"), c("stimulus", "error_factor")]
+ 
+summary <- working %>% 
+  mutate(
+    rsi = str_remove(rsi, "rsi"),
+    error_factor = str_remove(error_factor, "error_factor"),
+    stimulus = str_remove(stimulus, "stimulus")
+  ) %>% 
+  mutate(
+    error_factor = ifelse(str_detect(error_factor, "baseline"), "C, E", error_factor)
+  ) %>% 
+  separate_rows(
+    error_factor,
+    sep = ","
+  ) %>% 
+  mutate(
+    type = ifelse(str_detect(error_factor, "E"), "nogo_error", "nogo_correct")
+  ) %>% 
+  mutate(
+    location = case_when(
+      str_detect(error_factor, "M1") ~ -1,
+      str_detect(error_factor, "P0") ~ 0,
+      str_detect(error_factor, "P1") ~ 1,
+      str_detect(error_factor, "P2") ~ 2,
+      str_detect(error_factor, "P3") ~ 3,
+      str_detect(error_factor, "P4") ~ 4,
+      str_detect(error_factor, "C") ~ 5,
+      str_detect(error_factor, "E") ~ 5
+    )
+  ) %>% 
+  mutate(mean_corrected = abs(mean), lower_corrected = abs(lower), upper_corrected = abs(upper)) %>% 
+  group_by(param, rsi, type, location, stimulus) %>% 
+  summarize(
+    mean = mean(mean_corrected),
+    lower = mean(lower_corrected), 
+    upper = mean(upper_corrected)
+    ) %>% 
+  filter(location != 5)
+
+
+
+summary %>% 
+  filter(param == "drift") %>% 
+  group_by(rsi, location, type) %>% 
+  summarize(
+    mean = mean(mean)
+  ) %>% 
+  ggplot(
+    aes(
+      x = location,
+      y = mean,
+      color = type,
+      group = type
+    )
+  )+
+  geom_point()+
+  geom_line()+
+  facet_wrap(~rsi)
+
+summary %>% 
+  filter(param == "bs") %>% 
+  ggplot(
+    aes(
+      x = location,
+      y = mean,
+      color = type,
+      group = type
+    )
+  )+
+  geom_point()+
+  geom_line()+
+  facet_wrap(~rsi)
+
+summary %>% 
+  filter(param == "ndt") %>% 
+  ggplot(
+    aes(
+      x = location,
+      y = mean,
+      color = type,
+      group = type
+    )
+  )+
+  geom_point()+
+  geom_line()+
+  facet_wrap(~rsi)
+
+
+summary %>% 
+  filter(param == "bias") %>% 
+  mutate(mean = ifelse(
+    stimulus == "prevstimX",
+    1 - mean,
+    mean
+  )) %>% 
+  group_by(location, rsi, type) %>% 
+  summarize(mean = mean(mean)) %>% 
+  ggplot(
+    aes(
+      x = location,
+      y = mean,
+      color = type,
+      group = type
+    )
+  )+
+  geom_point()+
+  geom_line()+
+  labs(
+    title = "Bias towards the previously not shown response"
+  )+
+  facet_wrap(~rsi)
+  
