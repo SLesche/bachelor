@@ -1,0 +1,461 @@
+---
+editor_options:
+  chunk_output_type: console
+---
+```{r setup}
+# Library calls
+library(brms)
+library(tidyverse)
+library(gridExtra) # for grid.arrange
+library(DescTools) # for CCC
+library(dtplyr)
+library(loo)
+
+# Custom functions
+min_ess <- function(model){
+  model$fit %>% 
+  rstan::summary() %>% 
+  .$summary %>% 
+  as_tibble() %>% 
+  slice_min(n_eff, n = 5)
+}
+
+max_rhat <- function(model){
+  model$fit %>% 
+  rstan::summary() %>% 
+  .$summary %>% 
+  as_tibble() %>% 
+  slice_max(Rhat, n = 5)
+}
+
+n_divergent <- function(model){
+  sum(subset(nuts_params(model), Parameter=="divergent__")$Value)
+}
+
+inspect_pars <- function(model){
+  pars = variables(model)
+  pars_sel = c(
+  sample(pars[1:(length(pars)/2)], 3),
+  sample(pars[-(1:(length(pars)/2))], 3)
+  )
+
+  return(
+    plot(model, variable = pars_sel, N = 6, 
+     ask = FALSE, exact_match = TRUE, newpage = TRUE, plot = TRUE)
+  )
+}
+
+get_max_cors <- function(model){
+  posterior = as.mcmc(model, combine_chains = TRUE)
+  cor_posterior = cor(posterior)
+  cor_posterior[lower.tri(cor_posterior, diag = TRUE)] = NA
+  cor_long = as.data.frame(as.table(cor_posterior))
+  cor_long = na.omit(cor_long)
+  print(tail(cor_long[order(abs(cor_long$Freq)),], 10))
+  
+  hist(cor_long$Freq, breaks = 40)
+}
+
+combine_data <- function(raw_data, prediction){
+  combined <- as_tibble(cbind(raw_data, as_tibble(t(prediction))))
+  return(combined)
+}
+
+generate_med_rts_pred <- function(combined_data, raw_data, group_id = FALSE){
+  if (group_id == FALSE){
+    pred_rts = combined_data %>% 
+      group_by(rsi, error_factor, stimulus) %>%  # select grouping vars
+      summarise_at(.vars = vars(starts_with("V")), 
+                   funs(prob.upper = mean(. > 0),
+                        medrt.lower = median(abs(.[. < 0]) ),
+                        medrt.upper = median(.[. > 0] )
+                   )) %>% 
+      ungroup() %>% 
+      gather("key", "value", -rsi, -error_factor, -stimulus) %>% # remove grouping vars
+      separate("key", c("rep", "measure"), sep = "_") %>% 
+      spread(measure, value) %>% 
+      group_by(rsi, error_factor, stimulus) %>% # select grouping vars
+      summarise_at(.vars = vars(prob.upper, medrt.lower, medrt.upper), 
+                   funs(median = median(., na.rm = TRUE),
+                        llll = quantile(., probs = 0.01,na.rm = TRUE),
+                        lll = quantile(., probs = 0.025,na.rm = TRUE),
+                        ll = quantile(., probs = 0.1,na.rm = TRUE),
+                        l = quantile(., probs = 0.25,na.rm = TRUE),
+                        h = quantile(., probs = 0.75,na.rm = TRUE),
+                        hh = quantile(., probs = 0.9,na.rm = TRUE),
+                        hhh = quantile(., probs = 0.975,na.rm = TRUE),
+                        hhhh = quantile(., probs = 0.99,na.rm = TRUE)
+                   ))
+    total = raw_data %>% 
+      group_by(rsi, error_factor, stimulus) %>% # select grouping vars
+      summarise(prob.upper = mean(decision == 1),
+                medrt.upper = median(rt[decision == 1]),
+                medrt.lower = median(rt[decision == 0])
+      ) %>% 
+      ungroup() %>% 
+      left_join(pred_rts)
+  } else {
+    pred_med = combined_data %>% 
+      group_by(id, rsi, error_factor, stimulus) %>%  # select grouping vars
+      summarise_at(.vars = vars(starts_with("V")), 
+                   funs(prob.upper = mean(. > 0),
+                        medrt.lower = median(abs(.[. < 0]) ),
+                        medrt.upper = median(.[. > 0] )
+                   )) %>% 
+      ungroup() %>% 
+      gather("key", "value", -id, -rsi, -error_factor, -stimulus) %>% # remove grouping vars
+      separate("key", c("rep", "measure"), sep = "_") %>% 
+      spread(measure, value) %>% 
+      group_by(id, rsi, error_factor, stimulus) %>% # select grouping vars
+      summarise_at(.vars = vars(prob.upper, medrt.lower, medrt.upper), 
+                   funs(median = median(., na.rm = TRUE),
+                        llll = quantile(., probs = 0.01,na.rm = TRUE),
+                        lll = quantile(., probs = 0.025,na.rm = TRUE),
+                        ll = quantile(., probs = 0.1,na.rm = TRUE),
+                        l = quantile(., probs = 0.25,na.rm = TRUE),
+                        h = quantile(., probs = 0.75,na.rm = TRUE),
+                        hh = quantile(., probs = 0.9,na.rm = TRUE),
+                        hhh = quantile(., probs = 0.975,na.rm = TRUE),
+                        hhhh = quantile(., probs = 0.99,na.rm = TRUE)
+                   ))
+    total = raw_data %>% 
+      group_by(id, rsi, error_factor, stimulus) %>% # select grouping vars
+      summarise(prob.upper = mean(decision == 1),
+                medrt.upper = median(rt[decision == 1]),
+                medrt.lower = median(rt[decision == 0])
+      ) %>% 
+      ungroup() %>% 
+      left_join(pred_rts)
+  }
+  return(total)
+}
+
+summarize_med_rt <- function(object, group_id = FALSE){
+  if (group_id == FALSE){
+    summary = object %>% 
+      group_by(rsi, error_factor, stimulus) %>% 
+      summarise_if(is.numeric, mean, na.rm = TRUE) %>% 
+      ungroup()
+  } else {
+    summary = object %>% 
+      group_by(id, rsi, error_factor, stimulus) %>% 
+      summarise_if(is.numeric, mean, na.rm = TRUE) %>% 
+      ungroup()
+  }
+}
+
+generate_plot_resp_prob <- function(data){
+  labels <- data %>% 
+    mutate(labels = paste0(rsi, "_", error_factor, "_", stimulus)) %>% 
+    pull(labels)
+  labels_upper <- labels[which(str_detect(labels, "_1$"))]
+  labels_lower <- labels[which(str_detect(labels, "_0$"))]
+  
+  plot <- ggplot(data, aes(x = rsi:error_factor:stimulus)) +
+    geom_linerange(aes(ymin =  prob.upper_lll, ymax =  prob.upper_hhh), 
+                   col = "darkgrey") + 
+    geom_linerange(aes(ymin =  prob.upper_ll, ymax =  prob.upper_hh), 
+                   size = 2, col = "grey") + 
+    geom_point(aes(y = prob.upper_median), shape = 1) +
+    geom_point(aes(y = prob.upper), shape = 4, col = "red") +
+    ggtitle("Response Probabilities") + 
+    ylab("Probability of upper resonse") + xlab("") +
+    scale_x_discrete(labels = labels, guide = guide_axis(n.dodge = 2))
+  
+  return(plot)
+}
+
+generate_plot_median_upper <- function(data){
+  labels <- data %>% 
+    mutate(labels = paste0(rsi, "_", error_factor, "_", stimulus)) %>% 
+    pull(labels)
+  labels_upper <- labels[which(str_detect(labels, "_1$"))]
+  labels_lower <- labels[which(str_detect(labels, "_0$"))]
+  
+  plot <- ggplot(data %>% filter(stimulus == 1), aes(x = rsi:error_factor)) +
+    geom_linerange(aes(ymin =  medrt.upper_lll, ymax =  medrt.upper_hhh), 
+                   col = "darkgrey") + 
+    geom_linerange(aes(ymin =  medrt.upper_ll, ymax =  medrt.upper_hh), 
+                   size = 2, col = "grey") + 
+    geom_point(aes(y = medrt.upper_median), shape = 1) +
+    geom_point(aes(y = medrt.upper), shape = 4, col = "red") +
+    ggtitle("Median RTs upper") + 
+    ylab("RT (s)") + xlab("") +
+    scale_x_discrete(labels = labels_upper, guide = guide_axis(n.dodge = 2))
+  
+  return(plot)
+}
+
+generate_plot_median_lower <- function(data){
+  labels <- data %>% 
+    mutate(labels = paste0(rsi, "_", error_factor, "_", stimulus)) %>% 
+    pull(labels)
+  labels_upper <- labels[which(str_detect(labels, "_1$"))]
+  labels_lower <- labels[which(str_detect(labels, "_0$"))]
+  
+  plot <- ggplot(
+    data %>% filter(stimulus == 0),
+    aes(x = rsi:error_factor)
+    ) +
+    geom_linerange(aes(ymin =  medrt.lower_lll, ymax =  medrt.lower_hhh), 
+                   col = "darkgrey") + 
+    geom_linerange(aes(ymin =  medrt.lower_ll, ymax =  medrt.lower_hh), 
+                   size = 2, col = "grey") + 
+    geom_point(aes(y = medrt.lower_median), shape = 1) +
+    geom_point(aes(y = medrt.lower), shape = 4, col = "red") +
+    ggtitle("Median RTs lower") + 
+    ylab("RT (s)") + xlab("") +
+    scale_x_discrete(labels = labels_lower, guide = guide_axis(n.dodge = 2))
+}
+
+combine_all_pred_plots <- function(data){
+  p1 <- generate_plot_resp_prob(data)
+  p2 <- generate_plot_median_upper(data)
+  p3 <- generate_plot_median_lower(data)
+  
+  grid.arrange(p1, p2, p3, ncol = 2)
+}
+
+get_factor_combinations <- function(data){
+  factor_combinations <- data %>% 
+    mutate(labels = paste0(rsi, "_", error_factor, "_", stimulus)) %>% 
+    pull(labels) %>% 
+    unique()
+  return(factor_combinations)
+}
+
+return_vector_of_values <- function(data, my_rsi, my_error_factor, my_stimulus){
+  vector <- data %>% 
+    filter(rsi == my_rsi, error_factor == my_error_factor, stimulus == my_stimulus) %>% 
+    select(starts_with("V")) %>% 
+    as.matrix() %>% 
+    c() %>% 
+    abs()
+  return(vector)
+}
+
+get_name_quotes <- function(object){
+  paste(rlang::get_expr(rlang::enquo(object)))
+}
+
+compare_plot <- function(dataframe, vector, my_rsi, my_error_factor, my_stimulus){
+  data = dataframe %>% 
+    filter(rsi == my_rsi, error_factor == my_error_factor, stimulus == my_stimulus) %>% 
+    mutate(type = "empirical") %>% 
+    select(rt, type)
+  vector_data = data.frame(rt = vector, type = "predicted")
+  full_data = rbind(data, vector_data)
+  plot = full_data %>%
+    ggplot(
+      aes(x = rt,
+          group = type,
+          fill = type)
+    )+
+    geom_density(alpha = 0.5)+
+    labs(
+      subtitle = paste0(
+        "RSI = ", my_rsi,";", " error_factor = ", my_error_factor,
+        "; ", "stimulus = ", my_stimulus
+      )
+    )+
+    theme_classic()+
+    xlim(0, 1)
+  return(plot)
+}
+
+compare_all_conditions <- function(data){
+  factor_combinations = get_factor_combinations(data)
+  
+  n_factors = length(factor_combinations)
+  grid_width = floor(n_factors/5)
+  # generating list of vectors containing all predicted data for those combinations
+  list_objects = list()
+  list_plots = list()
+  for (i in seq_along(factor_combinations)) {
+    vec_rsi = str_extract(factor_combinations[i], "^(long|short)")
+    vec_error_factor = str_remove(factor_combinations[i], "^(long|short)_") %>% 
+      str_remove(., "_(0|1)$")
+    vec_stimulus = str_extract(factor_combinations[i], "(0|1)$")
+    
+    list_objects[[i]] = return_vector_of_values(data = data,
+                                              my_rsi = vec_rsi,
+                                              my_error_factor = vec_error_factor,
+                                              my_stimulus = vec_stimulus)
+    list_plots[[i]] = compare_plot(data = data,
+                                   vector = list_objects[[i]],
+                                   my_rsi = vec_rsi,
+                                   my_error_factor = vec_error_factor,
+                                   my_stimulus = vec_stimulus)
+  }
+  return(list_plots)
+}
+
+generate_median_pred_plots <- function(combined_data, raw_data){
+  med_rts = generate_med_rts_pred(combined_data, raw_data)
+  summary = summarize_med_rt(med_rts)
+  plot = combine_all_pred_plots(summary)
+  return(plot)
+}
+
+save_plots <- function(fit, name, title){
+  title =
+  plot = grid.arrange(grobs = fit, ncol = 4, top = title)
+  ggsave(
+    filename = paste0("./markdown/diffusion_model_analysis/posterior_predictive_fits/", name, ".png"),
+    plot = plot,
+    width = 1404,
+    height = 720,
+    units = "px"
+  )
+}
+```
+
+```{r data}
+# Reading in data
+model_path <- "./markdown/diffusion_model_runs/cluster/output/model_comp/"
+pred_path <- "./markdown/diffusion_model_runs/cluster/output/predictions/"
+
+base_model <- rio::import(paste0(model_path, "base_model_robust.rda"))
+no_rsi_model <- rio::import(paste0(model_path, "no_rsi.rda"))
+no_error_factor_model <- rio::import(paste0(model_path, "no_error_factor.rda"))
+
+no_err_drift_model <- rio::import(paste0(model_path, "no_err_drift.rda"))
+no_err_bs_model <- rio::import(paste0(model_path, "no_err_bs.rda"))
+no_err_bias_model <- rio::import(paste0(model_path, "no_err_bias.rda"))
+no_err_ndt_model <- rio::import(paste0(model_path, "no_err_ndt.rda"))
+
+no_rsi_drift_model <- rio::import(paste0(model_path, "no_rsi_drift.rda"))
+no_rsi_bs_model <- rio::import(paste0(model_path, "no_rsi_bs.rda"))
+no_rsi_bias_model <- rio::import(paste0(model_path, "no_rsi_bias.rda"))
+no_rsi_ndt_model <- rio::import(paste0(model_path, "no_rsi_ndt.rda"))
+
+only_drift_model <- rio::import(paste0(model_path, "only_drift.rda"))
+only_bias_model <- rio::import(paste0(model_path, "only_bias.rda"))
+only_ndt_model <- rio::import(paste0(model_path, "only_ndt.rda"))
+only_bs_model <- rio::import(paste0(model_path, "only_bs.rda"))
+
+# predictions
+base_pred <- rio::import(paste0(pred_path, "pred_base_model_robust.rda"))
+no_rsi_pred <- rio::import(paste0(pred_path, "pred_no_rsi.rda"))
+no_error_factor_pred <- rio::import(paste0(pred_path, "pred_no_error_factor.rda"))
+
+no_err_drift_pred <- rio::import(paste0(pred_path, "pred_no_err_drift.rda"))
+no_err_bs_pred <- rio::import(paste0(pred_path, "pred_no_err_bs.rda"))
+no_err_bias_pred <- rio::import(paste0(pred_path, "pred_no_err_bias.rda"))
+no_err_ndt_pred <- rio::import(paste0(pred_path, "pred_no_err_ndt.rda"))
+
+no_rsi_drift_pred <- rio::import(paste0(pred_path, "pred_no_rsi_drift.rda"))
+no_rsi_bs_pred <- rio::import(paste0(pred_path, "pred_no_rsi_bs.rda"))
+no_rsi_bias_pred <- rio::import(paste0(pred_path, "pred_no_rsi_bias.rda"))
+no_rsi_ndt_pred <- rio::import(paste0(pred_path, "pred_no_rsi_ndt.rda"))
+
+only_drift_pred <- rio::import(paste0(pred_path, "pred_only_drift.rda"))
+only_bias_pred <- rio::import(paste0(pred_path, "pred_only_bias.rda"))
+only_ndt_pred <- rio::import(paste0(pred_path, "pred_only_ndt.rda"))
+only_bs_pred <- rio::import(paste0(pred_path, "pred_only_bs.rda"))
+```
+
+```{r model-comp}
+baseline_comp <- loo_compare(base_model, no_rsi_model, no_error_factor_model)
+
+rsi_comp <- loo_compare(no_rsi_model, no_rsi_bias_model, no_rsi_drift_model, no_rsi_ndt_model, no_rsi_bs_model, base_model)
+
+err_comp <- loo_compare(base_model, no_err_bias_model, no_err_drift_model, no_err_bs_model, no_err_ndt_model, no_error_factor_model)
+
+only_comp <- loo_compare(no_error_factor_model, base_model, 
+            only_drift_model, only_bs_model, only_ndt_model, only_bias_model)
+
+print(baseline_comp, simplify = FALSE, digits = 3)
+print(rsi_comp, simplify = FALSE, digits = 3)
+print(err_comp, simplify = FALSE, digits = 3)
+```
+
+```{r combine data}
+base_combine <- combine_data(base_model$data, base_pred)
+no_rsi_combine <- combine_data(no_rsi_model$data, no_rsi_pred)
+no_error_factor_combine <- combine_data(no_error_factor_model$data, no_error_factor_pred)
+
+only_drift_combine <- combine_data(only_drift_model$data, only_drift_pred)
+only_bs_combine <- combine_data(only_bs_model$data, only_bs_pred)
+only_ndt_combine <- combine_data(only_ndt_model$data, only_ndt_pred)
+only_bias_combine <- combine_data(only_bias_model$data, only_bias_pred)
+
+no_rsi_drift_combine <- combine_data(no_rsi_drift_model$data, no_rsi_drift_pred)
+no_rsi_ndt_combine <- combine_data(no_rsi_ndt_model$data, no_rsi_ndt_pred)
+no_rsi_bs_combine <- combine_data(no_rsi_bs_model$data, no_rsi_bs_pred)
+no_rsi_bias_combine <- combine_data(no_rsi_bias_model$data, no_rsi_bias_pred)
+
+no_err_drift_combine <- combine_data(no_err_drift_model$data, no_err_drift_pred)
+no_err_ndt_combine <- combine_data(no_err_ndt_model$data, no_err_ndt_pred)
+no_err_bs_combine <- combine_data(no_err_bs_model$data, no_err_bs_pred)
+no_err_bias_combine <- combine_data(no_err_bias_model$data, no_err_bias_pred)
+```
+
+```{r plots}
+generate_median_pred_plots(base_combine, base_model$data)
+generate_median_pred_plots(no_rsi_combine, no_rsi_model$data)
+generate_median_pred_plots(no_error_factor_combine, no_error_factor_model$data)
+
+generate_median_pred_plots(only_drift_combine, only_drift_model$data)
+generate_median_pred_plots(only_bs_combine, only_bs_model$data)
+generate_median_pred_plots(only_ndt_combine, only_ndt_model$data)
+generate_median_pred_plots(only_bias_combine, only_bias_model$data)
+
+generate_median_pred_plots(no_rsi_bs_combine, no_rsi_bs_model$data)
+generate_median_pred_plots(no_rsi_bias_combine, no_rsi_bias_model$data)
+generate_median_pred_plots(no_rsi_drift_combine, no_rsi_drift_model$data)
+generate_median_pred_plots(no_rsi_ndt_combine, no_rsi_ndt_model$data)
+
+generate_median_pred_plots(no_err_bs_combine, no_err_bs_model$data)
+generate_median_pred_plots(no_err_bias_combine, no_err_bias_model$data)
+generate_median_pred_plots(no_err_drift_combine, no_err_drift_model$data)
+generate_median_pred_plots(no_err_ndt_combine, no_err_ndt_model$data)
+
+# No rsi and err effects on bs, no err on ndt seems to be good for model fit to data
+```
+
+```{r pred-plots}
+# Remove all pred objects
+rm(list=ls(pattern="pred$"))
+
+# Generate plots
+base_fit <- compare_all_conditions(base_combine)
+no_rsi_fit <- compare_all_conditions(no_rsi_combine)
+no_error_factor_fit <- compare_all_conditions(no_error_factor_combine)
+
+no_rsi_drift_fit <- compare_all_conditions(no_rsi_drift_combine)
+no_rsi_ndt_fit <- compare_all_conditions(no_rsi_ndt_combine)
+no_rsi_bs_fit <- compare_all_conditions(no_rsi_bs_combine)
+no_rsi_bias_fit <- compare_all_conditions(no_rsi_bias_combine)
+
+no_err_drift_fit <- compare_all_conditions(no_err_drift_combine)
+no_err_ndt_fit <- compare_all_conditions(no_err_ndt_combine)
+no_err_bs_fit <- compare_all_conditions(no_err_bs_combine)
+no_err_bias_fit <- compare_all_conditions(no_err_bias_combine)
+
+only_drift_fit <- compare_all_conditions(only_drift_combine)
+only_bs_fit <- compare_all_conditions(only_bs_combine)
+only_ndt_fit <- compare_all_conditions(only_ndt_combine)
+only_bias_fit <- compare_all_conditions(only_bias_combine)
+
+# remove the combine elements clouding up wm
+# rm(list=ls(pattern="combine$"))
+
+grid.arrange(grobs = base_fit, ncol = 4, top = "Baseline model")
+
+grid.arrange(grobs = no_rsi_drift_fit, ncol = 4, top = "No effect of rsi on drift rate")
+grid.arrange(grobs = no_rsi_bs_fit, ncol = 4, top = "No effect of rsi on bs")
+grid.arrange(grobs = no_rsi_bias_fit, ncol = 4, top = "No effect of rsi on bias")
+grid.arrange(grobs = no_rsi_ndt_fit, ncol = 4, top = "No effect of rsi on ndt")
+grid.arrange(grobs = no_err_drift_fit, ncol = 4, top = "No effect of err on drift rate")
+grid.arrange(grobs = no_err_bs_fit, ncol = 4, top = "No effect of err on bs")
+grid.arrange(grobs = no_err_bias_fit, ncol = 4, top = "No effect of err on bias")
+grid.arrange(grobs = no_err_ndt_fit, ncol = 4, top = "No effect of err on ndt")
+
+grid.arrange(grobs = only_drift_fit, ncol = 4, top = "Only drift rate affected by errors")
+grid.arrange(grobs = only_bs_fit, ncol = 4, top = "Only bs affected by errors")
+grid.arrange(grobs = only_bias_fit, ncol = 4, top = "Only bias affected by errors")
+grid.arrange(grobs = only_ndt_fit, ncol = 4, top = "Only ndt affected by errors")
+
+```
+
