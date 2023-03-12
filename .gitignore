@@ -20,7 +20,8 @@ markdown/diffusion_model_runs/cluster/output
 markdown/*.pdf
 markdown/*.docx
 markdown/*.html
-
+markdown/*.pptx
+markdown/*.ppt
 markdown/*.log
 markdown/*.fff
 markdown/*.ttt

@@ -334,6 +334,8 @@ only_bias_model <- rio::import(paste0(model_path, "only_bias.rda"))
 only_ndt_model <- rio::import(paste0(model_path, "only_ndt.rda"))
 only_bs_model <- rio::import(paste0(model_path, "only_bs.rda"))
 
+optimized_model <- rio::import(paste0(model_path, "optimized_model.rda"))
+
 # predictions
 base_pred <- rio::import(paste0(pred_path, "pred_base_model_robust.rda"))
 no_rsi_pred <- rio::import(paste0(pred_path, "pred_no_rsi.rda"))
@@ -353,6 +355,8 @@ only_drift_pred <- rio::import(paste0(pred_path, "pred_only_drift.rda"))
 only_bias_pred <- rio::import(paste0(pred_path, "pred_only_bias.rda"))
 only_ndt_pred <- rio::import(paste0(pred_path, "pred_only_ndt.rda"))
 only_bs_pred <- rio::import(paste0(pred_path, "pred_only_bs.rda"))
+
+optimized_pred <- rio::import(paste0(pred_path, "pred_optimized_model.rda"))
 ```
 
 ```{r model-comp}
@@ -364,6 +368,8 @@ err_comp <- loo_compare(base_model, no_err_bias_model, no_err_drift_model, no_er
 
 only_comp <- loo_compare(no_error_factor_model, base_model, 
             only_drift_model, only_bs_model, only_ndt_model, only_bias_model)
+
+optimized_comp <- loo_compare(base_model, optimized_model, no_rsi_bs_model, no_rsi_bias_model, no_rsi_model)
 
 print(baseline_comp, simplify = FALSE, digits = 3)
 print(rsi_comp, simplify = FALSE, digits = 3)
