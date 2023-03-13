@@ -305,8 +305,8 @@ pred_classic <- rio::import("./markdown/models/prediction_classic_standard_2023-
 pred_location <- rio::import("./markdown/models/prediction_location_standard_2023-02-22.rda")
 
 # Investigate cluster
-fit <- rio::import("./markdown/diffusion_model_runs/cluster/output/location_rsi_bias_2023-03-09.rda")
-pred <- rio::import("./markdown/models/prediction_location_base.rdata")
+fit <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model.rda")
+pred <- rio::import("./markdown/diffusion_model_runs/cluster/output/prediction_location_base.rdata")
 data <- fit$data
 ```
 

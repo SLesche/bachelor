@@ -25,6 +25,7 @@ fit_wiener_location <- rio::import("./markdown/models/location_standard_rsi_err_
 
 fit <- rio::import("./markdown/diffusion_model_runs/cluster/output/second_base_model.rda")
 fit_robust <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model_robust.rda")
+fit_classic <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model_classic.rda")
 ```
 
 ```{r base-model}
@@ -88,85 +89,122 @@ summary <- working %>%
     lower = mean(lower_corrected), 
     upper = mean(upper_corrected)
     ) %>% 
-  filter(location != 5)
+  filter(location != 5) %>% 
+  mutate(location = factor(location)) %>% 
+  mutate(location = fct_relevel(location, "-1", "1", "2", "3", "4"))
 
-
+plot_params <- function(data){
+  data %>% 
+    ggplot(
+      aes(
+        x = location,
+        y = mean,
+        color = type,
+        group = type
+      )
+    )+
+    geom_point(size = 2)+
+    geom_line()+
+    facet_wrap(~rsi)+
+    geom_errorbar(
+      aes(
+        ymin = upper, 
+        ymax = lower, 
+        width = 0.2
+      )
+    )+
+    geom_vline(
+      aes(
+        xintercept = 1.5
+      ),
+      # linetype = "dashed",
+      color = "black",
+      size = 2,
+      alpha = 0.5
+    )+
+    scale_color_manual(
+      values = c("nogo_correct" = "forestgreen",
+                 "nogo_error" = "red"),
+      name = "NoGo-Accuracy",
+      labels = c("Correct", "Error")
+    )+
+    scale_x_discrete(
+      labels = c("-1", "+1", "+2", "+3", "+4", "baseline - Go")
+    )+
+    labs(
+      x = "Location",
+      y = "Estimate",
+      caption = "Error bars represent 95% CI"
+    )+
+    theme_classic()
+}
 
 summary %>% 
   filter(param == "drift") %>% 
   group_by(rsi, location, type) %>% 
   summarize(
-    mean = mean(mean)
+    mean = mean(mean),
+    upper = mean(upper),
+    lower = mean(lower)
   ) %>% 
-  ggplot(
-    aes(
-      x = location,
-      y = mean,
-      color = type,
-      group = type
-    )
-  )+
-  geom_point()+
-  geom_line()+
-  facet_wrap(~rsi)
+  plot_params()+
+  labs(
+    title = "Effect of Errors on Drift Rate"
+  )
+  
+  
 
 summary %>% 
   filter(param == "bs") %>% 
-  ggplot(
-    aes(
-      x = location,
-      y = mean,
-      color = type,
-      group = type
-    )
-  )+
-  geom_point()+
-  geom_line()+
-  facet_wrap(~rsi)
+  plot_params()+
+  labs(
+    title = "Effect of Errors on Boundary Separation"
+  )
+  
 
 summary %>% 
   filter(param == "ndt") %>% 
-  ggplot(
-    aes(
-      x = location,
-      y = mean,
-      color = type,
-      group = type
-    )
-  )+
-  geom_point()+
-  geom_line()+
-  facet_wrap(~rsi)
+  plot_params()+
+  labs(
+    title = "Effect of Errors on Non-Decision Time"
+  )
+  
 
 
 summary %>% 
   filter(param == "bias") %>% 
-  mutate(mean = ifelse(
-    stimulus == "prevstimX",
-    1 - mean,
-    mean
-  )) %>% 
-  group_by(location, rsi, type) %>% 
-  summarize(mean = mean(mean)) %>% 
-  ggplot(
-    aes(
-      x = location,
-      y = mean,
-      color = type,
-      group = type
+  mutate(
+    lower_copy = lower,
+    upper_copy = upper,
+    mean = ifelse(
+      stimulus == "prevstimX",
+      1 - mean,
+      mean
+    ),
+    upper = ifelse(
+      stimulus == "prevstimX",
+      1 - lower_copy, # need to turn this around for inversion
+      upper
+    ),
+    lower = ifelse(
+      stimulus == "prevstimX",
+      1 - upper_copy,
+      lower
     )
-  )+
-  geom_point()+
-  geom_line()+
+  ) %>% 
+  select(-ends_with("copy")) %>% 
+  group_by(location, rsi, type) %>% 
+  summarize(mean = mean(mean),
+            upper = mean(upper),
+            lower = mean(lower))  %>% 
+  plot_params()+
   labs(
-    title = "Bias towards the previously not shown response"
-  )+
-  facet_wrap(~rsi)
-  
+    title = "Effect of Errors on Bias"
+  )
 ```
 
 ```{r robust}
-data_robust <- fixef(fit_obust) %>%
+data_robust <- fixef(fit_robust) %>%
   as.data.frame() %>% 
   rownames_to_column() %>% 
   select(param = rowname,
