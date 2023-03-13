@@ -150,7 +150,7 @@ error_data <- trial_data %>%
   group_by(id, block) %>% 
   mutate(classic_pes_type = case_when( # for classic, can do double nogo aswell
     lag(trial_type) == "nogo" & trial_type == "go" & lag(acc) == 0 ~ "post_error",
-    lag(trial_type) == "nogo" & trial_type == "go" & lag(acc) == 1 ~ "post_correct"
+    !is.na(lag(rt)) & lag(acc) == 1 & trial_type == "go" ~ "post_correct"
   )) %>% 
   ungroup() %>% 
   group_by(id, block) %>% 
