@@ -306,7 +306,7 @@ pred_location <- rio::import("./markdown/models/prediction_location_standard_202
 
 # Investigate cluster
 fit <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model.rda")
-pred <- rio::import("./markdown/diffusion_model_runs/cluster/output/prediction_location_base.rdata")
+pred <- rio::import("./markdown/diffusion_model_runs/cluster/output/predictions/pred_base_model.rda")
 data <- fit$data
 ```
 
@@ -416,7 +416,11 @@ visual_fit <- compare_all_conditions(combined_data)
 
 grid.arrange(grobs = visual_fit[1:12], ncol = 4)
 grid.arrange(grobs = visual_fit[13:24], ncol = 4)
-grid.arrange(grobs = visual_fit[1:24], ncol = 4)
+grid.arrange(grobs = visual_fit[25:36], ncol = 4)
+grid.arrange(grobs = visual_fit[37:44], ncol = 4)
 
+get_factor_combinations(data)
+visual_fit[7]
+visual_fit[28]
 ```
 

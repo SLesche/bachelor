@@ -2,7 +2,8 @@
 library(brms)
 
 input <- list.files("./bachelor/models/model_comp", full.names = TRUE)
-output <- paste0(stringr::str_remove(input, "\\.rda$"), "_waic.rda")
+input_no_path <- list.files("./bachelor/models/model_comp", full.names = FALSE)
+output <- paste0("./bachelor/models/model_comp/waic/", input_no_path)
 
 for (i in seq_along(input)){
   fit = rio::import(input[i])
