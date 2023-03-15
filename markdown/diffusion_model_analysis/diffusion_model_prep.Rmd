@@ -140,7 +140,7 @@ data_location_clean <- data_location %>%
 little_robust_data <- data_robust_clean %>% 
   group_by(id) %>% 
   count(rsi, error_factor, stimulus) %>% 
-  filter(n < 15)
+  filter(n < 7)
 
 little_data_ids <- unique(little_robust_data$id)
 

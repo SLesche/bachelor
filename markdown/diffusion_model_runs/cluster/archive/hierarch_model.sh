@@ -12,4 +12,4 @@ module load devel/tbb/2021.4.0
 export TBB_LIB=$TBB_LIB_DIR
 export TBB_INC=$TBB_INC_DIR
 export TBB_INTERFACE_NEW='true'
-Rscript bachelor/hierach_model.R
+Rscript bachelor/hierarch_model.R

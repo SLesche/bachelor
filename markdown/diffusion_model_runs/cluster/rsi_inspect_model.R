@@ -5,9 +5,24 @@ library(brms)
 library(cmdstanr)
 library(dplyr)
 ## ----data-------------------------------------------------------------------------------------
-data <- rio::import("./bachelor/data/analysis_data.rdata") %>% 
-  filter(!is.na(rt), trial_type == "go")
-
+data <- rio::import("./markdown/data/analysis_data.Rdata") %>% 
+  filter(!is.na(rt), trial_type == "go") %>% 
+  filter(!is.na(rsi), !is.na(stimulus), !is.na(previous_stimulus)) %>% 
+  mutate(
+    rsi = case_when(
+      rsi == 0.2 ~ "short",
+      rsi == 1 ~ "long"
+    ),
+    stimulus = case_when(
+      stimulus == "X" ~ 0,
+      stimulus == "Y" ~ 1
+    )
+  ) %>% 
+  mutate(
+    rsi = factor(rsi),
+    stimulus = factor(stimulus)
+  ) %>% 
+  mutate(rt = rt/1000)
 
 ## ----formula
 formula <- bf(
@@ -18,7 +33,7 @@ formula <- bf(
   # because rsi and error_factor are known they can be used here
   # pre-error is not technically "known", but should affect bs and ndt nonetheless
   ndt ~ 0 + rsi,
-  bias ~ 0 + rsi:previous_stimulus
+  bias ~ 0 + rsi:stimulus
 )
 
 
