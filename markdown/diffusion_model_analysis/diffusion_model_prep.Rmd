@@ -136,6 +136,16 @@ data_location_clean <- data_location %>%
     previous_acc = factor(previous_acc),
     previous_trial_type = factor(previous_trial_type)
   )
+
+little_robust_data <- data_robust_clean %>% 
+  group_by(id) %>% 
+  count(rsi, error_factor, stimulus) %>% 
+  filter(n < 15)
+
+little_data_ids <- unique(little_robust_data$id)
+
+data_robust_good <- data_robust_clean %>% 
+  filter(!id %in% little_data_ids)
 ```
 
 ```{r export data}
@@ -146,6 +156,7 @@ rio::export(data_location_clean, "./markdown/data/diffusion_data_location.rdata"
 save(data_classic_clean, file = "./markdown/data/final_ddm_data_classic.rdata")
 save(data_robust_clean, file = "./markdown/data/final_ddm_data_robust.rdata")
 save(data_location_clean, file = "./markdown/data/final_ddm_data_location.rdata")
+save(data_robust_good, file = "./markdown/data/diffusion_data_robust_good.rdata")
 ```
 
 ```{r}

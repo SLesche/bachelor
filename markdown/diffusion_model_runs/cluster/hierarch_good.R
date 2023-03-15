@@ -11,7 +11,7 @@ library(cmdstanr)
 
 
 ## ----data-------------------------------------------------------------------------------------
-data_location <- rio::import("./bachelor/data/diffusion_data_robust.rdata")
+data_location <- rio::import("./bachelor/data/diffusion_data_robust_good.rdata")
 
 
 ## ----set-formula------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ initfun_location <- function() {# all pars in stancode need init here
 n_iter <- 2000
 n_warmup <- 1000
 n_chains <- 4
-n_cores <- 64
+n_cores <- 16
 n_threads <- floor(n_cores/n_chains)
 max_depth <- 15
 adapt_delta <- 0.95
@@ -120,6 +120,6 @@ fit_wiener_location <- brm(
 
 
 ## ----saving-ddm-classic-----------------------------------------------------------------------
-save(fit_wiener_location, file = paste0("./bachelor/models/hierarch_model.rda"),
+save(fit_wiener_location, file = paste0("./bachelor/models/hierarch_model_good.rda"),
      compress = "xz")
 

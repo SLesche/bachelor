@@ -139,6 +139,47 @@ plot_params <- function(data){
     theme_classic()
 }
 
+plot_post_error <- function(data){
+  data %>% 
+    filter(type == "nogo_error") %>% 
+    ggplot(
+      aes(
+        x = location,
+        y = mean,
+        color = rsi,
+        group = rsi
+      )
+    )+
+    geom_point(size = 2)+
+    geom_line()+
+    geom_errorbar(
+      aes(
+        ymin = upper, 
+        ymax = lower, 
+        width = 0.2
+      )
+    )+
+    geom_vline(
+      aes(
+        xintercept = 1.5
+      ),
+      # linetype = "dashed",
+      color = "black",
+      size = 2,
+      alpha = 0.5
+    )+
+    scale_x_discrete(
+      labels = c("-1", "+1", "+2", "+3", "+4", "baseline - Go")
+    )+
+    labs(
+      x = "Location",
+      y = "Estimate",
+      caption = "Error bars represent 95% CI",
+      color = "RSI"
+    )+
+    theme_classic()
+}
+
 summary %>% 
   filter(param == "drift") %>% 
   group_by(rsi, location, type) %>% 
@@ -151,7 +192,19 @@ summary %>%
   labs(
     title = "Effect of Errors on Drift Rate"
   )
-  
+
+summary %>% 
+  filter(param == "drift") %>% 
+  group_by(rsi, location, type) %>% 
+  summarize(
+    mean = mean(mean),
+    upper = mean(upper),
+    lower = mean(lower)
+  ) %>%
+  plot_post_error()+
+  labs(
+    title = "Post error effects on Drift Rate"
+  )
   
 
 summary %>% 
@@ -161,6 +214,12 @@ summary %>%
     title = "Effect of Errors on Boundary Separation"
   )
   
+summary %>% 
+  filter(param == "bs") %>% 
+  plot_post_error()+
+  labs(
+    title = "Effect of Errors on Boundary Separation"
+  )
 
 summary %>% 
   filter(param == "ndt") %>% 
@@ -169,7 +228,12 @@ summary %>%
     title = "Effect of Errors on Non-Decision Time"
   )
   
-
+summary %>% 
+  filter(param == "ndt") %>% 
+  plot_post_error()+
+  labs(
+    title = "Effect of Errors on Non-Decision Time"
+  )
 
 summary %>% 
   filter(param == "bias") %>% 
@@ -198,6 +262,37 @@ summary %>%
             upper = mean(upper),
             lower = mean(lower))  %>% 
   plot_params()+
+  labs(
+    title = "Effect of Errors on Bias"
+  )
+
+summary %>% 
+  filter(param == "bias") %>% 
+  mutate(
+    lower_copy = lower,
+    upper_copy = upper,
+    mean = ifelse(
+      stimulus == "prevstimX",
+      1 - mean,
+      mean
+    ),
+    upper = ifelse(
+      stimulus == "prevstimX",
+      1 - lower_copy, # need to turn this around for inversion
+      upper
+    ),
+    lower = ifelse(
+      stimulus == "prevstimX",
+      1 - upper_copy,
+      lower
+    )
+  ) %>% 
+  select(-ends_with("copy")) %>% 
+  group_by(location, rsi, type) %>% 
+  summarize(mean = mean(mean),
+            upper = mean(upper),
+            lower = mean(lower))  %>% 
+  plot_post_error()+
   labs(
     title = "Effect of Errors on Bias"
   )

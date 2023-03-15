@@ -312,7 +312,7 @@ save_plots <- function(fit, name, title){
 
 ```{r data}
 # Reading in data
-model_path <- "./markdown/diffusion_model_runs/cluster/output/model_comp/"
+model_path <- "./markdown/diffusion_model_runs/cluster/output/model_comp/waic/"
 pred_path <- "./markdown/diffusion_model_runs/cluster/output/predictions/"
 
 base_model <- rio::import(paste0(model_path, "base_model_robust.rda"))
@@ -370,6 +370,7 @@ only_comp <- loo_compare(no_error_factor_model, base_model,
             only_drift_model, only_bs_model, only_ndt_model, only_bias_model)
 
 optimized_comp <- loo_compare(base_model, optimized_model, no_rsi_bs_model, no_rsi_bias_model, no_rsi_model)
+
 
 print(baseline_comp, simplify = FALSE, digits = 3)
 print(rsi_comp, simplify = FALSE, digits = 3)
