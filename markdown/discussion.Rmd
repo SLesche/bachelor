@@ -1,9 +1,23 @@
 # Discussion
-The present study aimed to expand the study of cognitive processes underlying post-error slowing (PES) with the help of Drift Diffusion Modeling (DDM) and a systematic manipulation of the response-stimulus interval (RSI). We investigated differences in the effect of error trials on response behavior depeding on the time that has passed since the error has occured.
+The present study aimed to expand the study of cognitive processes underlying post-error slowing (PES) with the help of Drift Diffusion Modeling (DDM) and a systematic manipulation of the response-stimulus interval (RSI). We investigated differences in the effect of error trials on response behavior depending on the time that has passed since the error has occured.
 
 Drift rates were decreased following an error in both the short and long RSI condition, implying errors lead to attentional deficits affecting response behavior even after 1000ms. The strength of the maladaptive impact of errors on drift rate was however greater in the short RSI condition. This suggests that maladaptive effects as captured by a decrease in drift rate affect response behavior more strongly if little time has passed since the error.
 
 
+Report results but strongly advise against using them, explain them in terms of post-error frustration or post-error recklessnes
+here is why
+bad fit to empricial data
+- truncated responses at short e+1 mostly (40% missing data)
+- anticipation effects
+- multiple post-error processes
+- ideal of "more cautios behavior" might not be real. Affective components always play a role
+- sampling (non-omitted) trials, mostly trials that have lower boundary separation
+
+- participants not working on the task properly? accuracy from nogo trials suggests differently
+
+- run a model with median split trial number to investigate fatigue effects?
+
+- but these problems don't seem to play a role in long RSI, so findings there are still valid. 
 **Error rate long/short is not an issue for "orienting account"**
 <!-- -describe theory -->
 <!-- -describe what was done -->
