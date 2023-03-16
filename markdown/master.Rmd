@@ -25,7 +25,7 @@ affiliation:
   # add a second id using this syntax
 
 authornote: |
-  This work was completed as part of the author's bachelor-thesis. It was completed in R-Markdown with code for data preparation, analysis and communication integrated into the scripts. All code needed to replicate this exact work can be found at: https://github.com/SLesche/bachelor.
+  This work was completed as part of the first author's bachelor-thesis. It was completed in R-Markdown with code for data preparation, analysis and communication integrated into the scripts. All code needed to replicate this exact work can be found at: https://github.com/SLesche/bachelor. The authors acknowledge support by the state of Baden-Württemberg through bwHPC.
 
 abstract: |
   One or two sentences providing a **basic introduction** to the field,  comprehensible to a scientist in any discipline.

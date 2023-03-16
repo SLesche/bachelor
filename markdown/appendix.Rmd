@@ -1,5 +1,26 @@
 <!-- First level headers create new appendix section and a label "Appendix N" -->
+<!-- Appendix structure: -->
+<!-- A: Behavioral analysis -->
+<!-- A0: trial criteria location-approach -->
+<!-- A1: Location descriptives -->
+<!-- - plot rt / acc, table -->
+<!-- A2: robust descriptives -->
+<!-- - plot rt /acc, table -->
+<!-- A3: classic descriptives -->
+<!-- -plot rt / acc, table -->
+
+<!-- B: Model comparion -->
+
+<!-- c: Results classical PES account -->
+
+<!-- D: Hierarchical Model -->
+
 # Behavioral analysis
+```{r appendix-table-location-counts, results = 'asis'}
+count_table <- diffusion_data_location %>% count(rsi, location)
+
+apa_table(count_table, caption = "Number of trials per condition")
+```
 ```{r appendix-mean-values-power-analysis, results = 'asis', eval = FALSE}
 # estimated_mean_values_table 
 # commented out because no power analysis reported anymore

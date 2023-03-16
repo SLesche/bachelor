@@ -405,6 +405,7 @@ descriptive_analysis_overview_table_robust <- data %>%
     )
   ) %>% 
   select(rsi, trial_type, error_code, rt, acc, count) %>% 
+  mutate(error_code = fct_relevel(error_code, "E-1", "E", "E+1", "other")) %>% 
   rename(
     "error-condition" = error_code,
     "RSI" = rsi,
