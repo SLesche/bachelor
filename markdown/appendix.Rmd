@@ -16,6 +16,30 @@
 <!-- D: Hierarchical Model -->
 
 # Behavioral analysis
+## Classification of Go trials
+### Robust Approach
+### Location Approach
+### Classical Approach
+
+## Descriptive results 
+### Robust
+### Location
+### Classical
+
+# Model comparison
+## Model specifications
+## LOO
+## WAIC
+
+# Classic PES results
+## Diffusion model fit
+## Diffusion model results
+
+# Hierarchical model
+## Model specification
+## Model fit
+## Model results
+
 ```{r appendix-table-location-counts, results = 'asis'}
 count_table <- diffusion_data_location %>% count(rsi, location)
 
