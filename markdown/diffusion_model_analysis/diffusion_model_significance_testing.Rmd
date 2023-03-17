@@ -1,0 +1,25 @@
+---
+editor_options:
+  chunk_output_type: console
+---
+```{r ddm-significance-setup}
+# Library calls
+library(brms)
+library(tidyverse)
+library(tidybayes)
+library(emmeans)
+library(loo)
+```
+
+```{r ddm-significance-functions}
+# Custom functions
+
+```
+
+```{r ddm-significance-data}
+# Reading in data
+fit <- rio::import("./markdown/diffusion_model_runs/cluster/output/second_base_model.rda")
+fit_robust <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model_robust.rda")
+fit_classic <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model_classic.rda")
+```
+

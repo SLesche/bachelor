@@ -5,6 +5,11 @@
 ```
 ```{r results-source-diffusion-results, child = "markdown/diffusion_model_analysis/diffusion_model_results_report.Rmd"}
 ```
+```{r results-source-diffusion-descriptive, child = "markdown/diffusion_model_analysis/diffusion_model_descriptive_analysis.Rmd"}
+```
+```{r results-source-diffusion-significance, child = "markdown/diffusion_model_analysis/diffusion_model_significance_testing.Rmd"}
+```
+
 
 ## Behavioral Analysis
 All analysis was conducted using `r r_citations$r`. `r r_citations$pkgs`
