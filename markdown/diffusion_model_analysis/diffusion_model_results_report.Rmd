@@ -1,0 +1,51 @@
+---
+editor_options:
+  chunk_output_type: console
+---
+```{r diffusion-results-setup}
+# Library calls
+
+```
+
+```{r diffusion-results-functions}
+# Custom functions
+# Combine data function
+combine_data <- function(raw_data, prediction){
+  combined <- as_tibble(cbind(raw_data, as_tibble(t(prediction))))
+  return(combined)
+}
+```
+
+```{r results-importing-diffusion-data, cache = TRUE}
+diffusion_data_location <- rio::import("./markdown/data/diffusion_data_location.Rdata")
+diffusion_data_robust <- rio::import("./markdown/data/diffusion_data_robust.Rdata")
+diffusion_data_classic <- rio::import("./markdown/data/diffusion_data_classic.Rdata")
+```
+
+```{r diffusion-results-data, cache = TRUE}
+# Reading in data
+fit_base_model <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model.rda")
+pred_base_model <- rio::import("./markdown/diffusion_model_runs/cluster/output/predictions/pred_base_model.rda")
+data_base_model <- fit_base_model$data
+
+combined_base_model <- combine_data(data_base_model, pred_base_model)
+```
+
+```{r diffusion-results-ep1-bad-pred-prep, cache = TRUE}
+vector_ep1 <- combined_base_model %>% 
+    filter(rsi == "short", error_factor == "E+1") %>% 
+    select(starts_with("V")) %>% 
+    as.matrix() %>% 
+    c() %>% 
+    abs()
+
+vector_ep1_data <- data.frame(rt = vector_ep1, type = "predicted")
+
+data_ep1 <- data_base_model %>% 
+  filter(rsi == "short", error_factor == "E+1") %>% 
+  mutate(type = "empirical") %>% 
+  select(rt, type)
+
+ep1 <- rbind(data_ep1, vector_ep1_data)
+```
+

@@ -19,10 +19,6 @@ library(loo)
 
 ```{r data}
 # Reading in data
-fit_wiener_robust <- rio::import("./markdown/models/robust_standard_rsi_err2023-02-15.rda")
-fit_wiener_classic <- rio::import("./markdown/models/classic_standard_rsi_err_2023-02-15.rda")
-fit_wiener_location <- rio::import("./markdown/models/location_standard_rsi_err_2023-02-19.rda")
-
 fit <- rio::import("./markdown/diffusion_model_runs/cluster/output/second_base_model.rda")
 fit_robust <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model_robust.rda")
 fit_classic <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model_classic.rda")
