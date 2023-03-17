@@ -305,7 +305,7 @@ pred_classic <- rio::import("./markdown/models/prediction_classic_standard_2023-
 pred_location <- rio::import("./markdown/models/prediction_location_standard_2023-02-22.rda")
 
 # Investigate cluster
-fit2 <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model.rda")
+fit <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model.rda")
 pred <- rio::import("./markdown/diffusion_model_runs/cluster/output/predictions/pred_base_model.rda")
 data <- fit$data
 ```
@@ -422,5 +422,7 @@ grid.arrange(grobs = visual_fit[37:44], ncol = 4)
 get_factor_combinations(data)
 visual_fit[7]
 visual_fit[28]
+
+save(visual_fit, file = "./markdown/diffusion_model_analysis/posterior_predictive_fits/plots_base_model.rda")
 ```
 

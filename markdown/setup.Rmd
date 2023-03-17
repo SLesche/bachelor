@@ -16,13 +16,14 @@ library(ftExtra)
 library(rmarkdown)
 library(knitr)
 library(brms)
+library(loo)
 library(tidybayes)
 
-r_refs("r-references.bib")
+r_refs("./markdown/r-references.bib")
 
 r_citations <- cite_r(
   file = "r-references.bib",
-  pkgs = c("papaja", "tidyverse", "knitr", "afex", "emmeans", "brms", "tidybayes"),
+  pkgs = c("papaja", "tidyverse", "knitr", "afex", "loo", "emmeans", "brms", "tidybayes"),
   omit = FALSE,
   footnote = TRUE
   )
