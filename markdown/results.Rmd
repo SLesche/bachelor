@@ -1,14 +1,9 @@
 # Results
 ```{r results-source-descriptive-analysis, child = "markdown/descriptive_analysis.Rmd"}
 ```
-
 ```{r results-source-significance-testing, child = "markdown/significance_testing.rmd"}
 ```
-
-```{r results-importing-diffusion-data}
-diffusion_data_location <- rio::import("./markdown/data/diffusion_data_location.Rdata")
-diffusion_data_robust <- rio::import("./markdown/data/diffusion_data_robust.Rdata")
-diffusion_data_classic <- rio::import("./markdown/data/diffusion_data_classic.Rdata")
+```{r results-source-diffusion-results, child = "markdown/diffusion_model_analysis/diffusion_model_results_report.Rmd"}
 ```
 
 ## Behavioral Analysis
@@ -27,46 +22,94 @@ Comparison of mean accuracy between the 2x2 conditions yielded similar patterns 
 
 <!-- Critically, we observed a significant interaction effects of _NoGo-accuracy_ and _distance_ on response time `r apa_print(aov_rt_rsi_error_location, es = "pes", mse = FALSE)$full_result$nogo_type_distance` and accuracy `r apa_print(aov_acc_rsi_error_location, es = "pes", mse = FALSE)$full_result$nogo_type_distance`. Responses around errors are faster than responses around correct NoGo trials prior to the NoGo trial and slower and less accurate following the NoGo trial. We furthermore observed a significant effect of RSI on this interaction, captured by the three-fold interaction between $RSI \times NoGo-accuracy \times distance$. **finish this** -->
 
-```{r results-anova-rsi-rt, results = 'asis', eval = FALSE}
-# Maybe move these to appendix
-apa_print(aov_rt_rsi_error_classic)$table %>% 
-  mutate(
-    term = c("RSI", "previous accuracy", "RSI $\\times$ previous accuracy")
-  ) %>% 
-  rename(
-    "Effect" = term
-  ) %>% 
-  apa_table(
-    caption = "Effects of RSI and previous accuracy on mean reaction times",
-    note = "Both factors were manipulated within participants, with RSI being either 200ms or 1000ms. Previous accuracy refers to the accuracy of the response in the previous NoGo trial")
-```
-
-```{r results-anova-rsi-acc, results = 'asis', eval = FALSE}
-apa_print(aov_acc_rsi_error_classic)$table %>% 
-  mutate(
-    term = c("RSI", "previous accuracy", "RSI $\\times$ previous accuracy")
-  ) %>% 
-  rename(
-    "Effect" = term
-  ) %>% 
-  apa_table(
-    caption = "Effects of RSI and previous accuracy on mean accuracy",
-    note = "Both factors were manipulated within participants, with RSI being either 200ms or 1000ms. Previous accuracy refers to the accuracy of the response in the previous NoGo trial")
-```
-
 ## Diffusion Model
 ### Model comparisons
-**Provide loo and stuff here.**
+```{r result-model-comp, cache=TRUE, cache.extra = tools::md5sum(list.files("./markdown/diffusion_model_runs/cluster/output/model_comp/waic/", pattern = ".rda", full.names = TRUE))}
+
+library(loo)
+# Reading in all models
+model_path <- "./markdown/diffusion_model_runs/cluster/output/model_comp/waic/"
+base_model <- rio::import(paste0(model_path, "base_model_robust.rda"))
+no_rsi_model <- rio::import(paste0(model_path, "no_rsi.rda"))
+no_error_factor_model <- rio::import(paste0(model_path, "no_error_factor.rda"))
+
+no_err_drift_model <- rio::import(paste0(model_path, "no_err_drift.rda"))
+no_err_bs_model <- rio::import(paste0(model_path, "no_err_bs.rda"))
+no_err_bias_model <- rio::import(paste0(model_path, "no_err_bias.rda"))
+no_err_ndt_model <- rio::import(paste0(model_path, "no_err_ndt.rda"))
+
+no_rsi_drift_model <- rio::import(paste0(model_path, "no_rsi_drift.rda"))
+no_rsi_bs_model <- rio::import(paste0(model_path, "no_rsi_bs.rda"))
+no_rsi_bias_model <- rio::import(paste0(model_path, "no_rsi_bias.rda"))
+no_rsi_ndt_model <- rio::import(paste0(model_path, "no_rsi_ndt.rda"))
+
+only_drift_model <- rio::import(paste0(model_path, "only_drift.rda"))
+only_bias_model <- rio::import(paste0(model_path, "only_bias.rda"))
+only_ndt_model <- rio::import(paste0(model_path, "only_ndt.rda"))
+only_bs_model <- rio::import(paste0(model_path, "only_bs.rda"))
+
+optimized_model <- rio::import(paste0(model_path, "optimized_model.rda"))
+
+baseline_comp <- loo_compare(base_model, no_rsi_model, no_error_factor_model)
+
+rsi_comp <- loo_compare(no_rsi_model, no_rsi_bias_model, no_rsi_drift_model, no_rsi_ndt_model, no_rsi_bs_model, base_model)
+
+err_comp <- loo_compare(base_model, no_err_bias_model, no_err_drift_model, no_err_bs_model, no_err_ndt_model, no_error_factor_model)
+
+only_comp <- loo_compare(no_error_factor_model, base_model, 
+            only_drift_model, only_bs_model, only_ndt_model, only_bias_model)
+
+optimized_comp <- loo_compare(base_model, optimized_model, no_rsi_bs_model, no_rsi_bias_model, no_rsi_model)
+```
+
+The base model was superior to all other models tested. Thus we retained the influence of both factors on all parameters for analysis on the full location model. When restricting the influence of RSI on only one of the parameters, restricting its influence on the drift rate had the most detrimental effects while constraining the bias and boundary separation to be equal across RSI conditions barely worsened predictive accuracy (see Table \@ref(tab:appendix-rsi-compare)). A similar pattern was found when restricting the impact of error-condition on only one of the parameters, while allowing all other parameters to vary between pre- and post-error. Here restricting the drift rate parameter specification again had the biggest negative impact on predictive accuracy (see Table \@ref(tab:appendix-err-compare)). When only allowing one of the four diffusion model parameter to vary between error-condition, drift rate again proved to be the single most important parameter for good predictive accuracy (see Table \@ref(tab:appendix-only-compare)).
 
 ### Model Fit
 The best-fitting model specification was used to estimate parameters in the full location dataset and was then subjected to various model diagnostic tests. There were no divergent transitions, $\hat{R} > 1.01$ or other signs of non-convergence [@gelman1992]. We visually inspected if the 4 chains mixed well for a few randomly selected parameters, observing no signs of misbehavior in the chains. **correlations among posterior parameters**
 
-We sampled the posterior parameter distribution 500 times and obtained predicted response time distributions from the sampled parameters. We then compared empirical response time distributions to the predicted response time distribution for each condition. This revealed a serious discrepancy between the predicted response time distribution and the empirical distribution in post-error trials in the short RSI condition(**see figure**). The exact impact and cause of this discrepancy will be discussed later, but we will proceed with extreme caution when interpreting the results.
+We sampled the posterior parameter distribution 500 times and obtained predicted response time distributions from the sampled parameters. We then compared empirical response time distributions to the predicted response time distribution for each condition. This revealed a serious discrepancy between the predicted response time distribution and the empirical distribution in post-error trials in the short RSI condition(see Figure  \@ref(fig:results-plot-ep1-bad-pred)). The exact impact and cause of this discrepancy will be discussed later, but we will proceed with extreme caution when interpreting the results.
+
+```{r results-plot-ep1-bad-pred, warning = FALSE, fig.cap='Comparison of empirical and predicted response time distribution in short RSI condition for post-error trials'}
+ep1 %>% 
+  ggplot(
+    aes(
+      x = rt,
+      fill = type,
+      group = type
+    )
+  )+
+  geom_density(alpha = 0.5)+
+  labs(
+    x = "Response time (in s)",
+    y = "density",
+    color = "Type"
+  )+
+  theme_classic()+
+  xlim(0, 1)+
+  theme(text = element_text(size = 15))
+```
+
+```{r results-ep1-short-plot-rt-dist, cache = TRUE, warning = FALSE, fig.cap='Reponse time distribution on post-error trials in the short rsi conditions. All responses shorter than 150ms were excluded, the next trial began after 800ms after stimulus presentation.'}
+rt_dist_ep1_short <- diffusion_data_location %>% 
+  filter(location == "E+1", rsi == "short") %>% 
+  ggplot(
+    aes(x = rt)
+  )+
+  geom_histogram(bins = 55)+
+  xlim(0, 1)+
+  labs(
+    x = "Response time (in s)",
+    y = "count"
+  )+
+  papaja::theme_apa()
+
+rt_dist_ep1_short
+```
 
 ### Modeling Results
-Final analysis of the full location model was based on a total of `r nrow(diffusion_data_location)` Go trials.^[The exact number of trials per condition can be found in table \@ref(tab:appendix-table-location-counts).] The model estimated a total of 132 parameters. 
+Final analysis of the full location model was based on a total of `r nrow(diffusion_data_location)` Go trials^[The exact number of trials per condition can be found in Table \@ref(tab:appendix-table-location-counts).]. The model estimated a total of 132 parameters. 
 
-In the short RSI condition we observed a significant **testing** decrease in drift rate in post-error trials compared to pre-error levels. Boundary separation also decreased significantly **testing** and responses were less biased away from the previously presented stimulus following an error. Non-decision time was increased following an error response **testing**.
+In the short RSI condition we observed a significant **testing** decrease in drift rate in post-error trials compared to pre-error levels. Boundary separation also decreased significantly **testing** and responses were less biased away from the previously presented stimulus following an error. Non-decision time was increased following an error response **testing**. Posterior
 
 In the long RSI condition we also observed a significant decrease in drift rate in post-errro
 
