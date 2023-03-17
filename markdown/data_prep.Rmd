@@ -128,15 +128,49 @@ trial_data <- rt_data %>%
   )
 ```
 
-```{r data-prep-coding error types, cache = TRUE, warning = FALSE, dependson='data-prep-importing-data'}
+```{r data-prep-prepare-coding-error-type, cache = TRUE}
+lagged_data <- trial_data %>% 
+  group_by(id, block) %>% 
+  mutate(
+    lag_trial_type_1 = lag(trial_type, 1),
+    lead_trial_type_1 = lead(trial_type, 1),
+    lag_acc_1 = lag(acc, 1),
+    lead_acc_1 = lead(acc, 1),
+    lag_rt_1 = lag(rt, 1),
+    lead_rt_1 = lead(rt, 1),
+    
+    lag_trial_type_2 = lag(trial_type, 2),
+    lead_trial_type_2 = lead(trial_type, 2),
+    lag_acc_2 = lag(acc, 2),
+    lead_acc_2 = lead(acc, 2),
+    lag_rt_2 = lag(rt, 2),
+    lead_rt_2 = lead(rt, 2),
+    
+    lag_trial_type_3 = lag(trial_type, 3),
+    lead_trial_type_3 = lead(trial_type, 3),
+    lag_acc_3 = lag(acc, 3),
+    lead_acc_3 = lead(acc, 3),
+    lag_rt_3 = lag(rt, 3),
+    lead_rt_3 = lead(rt, 3),
+    
+    lag_trial_type_4 = lag(trial_type, 4),
+    lead_trial_type_4 = lead(trial_type, 4),
+    lag_acc_4 = lag(acc, 4),
+    lead_acc_4 = lead(acc, 4),
+    lag_rt_4 = lag(rt, 4),
+    lead_rt_4 = lead(rt, 4),
+  ) %>% 
+  ungroup()
+```
+
+```{r data-prep-coding-error-robust, cache = TRUE, warning = FALSE, dependson='data-prep-importing-data'}
 # just coding errors in nogo trials as error
-error_data <- trial_data %>% 
-  group_by(id, block) %>%  # consecutive errors have to be within a participant and block
+error_robust_data <- lagged_data %>% 
   mutate(
     error_type = case_when(
-      trial_type == "nogo" & acc == 0 & lag(trial_type) == "go" & lead(trial_type) =="go" ~ "error_single_lure",
-      trial_type == "nogo" & acc == 0 & lag(trial_type) == "go" & lead(trial_type) == "nogo" ~ "error_double_lure_first",
-      trial_type == "nogo" & acc == 0 & lag(trial_type) == "nogo" & lead(trial_type) == "go" ~ "error_double_lure_second",
+      trial_type == "nogo" & acc == 0 & lag_trial_type_1 == "go" & lead_trial_type_1 =="go" ~ "error_single_lure",
+      trial_type == "nogo" & acc == 0 & lag_trial_type_1 == "go" & lead_trial_type_1 == "nogo" ~ "error_double_lure_first",
+      trial_type == "nogo" & acc == 0 & lag_trial_type_1 == "nogo" & lead_trial_type_1 == "go" ~ "error_double_lure_second",
     )
   ) %>% 
   mutate(
@@ -146,51 +180,60 @@ error_data <- trial_data %>%
       lag(error_type) == "error_single_lure" ~ 1
     )
   ) %>% 
-  ungroup()  %>% 
-  group_by(id, block) %>% 
+  ungroup()
+```
+
+
+```{r data-prep-coding-error-classic, cache = TRUE, warning = FALSE, dependson='data-prep-importing-data'}
+error_classic_data <- error_robust_data %>% 
+  # group_by(id, block) %>% 
   mutate(classic_pes_type = case_when( # for classic, can do double nogo aswell
-    lag(trial_type) == "nogo" & trial_type == "go" & lag(acc) == 0 ~ "post_error",
-    !is.na(lag(rt)) & lag(acc) == 1 & trial_type == "go" ~ "post_correct"
+    lag_trial_type_1 == "nogo" & trial_type == "go" & lag_acc_1 == 0 ~ "post_error",
+    !is.na(lag_rt_1) & lag_acc_1 == 1 & trial_type == "go" ~ "post_correct"
   )) %>% 
-  ungroup() %>% 
-  group_by(id, block) %>% 
+  ungroup()
+```
+
+
+```{r data-prep-coding-error-location, cache = TRUE, warning = FALSE, dependson='data-prep-importing-data'}
+error_location_data <- error_classic_data %>% 
   mutate(
     location = case_when(
-      trial_type == "go" & lead(trial_type) == "nogo" & lead(acc) == 1 
-      & !is.na(lag(rt)) ~ "C-1",
-      trial_type == "go" & lead(trial_type) == "nogo" & lead(acc) == 0 
-      & !is.na(lag(rt)) ~ "E-1",
+      trial_type == "go" & lead_trial_type_1 == "nogo" & lead_acc_1 == 1 
+      & !is.na(lag_rt_1) ~ "C-1",
+      trial_type == "go" & lead_trial_type_1 == "nogo" & lead_acc_1 == 0 
+      & !is.na(lag_rt_1) ~ "E-1",
       trial_type == "nogo" & acc == 1 ~ "C",
       trial_type == "nogo" & acc == 0 ~ "E",
-      trial_type == "go" & lag(trial_type) == "nogo" & lag(acc) == 0 ~ "E+1",
-      trial_type == "go" & lag(trial_type) == "nogo" & lag(acc) == 1 ~ "C+1",
+      trial_type == "go" & lag_trial_type_1 == "nogo" & lag_acc_1 == 0 ~ "E+1",
+      trial_type == "go" & lag_trial_type_1 == "nogo" & lag_acc_1 == 1 ~ "C+1",
       # For +2 Location I am not always mutually exclusive, so extra precaution needed
-      trial_type == "go" & lag(trial_type) == "go" 
-      & lag(trial_type, 2) == "nogo" & lag(acc, 2) == 0 
-      & !is.na(lag(rt)) # dont want responses after no-responses in here
-      & lead(trial_type) != "nogo" ~ "E+2",
-      trial_type == "go" & lag(trial_type) == "go" 
-      & lag(trial_type, 2) == "nogo" & lag(acc, 2) == 1
-      & !is.na(lag(rt))
-      & lead(trial_type) != "nogo" ~ "C+2",
-      trial_type == "go" & lag(trial_type) == "go" & lag(trial_type, 2) == "go"
-      & lag(trial_type, 3) == "nogo" & lag(acc, 3) == 0 
-      & !is.na(lag(rt)) # dont want responses after no-responses in here
-      & lead(trial_type) != "nogo" ~ "E+3",
-      trial_type == "go" & lag(trial_type) == "go" & lag(trial_type, 2) == "go"
-      & lag(trial_type, 3) == "nogo" & lag(acc, 3) == 1 
-      & !is.na(lag(rt)) # dont want responses after no-responses in here
-      & lead(trial_type) != "nogo" ~ "C+3",
-      trial_type == "go" & lag(trial_type) == "go" & lag(trial_type, 2) == "go"
-      & lag(trial_type, 3) == "go"
-      & lag(trial_type, 4) == "nogo" & lag(acc, 4) == 0 
-      & !is.na(lag(rt)) # dont want responses after no-responses in here
-      & lead(trial_type) != "nogo" ~ "E+4",
-      trial_type == "go" & lag(trial_type) == "go" & lag(trial_type, 2) == "go"
-      & lag(trial_type, 3) == "go"
-      & lag(trial_type, 4) == "nogo" & lag(acc, 4) == 1
-      & !is.na(lag(rt)) # dont want responses after no-responses in here
-      & lead(trial_type) != "nogo" ~ "C+4",
+      trial_type == "go" & lag_trial_type_1 == "go" 
+      & lag_trial_type_2 == "nogo" & lag_acc_2 == 0 
+      & !is.na(lag_rt_1) # dont want responses after no-responses in here
+      & lead_trial_type_1 != "nogo" ~ "E+2",
+      trial_type == "go" & lag_trial_type_1 == "go" 
+      & lag_trial_type_2 == "nogo" & lag_acc_2 == 1
+      & !is.na(lag_rt_1)
+      & lead_trial_type_1 != "nogo" ~ "C+2",
+      trial_type == "go" & lag_trial_type_1 == "go" & lag_trial_type_2 == "go"
+      & lag_trial_type_3 == "nogo" & lag_acc_3 == 0 
+      & !is.na(lag_rt_1) # dont want responses after no-responses in here
+      & lead_trial_type_1 != "nogo" ~ "E+3",
+      trial_type == "go" & lag_trial_type_1 == "go" & lag_trial_type_2 == "go"
+      & lag_trial_type_3 == "nogo" & lag_acc_3 == 1 
+      & !is.na(lag_rt_1) # dont want responses after no-responses in here
+      & lead_trial_type_1 != "nogo" ~ "C+3",
+      trial_type == "go" & lag_trial_type_1 == "go" & lag_trial_type_2 == "go"
+      & lag_trial_type_3 == "go"
+      & lag_trial_type_4 == "nogo" & lag_acc_4 == 0 
+      & !is.na(lag_rt_1) # dont want responses after no-responses in here
+      & lead_trial_type_1 != "nogo" ~ "E+4",
+      trial_type == "go" & lag_trial_type_1 == "go" & lag_trial_type_2 == "go"
+      & lag_trial_type_3 == "go"
+      & lag_trial_type_4 == "nogo" & lag_acc_4 == 1
+      & !is.na(lag_rt_1) # dont want responses after no-responses in here
+      & lead_trial_type_1 != "nogo" ~ "C+4",
     )
   ) %>% 
   mutate(
@@ -204,7 +247,7 @@ error_data <- trial_data %>%
 ```
 
 ```{r data-prep-error id, cache = TRUE, dependson='data-prep-importing-data'}
-speed_data <- error_data %>% 
+speed_data <- error_location_data %>% 
   group_by(id, block) %>% 
   mutate(
     error_id = case_when(
