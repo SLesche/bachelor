@@ -54,9 +54,11 @@ plot_params <- function(data){
     labs(
       x = "Location",
       y = "Estimate",
-      caption = "Error bars represent 95% CI"
+      # caption = "Error bars represent 95% CI"
     )+
-    theme_classic()
+    theme_classic()+
+    theme(text=element_text(size=20),
+          legend.title= element_text(size = 12))
 }
 
 plot_post_error <- function(data){
@@ -94,18 +96,77 @@ plot_post_error <- function(data){
     labs(
       x = "Location",
       y = "Estimate",
-      caption = "Error bars represent 95% CI",
-      color = "RSI"
+      # caption = "Error bars represent 95% CI",
+      color = ""
     )+
-    theme_classic()
+    theme_classic()+
+    theme(text=element_text(size=20),
+          legend.title = element_text(size = 12))
+}
+
+plot_long_rsi <- function(data){
+  data %>% 
+    filter(rsi == "long RSI") %>% 
+    ggplot(
+      aes(
+        x = location,
+        y = mean,
+        color = type,
+        group = type
+      )
+    )+
+    geom_point(size = 2)+
+    geom_line()+
+    geom_errorbar(
+      aes(
+        ymin = upper, 
+        ymax = lower, 
+        width = 0.2
+      )
+    )+
+    geom_vline(
+      aes(
+        xintercept = 1.5
+      ),
+      # linetype = "dashed",
+      color = "black",
+      size = 2,
+      alpha = 0.5
+    )+
+    scale_color_manual(
+      values = c("nogo_correct" = "forestgreen",
+                 "nogo_error" = "red"),
+      name = "NoGo-Accuracy",
+      labels = c("Correct", "Error")
+    )+
+    scale_x_discrete(
+      labels = c("-1", "+1", "+2", "+3", "+4", "baseline - Go")
+    )+
+    labs(
+      x = "Location",
+      y = "Estimate",
+      # caption = "Error bars represent 95% CI"
+    )+
+    theme_classic()+
+    theme(text=element_text(size=20),
+          legend.title= element_text(size = 12))
 }
 ```
 
 ```{r ddm-descriptive-data, cache = TRUE}
-# Reading in data
-fit <- rio::import("./markdown/diffusion_model_runs/cluster/output/second_base_model.rda")
+# Reading in data 
+fit <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model.rda")
 fit_robust <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model_robust.rda")
 fit_classic <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model_classic.rda")
+```
+
+```{r ddm-descriptive-counting-location}
+location_median_count <- fit$data %>% 
+  count(rsi, error_factor) %>% 
+  summarize(
+    median = median(n),
+    sd = sd(n)
+  )
 ```
 
 ```{r ddm-descriptive-base-model, cache = TRUE, dependson='ddm-descriptive-data'}
@@ -171,129 +232,154 @@ summary_location <- working_location %>%
     ) %>% 
   filter(location != 5) %>% 
   mutate(location = factor(location)) %>% 
-  mutate(location = fct_relevel(location, "-1", "1", "2", "3", "4"))
+  mutate(location = fct_relevel(location, "-1", "1", "2", "3", "4")) %>% 
+  mutate(rsi = paste(rsi, "RSI")) %>% 
+  mutate(rsi = factor(rsi)) %>% 
+  mutate(rsi = fct_relevel(rsi, "short RSI", "long RSI"))
 
 
 
-# summary %>% 
-#   filter(param == "drift") %>% 
-#   group_by(rsi, location, type) %>% 
-#   summarize(
-#     mean = mean(mean),
-#     upper = mean(upper),
-#     lower = mean(lower)
-#   ) %>% 
-#   plot_params()+
-#   labs(
-#     title = "Effect of Errors on Drift Rate"
-#   )
-# 
-# summary %>% 
-#   filter(param == "drift") %>% 
-#   group_by(rsi, location, type) %>% 
-#   summarize(
-#     mean = mean(mean),
-#     upper = mean(upper),
-#     lower = mean(lower)
-#   ) %>%
-#   plot_post_error()+
-#   labs(
-#     title = "Post error effects on Drift Rate"
-#   )
-#   
-# 
-# summary %>% 
-#   filter(param == "bs") %>% 
-#   plot_params()+
-#   labs(
-#     title = "Effect of Errors on Boundary Separation"
-#   )
-#   
-# summary %>% 
-#   filter(param == "bs") %>% 
-#   plot_post_error()+
-#   labs(
-#     title = "Effect of Errors on Boundary Separation"
-#   )
-# 
-# summary %>% 
-#   filter(param == "ndt") %>% 
-#   plot_params()+
-#   labs(
-#     title = "Effect of Errors on Non-Decision Time"
-#   )
-#   
-# summary %>% 
-#   filter(param == "ndt") %>% 
-#   plot_post_error()+
-#   labs(
-#     title = "Effect of Errors on Non-Decision Time"
-#   )
-# 
-# summary %>% 
-#   filter(param == "bias") %>% 
-#   mutate(
-#     lower_copy = lower,
-#     upper_copy = upper,
-#     mean = ifelse(
-#       stimulus == "prevstimX",
-#       1 - mean,
-#       mean
-#     ),
-#     upper = ifelse(
-#       stimulus == "prevstimX",
-#       1 - lower_copy, # need to turn this around for inversion
-#       upper
-#     ),
-#     lower = ifelse(
-#       stimulus == "prevstimX",
-#       1 - upper_copy,
-#       lower
-#     )
-#   ) %>% 
-#   select(-ends_with("copy")) %>% 
-#   group_by(location, rsi, type) %>% 
-#   summarize(mean = mean(mean),
-#             upper = mean(upper),
-#             lower = mean(lower))  %>% 
-#   plot_params()+
-#   labs(
-#     title = "Effect of Errors on Bias"
-#   )
-# 
-# summary %>% 
-#   filter(param == "bias") %>% 
-#   mutate(
-#     lower_copy = lower,
-#     upper_copy = upper,
-#     mean = ifelse(
-#       stimulus == "prevstimX",
-#       1 - mean,
-#       mean
-#     ),
-#     upper = ifelse(
-#       stimulus == "prevstimX",
-#       1 - lower_copy, # need to turn this around for inversion
-#       upper
-#     ),
-#     lower = ifelse(
-#       stimulus == "prevstimX",
-#       1 - upper_copy,
-#       lower
-#     )
-#   ) %>% 
-#   select(-ends_with("copy")) %>% 
-#   group_by(location, rsi, type) %>% 
-#   summarize(mean = mean(mean),
-#             upper = mean(upper),
-#             lower = mean(lower))  %>% 
-#   plot_post_error()+
-#   labs(
-#     title = "Effect of Errors on Bias"
-#   )
+drift_location_rsi_plot <- summary_location %>%
+  filter(param == "drift") %>%
+  group_by(rsi, location, type) %>%
+  summarize(
+    mean = mean(mean),
+    upper = mean(upper),
+    lower = mean(lower)
+  ) %>%
+  plot_params()
+
+ 
+drift_location_err_plot <- summary_location %>%
+  filter(param == "drift") %>%
+  group_by(rsi, location, type) %>%
+  summarize(
+    mean = mean(mean),
+    upper = mean(upper),
+    lower = mean(lower)
+  ) %>%
+  plot_post_error()
+
+drift_location_long_rsi <- summary_location %>% 
+  filter(param == "drift") %>% 
+  group_by(rsi, location, type) %>%
+  summarize(
+    mean = mean(mean),
+    upper = mean(upper),
+    lower = mean(lower)
+  ) %>%
+  plot_long_rsi()
+
+bs_location_rsi_plot <- summary_location %>%
+  filter(param == "bs") %>%
+  plot_params()
+
+bs_location_err_plot <- summary_location %>%
+  filter(param == "bs") %>%
+  plot_post_error()
+
+bs_location_long_rsi <- summary_location %>% 
+  filter(param == "bs") %>% 
+  plot_long_rsi()
+
+ndt_location_rsi_plot <- summary_location %>%
+  filter(param == "ndt") %>%
+  plot_params()
+
+ndt_location_err_plot <- summary_location %>%
+  filter(param == "ndt") %>%
+  plot_post_error()
+
+ndt_location_long_rsi <- summary_location %>% 
+  filter(param == "ndt") %>% 
+  plot_long_rsi()
+
+bias_location_rsi_plot <- summary_location %>%
+  filter(param == "bias") %>%
+  mutate(
+    lower_copy = lower,
+    upper_copy = upper,
+    mean = ifelse(
+      stimulus == "prevstimX",
+      1 - mean,
+      mean
+    ),
+    upper = ifelse(
+      stimulus == "prevstimX",
+      1 - lower_copy, # need to turn this around for inversion
+      upper
+    ),
+    lower = ifelse(
+      stimulus == "prevstimX",
+      1 - upper_copy,
+      lower
+    )
+  ) %>%
+  select(-ends_with("copy")) %>%
+  group_by(location, rsi, type) %>%
+  summarize(mean = mean(mean),
+            upper = mean(upper),
+            lower = mean(lower))  %>%
+  plot_params()
+
+bias_location_err_plot <- summary_location %>%
+  filter(param == "bias") %>%
+  mutate(
+    lower_copy = lower,
+    upper_copy = upper,
+    mean = ifelse(
+      stimulus == "prevstimX",
+      1 - mean,
+      mean
+    ),
+    upper = ifelse(
+      stimulus == "prevstimX",
+      1 - lower_copy, # need to turn this around for inversion
+      upper
+    ),
+    lower = ifelse(
+      stimulus == "prevstimX",
+      1 - upper_copy,
+      lower
+    )
+  ) %>%
+  select(-ends_with("copy")) %>%
+  group_by(location, rsi, type) %>%
+  summarize(mean = mean(mean),
+            upper = mean(upper),
+            lower = mean(lower))  %>%
+  plot_post_error()
+
+bias_location_long_rsi <- summary_location %>%
+  filter(param == "bias") %>%
+  mutate(
+    lower_copy = lower,
+    upper_copy = upper,
+    mean = ifelse(
+      stimulus == "prevstimX",
+      1 - mean,
+      mean
+    ),
+    upper = ifelse(
+      stimulus == "prevstimX",
+      1 - lower_copy, # need to turn this around for inversion
+      upper
+    ),
+    lower = ifelse(
+      stimulus == "prevstimX",
+      1 - upper_copy,
+      lower
+    )
+  ) %>%
+  select(-ends_with("copy")) %>%
+  group_by(location, rsi, type) %>%
+  summarize(mean = mean(mean),
+            upper = mean(upper),
+            lower = mean(lower))  %>%
+  plot_long_rsi()
 ```
 
-```{r ddm-descriptive-robust, cache = TRUE}
+```{r ddm-descriptive-robust, cache = TRUE, eval = FALSE}
 data_robust <- fixef(fit_robust) %>%
   as.data.frame() %>% 
   rownames_to_column() %>% 
@@ -357,7 +443,7 @@ summary_robust <- working_robust %>%
   filter(location != 5)
 ```
 
-```{r ddm-descriptive-classic, cache = TRUE}
+```{r ddm-descriptive-classic, cache = TRUE, eval = FALSE}
 data_classic <- fixef(fit_classic) %>%
   as.data.frame() %>% 
   rownames_to_column() %>% 

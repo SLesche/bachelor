@@ -18,7 +18,7 @@ library(loo)
 
 ```{r ddm-significance-data}
 # Reading in data
-fit <- rio::import("./markdown/diffusion_model_runs/cluster/output/second_base_model.rda")
+fit <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model.rda")
 fit_robust <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model_robust.rda")
 fit_classic <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model_classic.rda")
 ```

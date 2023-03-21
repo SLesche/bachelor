@@ -1,5 +1,5 @@
 # Discussion
-The present study aimed to expand the study of cognitive processes underlying post-error slowing (PES) with the help of Drift Diffusion Modeling (DDM) and a systematic manipulation of the response-stimulus interval (RSI). We investigated differences in the effect of error trials on response behavior depending on the time that has passed since the error has occured.
+The present study aimed to expand the study of cognitive processes underlying post-error slowing (PES) with the help of Drift Diffusion Modeling (DDM) and a systematic manipulation of the response-stimulus interval (RSI). We investigated differences in the effect of error trials on response behavior depending on the time that has passed since the error has occurred.
 
 Drift rates were decreased following an error in both the short and long RSI condition, implying errors lead to attentional deficits affecting response behavior even after 1000ms. The strength of the maladaptive impact of errors on drift rate was however greater in the short RSI condition. This suggests that maladaptive effects as captured by a decrease in drift rate affect response behavior more strongly if little time has passed since the error.
 
@@ -19,6 +19,10 @@ bad fit to empricial data
 
 - but these problems don't seem to play a role in long RSI, so findings there are still valid. 
 **Error rate long/short is not an issue for "orienting account"**
+
+# Check data for hints of classic/robust accounts being better? Can we find "global shifts" in parameters, or are differences C/E Location only "phases" and time specific to errors.
+
+# Check stop-signal task results, show that you could account for post-nogo effects using the anova approach
 <!-- -describe theory -->
 <!-- -describe what was done -->
 <!-- - task, PES spec, model -->

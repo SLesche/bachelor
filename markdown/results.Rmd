@@ -67,12 +67,12 @@ only_comp <- loo_compare(no_error_factor_model, base_model,
 optimized_comp <- loo_compare(base_model, optimized_model, no_rsi_bs_model, no_rsi_bias_model, no_rsi_model)
 ```
 
-The base model was superior to all other models tested. Thus we retained the influence of both factors on all parameters for analysis on the full location model. When restricting the influence of RSI on only one of the parameters, restricting its influence on the drift rate had the most detrimental effects while constraining the bias and boundary separation to be equal across RSI conditions barely worsened predictive accuracy (see Table \@ref(tab:appendix-rsi-compare)). A similar pattern was found when restricting the impact of error-condition on only one of the parameters, while allowing all other parameters to vary between pre- and post-error. Here restricting the drift rate parameter specification again had the biggest negative impact on predictive accuracy (see Table \@ref(tab:appendix-err-compare)). When only allowing one of the four diffusion model parameter to vary between error-condition, drift rate again proved to be the single most important parameter for good predictive accuracy (see Table \@ref(tab:appendix-only-compare)).
+The base model was superior to all other models tested. Thus we retained the influence of both factors on all parameters for analysis in the full location model. When restricting the influence of RSI on only one of the parameters, restricting its influence on the drift rate had the most detrimental effects. Constraining the bias and boundary separation to be equal across RSI conditions barely worsened predictive accuracy (see Table \@ref(tab:appendix-rsi-compare)). A similar pattern was found when restricting the impact of error-condition on only one of the parameters while allowing all other parameters to vary between pre- and post-error. Here, restricting the drift rate parameter specification again had the biggest negative impact on predictive accuracy (see Table \@ref(tab:appendix-err-compare)). When only allowing one of the four diffusion model parameter to vary between error-condition, drift rate again proved to be the single most important parameter for good predictive accuracy (see Table \@ref(tab:appendix-only-compare)).
 
 ### Model Fit
 The best-fitting model specification was used to estimate parameters in the full location dataset and was then subjected to various model diagnostic tests. There were no divergent transitions, $\hat{R} > 1.01$ or other signs of non-convergence [@gelman1992]. We visually inspected if the 4 chains mixed well for a few randomly selected parameters, observing no signs of misbehavior in the chains. **correlations among posterior parameters**
 
-We sampled the posterior parameter distribution 500 times and obtained predicted response time distributions from the sampled parameters. We then compared empirical response time distributions to the predicted response time distribution for each condition. This revealed a serious discrepancy between the predicted response time distribution and the empirical distribution in post-error trials in the short RSI condition(see Figure  \@ref(fig:results-plot-ep1-bad-pred)). The exact impact and cause of this discrepancy will be discussed later, but we will proceed with extreme caution when interpreting the results.
+We sampled the posterior parameter distribution 500 times and obtained predicted response time distributions from the sampled parameters. We then compared empirical response time distributions to the predicted response time distribution for each condition. This revealed a serious discrepancy between the predicted response time distribution and the empirical distribution in post-error trials in the short RSI condition(see Figure  \@ref(fig:results-plot-ep1-bad-pred)). The exact impact and cause of this discrepancy will be discussed later, but we will refrain from interpreting the results in the short RSI condition.
 
 ```{r results-plot-ep1-bad-pred, warning = FALSE, fig.cap='Comparison of empirical and predicted response time distribution in short RSI condition for post-error trials'}
 ep1 %>% 
@@ -112,19 +112,13 @@ rt_dist_ep1_short
 ```
 
 ### Modeling Results
-Final analysis of the full location model was based on a total of `r nrow(diffusion_data_location)` Go trials^[The exact number of trials per condition can be found in Table \@ref(tab:appendix-table-location-counts).]. The model estimated a total of 132 parameters. 
+Final analysis of the full location model was based on a total of `r nrow(diffusion_data_location)` Go trials with a median `r location_median_count$median` (SD = `r location_median_count$sd`) trials per RSI $\times$ error-condition combination^[The exact number of trials per condition can be found in Table \@ref(tab:appendix-table-location-counts).]. The model estimated a total of 132 parameters. 
 
-In the short RSI condition we observed a significant **testing** decrease in drift rate in post-error trials compared to pre-error levels. Boundary separation also decreased significantly **testing** and responses were less biased away from the previously presented stimulus following an error. Non-decision time was increased following an error response **testing**. Posterior
+We will restrict interpretation and reporting of results to model parameters in the long RSI condition due to the models inability to fit data of post-error trials in the short RSI condition. Parameters obtained from fitting the DDM to the short RSI condition can be found in Appendix D.
 
-In the long RSI condition we also observed a significant decrease in drift rate in post-errro
+<!-- In the short RSI condition we observed a significant **testing** decrease in drift rate in post-error trials compared to pre-error levels. Boundary separation also decreased significantly **testing** and responses were less biased away from the previously presented stimulus following an error. Non-decision time was increased following an error response **testing**. Following an error, participants were less biased towards the previously not shown response than they were prior to the error **testing**. The course of parameter changes following an error or following a correct response is illustrated in **FIGURE** **maybe split that short/long?** -->
+We observed a significant decrease in drift rate in post-error trials compared to pre-error levels in the long RSI conditions **testing**. Boundary separation decreased and responses were less biased towards the previously not shown response. We found no evidence in favor of increasing non-decision time following an error. **TEST THOSE, Bayes Factor**
 
-Interaction effects of RSIxError cond were observed in:
-
-Trials that go into the modelling, describe the number of parameters and the minimum number of trials in one condition.
-
-Describe post-error effects by condition
-in the short condition: plot drift rate and bs 
-in the long condition:
-
-Interaction effects of ...
-
+```{r results-ddm-drift-rsi-plot, fig.cap = 'Boundary separation depending on location in the long RSI condition. The gray bar represents the occurrence of a NoGo trial. Error bars represent 95% CrI.'}
+bs_location_long_rsi
+```
