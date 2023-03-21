@@ -1,8 +1,26 @@
 # Discussion
-The present study aimed to expand the study of cognitive processes underlying post-error slowing (PES) with the help of Drift Diffusion Modeling (DDM) and a systematic manipulation of the response-stimulus interval (RSI). We investigated differences in the effect of error trials on response behavior depending on the time that has passed since the error has occurred.
+The present study aimed to expand the study of cognitive processes underlying post-error slowing (PES) with the help of Drift Diffusion Modeling (DDM) and a systematic manipulation of the response-stimulus interval (RSI). We tried to investigate differences in the effect of error trials on response behavior depending on the time that has passed since the error has occurred.
+ 
+Due to the models inability to accurately fit the response time distribution on post-error trials in the short RSI condition, parameters estimated in this condition are not interpretable. This prevents us from gaining any insight into differential effects of errors on post-error behavior depending on the RSI. 
 
-Drift rates were decreased following an error in both the short and long RSI condition, implying errors lead to attentional deficits affecting response behavior even after 1000ms. The strength of the maladaptive impact of errors on drift rate was however greater in the short RSI condition. This suggests that maladaptive effects as captured by a decrease in drift rate affect response behavior more strongly if little time has passed since the error.
+Issues with fitting the data most likely stem from the 800ms response time limit censoring responses of participants. As illustrated in Figure \@ref(fig:discussion-ep1-short-plot-rt-dist), a considerable proportion of responses (**here the proportion**) were coded as omissions because participants did not respond before the deadline. The basic DDM is not able to account for this censoring of response time distributions but can be extended to accurately account for omissions of this type **citation**. Extending the DDM in this way may result in it being able to fit the present empirical data and will allow us to test our initial hypothesis by comparing parameter changes in long RSI to changes in short RSI. 
 
+```{r discussion-ep1-short-plot-rt-dist, cache = TRUE, warning = FALSE, fig.cap='Reponse time distribution on post-error trials in the short rsi conditions. All responses shorter than 150ms were excluded, the next trial began after 800ms after stimulus presentation.'}
+rt_dist_ep1_short <- diffusion_data_location %>% 
+  filter(location == "E+1", rsi == "short") %>% 
+  ggplot(
+    aes(x = rt)
+  )+
+  geom_histogram(bins = 55)+
+  xlim(0, 1)+
+  labs(
+    x = "Response time (in s)",
+    y = "count"
+  )+
+  papaja::theme_apa()
+
+rt_dist_ep1_short
+```
 
 Report results but strongly advise against using them, explain them in terms of post-error frustration or post-error recklessnes
 here is why

@@ -94,23 +94,6 @@ ep1 %>%
   theme(text = element_text(size = 15))
 ```
 
-```{r results-ep1-short-plot-rt-dist, cache = TRUE, warning = FALSE, fig.cap='Reponse time distribution on post-error trials in the short rsi conditions. All responses shorter than 150ms were excluded, the next trial began after 800ms after stimulus presentation.'}
-rt_dist_ep1_short <- diffusion_data_location %>% 
-  filter(location == "E+1", rsi == "short") %>% 
-  ggplot(
-    aes(x = rt)
-  )+
-  geom_histogram(bins = 55)+
-  xlim(0, 1)+
-  labs(
-    x = "Response time (in s)",
-    y = "count"
-  )+
-  papaja::theme_apa()
-
-rt_dist_ep1_short
-```
-
 ### Modeling Results
 Final analysis of the full location model was based on a total of `r nrow(diffusion_data_location)` Go trials with a median `r location_median_count$median` (SD = `r location_median_count$sd`) trials per RSI $\times$ error-condition combination^[The exact number of trials per condition can be found in Table \@ref(tab:appendix-table-location-counts).]. The model estimated a total of 132 parameters. 
 
