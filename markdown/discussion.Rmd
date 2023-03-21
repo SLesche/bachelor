@@ -1,9 +1,9 @@
 # Discussion
-The present study aimed to expand the study of cognitive processes underlying post-error slowing (PES) with the help of Drift Diffusion Modeling (DDM) and a systematic manipulation of the response-stimulus interval (RSI). We tried to investigate differences in the effect of error trials on response behavior depending on the time that has passed since the error has occurred.
+The present study aimed to expand the study of cognitive processes underlying post-error slowing (PES) with the help of Drift Diffusion Modeling (DDM) and a systematic manipulation of the response-stimulus interval (RSI). We tried to investigate differences in the effect of error trials on response behavior depending on the time that has passed since the error has occurred. When the RSI is short (200ms) we expect mostly maladaptive processes to affect post-error behavior, leading to decreases in attention reflected by lower drift rates. Is the RSI long on the other hand, maladaptive processes should have dissipated and adaptive changes in behavior such as increased response caution reflected in higher boundary separation should account for post-error slowing.
  
 Due to the models inability to accurately fit the response time distribution on post-error trials in the short RSI condition, parameters estimated in this condition are not interpretable. This prevents us from gaining any insight into differential effects of errors on post-error behavior depending on the RSI. 
 
-Issues with fitting the data most likely stem from the 800ms response time limit censoring responses of participants. As illustrated in Figure \@ref(fig:discussion-ep1-short-plot-rt-dist), a considerable proportion of responses (**here the proportion**) were coded as omissions because participants did not respond before the deadline. The basic DDM is not able to account for this censoring of response time distributions but can be extended to accurately account for omissions of this type **citation**. Extending the DDM in this way may result in it being able to fit the present empirical data and will allow us to test our initial hypothesis by comparing parameter changes in long RSI to changes in short RSI. 
+Issues with fitting the data most likely stem from the 800ms response time limit censoring responses of participants. A considerable proportion of responses (**here the proportion**) were coded as omissions because participants did not respond before the deadline. This results in the steep drop after the 800ms deadline illustrated in Figure \@ref(fig:discussion-ep1-short-plot-rt-dist). The basic DDM is not able to account for this censoring of response time distributions but can be extended to accurately account for omissions of this type **citation**. Extending the DDM in this way may result in it being able to fit the present empirical data and will allow us to test our initial hypothesis by comparing parameter changes in long RSI to changes in short RSI. Developing and testing this extension would however exceed the scope of this body of work and will be relegated to future endeavors.
 
 ```{r discussion-ep1-short-plot-rt-dist, cache = TRUE, warning = FALSE, fig.cap='Reponse time distribution on post-error trials in the short rsi conditions. All responses shorter than 150ms were excluded, the next trial began after 800ms after stimulus presentation.'}
 rt_dist_ep1_short <- diffusion_data_location %>% 
@@ -21,6 +21,44 @@ rt_dist_ep1_short <- diffusion_data_location %>%
 
 rt_dist_ep1_short
 ```
+
+Parameters obtained from data originating in the long RSI condition do not show this extreme misfit to the data. We expected to find evidence of adaptive processes at long RSI resulting in increased boundary separation. Maladaptive processes leading to attentional deficits following errors should lead to decreases in drift rate, which we mostly expected at short RSI. This decrease in drift rate should be smaller in long RSI. 
+
+In line with previous research [@dutilh2013; @purcell2016; @schiffler2017] we found post-error decreases in drift rate, even in the long RSI. Maladaptive processes such decreased attention as posed by the orientating account [@notebaert2009] or reduced availability of central cognitive processing capabilities posited by @dudschig2009 seem to influence post-error behavior even after 1000ms.
+
+All those previous studies did however observe increases in boundary separation following errors. Lending support to the idea that errors do lead to some attentional deficit that is then offset by increases in caution [@schiffler2017] **is this right?**. In our data, we failed to find any evidence for increases in caution following errors. Compared to pre-error trials, boundary separation was significantly lower after an error. Decreases in boundary separation are no predicted by any accounts of PES and where only found in one other study [@damaso2022]. @damaso2022 found decreases in caution applying an LBA model to data obtained by @osth2017 but observed no decreases in boundary separation when fitting a DDM to the same data. Our results and those of @damaso2022 are however inconsistent with most prior research [@dutilh2012testing; @dutilh2013; @purcell2016; @schiffler2017] and require explanation.
+
+Explaining this:
+in terms of model problems: only sampling low bs trials (in long rsi not a problem)
+
+in terms of study design problems:
+- this study not truly a two-choice task, people respond "go" or "nogo". So maybe some assumptions of the DDM are violated.
+- anticipation (leads to bumps in rt),
+- post-nogo is not separable from post-error behavior, so could use post-correct as baseline
+- but the "benefits" of being post-NoGo is only after actually processing NoGo and inhibiting
+- still, active inhibition processes could be active when comparing e-1 to e+1. **look at how inhibition works in ddm** but this should lead to **increaes** in bs.
+
+in terms of reflecting true behavior:
+- damaso et al said two different error types, their errors mostly evidence quality, where bs doesnt correlate with accuracy. This is not the case here
+- this study has mostly response-speed errors, so increasing bs is the best way 
+- post-error recklessness, this may be due to study,
+in terms of stop-signal task: When stop-signal is more likely, bs goes up. "Stop signal" here is really unlikely following a NoGo trial, so bs might decrease to get faster rt
+
+We did not find any evidence of adaptive post-error processes leading to increased caution but rather attribute our results to increased post-error recklessness following errors. Sadly we were not able to test our hypothesis regarding differential effects in the two conditions due to a flaw in study design. This can be accounted for in future modelling. Problems that cannot be fixed however is the compound of NoGo and stuff, We would thus suggest for future research:
+
+A strength of this study is the ability to discern pre-correct from pre-error trials, this allows us to find effects even prior to error commission. **add this to results**
+
+**maybe say something about robust vs. classical pes here?**
+
+
+Problematic as it may be, this study gives further warning against interpreting PES as a unitary construct. Many factors are involved when determining the size and functionality of slower RT following errors. These include: RSI, Task, Feedback, Participants, Error type
+
+Future endeavors could do the following things better: better task, make sure no omissions...
+
+**possibly say something about robust vs. classical accounts here**
+
+
+<!-- NOTES ------------- -->
 
 Report results but strongly advise against using them, explain them in terms of post-error frustration or post-error recklessnes
 here is why
