@@ -223,6 +223,18 @@ location_median_count <- fit$data %>%
   )
 ```
 
+```{r ddm-descriptive-table-params}
+table <- fixef(fit_robust) %>%
+  as.data.frame() %>% 
+  rownames_to_column() %>% 
+  select(param = rowname,
+         mean = Estimate,
+         error = `Est.Error`,
+         lower = Q2.5,
+         upper = Q97.5) %>% 
+  filter(str_detect(param, "rsilong"))
+```
+
 ```{r ddm-descriptive-base-model, cache = TRUE, dependson='ddm-descriptive-data'}
 data_location <- fixef(fit) %>%
   as.data.frame() %>% 

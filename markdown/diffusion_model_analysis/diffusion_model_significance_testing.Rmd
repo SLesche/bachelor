@@ -9,6 +9,8 @@ library(tidyverse)
 library(tidybayes)
 library(emmeans)
 library(loo)
+library(BayesFactor)
+library(effectsize)
 ```
 
 ```{r ddm-significance-functions}
@@ -16,10 +18,243 @@ library(loo)
 
 ```
 
-```{r ddm-significance-data}
+```{r ddm-significance-data, cache = TRUE}
 # Reading in data
 fit <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model.rda")
 fit_robust <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model_robust.rda")
 fit_classic <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model_classic.rda")
+
+posterior_robust <- as_draws_df(
+  fit_robust
+)
+
+posterior_location <- as_draws_df(
+  fit
+)
+```
+
+```{r testing-robust-drift, cache = TRUE}
+# Testing drift
+posterior_robust_drift <- posterior_robust %>% 
+  select(starts_with("b_rsilong"))
+
+colnames(posterior_robust_drift) <- c("post_error_0", "pre_error_0", 
+                                      "post_error_1", "pre_error_1")
+# posterior_robust_drift_data <- data.frame(
+#   value_upper = c(posterior_robust_drift$pre_error_1,
+#                   posterior_robust_drift$post_error_1),
+#   value_lower = c(posterior_robust_drift$pre_error_0,
+#                   posterior_robust_drift$post_error_0),
+#   stimulus = factor(rep(c(0, 1), each = 4000)),
+#   position = factor(rep(c("pre_error", "post_error"), each = 4000))
+# )
+# 
+# bf_robust_drift_0 <- ttestBF(posterior_robust_drift$pre_error_0, posterior_robust_drift$post_error_0)@bayesFactor$bf
+# 
+# bf_robust_drift_1 <- ttestBF(posterior_robust_drift$pre_error_1, posterior_robust_drift$post_error_1)@bayesFactor$bf
+
+
+t_test_robust_stimulus_drift <- t.test(
+  -1*posterior_robust_drift$post_error_0,
+  posterior_robust_drift$post_error_1
+)
+
+cohens_d_robust_stimulus_drift <- cohens_d(
+  -1 * posterior_robust_drift$post_error_0,
+  posterior_robust_drift$post_error_1
+)
+
+t_test_robust_drift_0 <- t.test(posterior_robust_drift$pre_error_0, posterior_robust_drift$post_error_0)
+
+cohens_d_robust_drift_0 <- cohens_d(posterior_robust_drift$pre_error_0, posterior_robust_drift$post_error_0)
+
+t_test_robust_drift_1 <- t.test(posterior_robust_drift$pre_error_1, posterior_robust_drift$post_error_1)
+
+cohens_d_robust_drift_1 <- cohens_d(posterior_robust_drift$pre_error_1, posterior_robust_drift$post_error_1)
+
+```
+
+```{r testing-robust-bs, cache = TRUE}
+# Testing drift
+posterior_robust_bs <- posterior_robust %>% 
+  select(starts_with("b_bs_rsilong"))
+
+colnames(posterior_robust_bs) <- c("post_error", "pre_error")
+
+# bf_robust_bs <- ttestBF(posterior_robust_bs$pre_error, posterior_robust_bs$post_error)@bayesFactor$bf
+
+t_test_robust_bs <- t.test(posterior_robust_bs$pre_error, posterior_robust_bs$post_error)
+
+cohens_d_robust_bs <- cohens_d(posterior_robust_bs$pre_error, posterior_robust_bs$post_error)
+```
+
+```{r testing-robust-ndt, cache = TRUE}
+posterior_robust_ndt <- posterior_robust %>% 
+  select(starts_with("b_ndt_rsilong"))
+
+colnames(posterior_robust_ndt) <- c("post_error", "pre_error")
+
+# bf_robust_ndt <- ttestBF(posterior_robust_ndt$pre_error, posterior_robust_ndt$post_error)@bayesFactor$bf
+
+t_test_robust_ndt <- t.test(posterior_robust_ndt$pre_error, posterior_robust_ndt$post_error)
+
+cohens_d_robust_ndt <- cohens_d(posterior_robust_bs$pre_error, posterior_robust_bs$post_error)
+```
+
+```{r testing-robust-bias, cache = TRUE}
+# Testing drift
+posterior_robust_bias <- posterior_robust %>% 
+  select(starts_with("b_bias_rsilong"))
+
+colnames(posterior_robust_bias) <- c("post_error_X", "post_error_Y",
+                                      "pre_error_X", "pre_error_Y")
+
+t_test_robust_stimulus_bias <- t.test(
+  posterior_robust_bias$post_error_X,
+  1 - posterior_robust_bias$post_error_Y
+)
+
+cohens_d_robust_stimulus_bias <- cohens_d(
+  posterior_robust_bias$post_error_X,
+  1 - posterior_robust_bias$post_error_Y
+)
+# bf_robust_bias_X <- ttestBF(posterior_robust_bias$pre_error_X, posterior_robust_bias$post_error_X)@bayesFactor$bf
+
+# bf_robust_bias_Y <- ttestBF(posterior_robust_bias$pre_error_Y, posterior_robust_bias$post_error_Y)@bayesFactor$bf
+
+t_test_robust_bias_X <- t.test(posterior_robust_bias$pre_error_X, posterior_robust_bias$post_error_X)
+
+cohens_d_robust_bias_X <- cohens_d(posterior_robust_bias$pre_error_X, posterior_robust_bias$post_error_X)
+
+t_test_robust_bias_Y <- t.test(posterior_robust_bias$pre_error_Y, posterior_robust_bias$post_error_Y)
+
+cohens_d_robust_bias_Y <- cohens_d(posterior_robust_bias$pre_error_Y, posterior_robust_bias$post_error_Y)
+```
+
+```{r testing-pre-location, cache = TRUE}
+pre_testing_overview <- posterior_location %>% 
+  select(contains("error_factorCM1") | contains("error_factorEM1")) 
+
+t_test_pre_long_drift_0 <- t.test(
+  pre_testing_overview$`b_rsilong:error_factorCM1:stimulus0`,
+  pre_testing_overview$`b_rsilong:error_factorEM1:stimulus0`
+)
+
+cohens_d_pre_long_drift_0 <- cohens_d(
+  pre_testing_overview$`b_rsilong:error_factorCM1:stimulus0`,
+  pre_testing_overview$`b_rsilong:error_factorEM1:stimulus0`
+)
+
+t_test_pre_long_drift_1 <- t.test(
+  pre_testing_overview$`b_rsilong:error_factorCM1:stimulus1`,
+  pre_testing_overview$`b_rsilong:error_factorEM1:stimulus1`
+)
+
+cohens_d_pre_long_drift_1 <- cohens_d(
+  pre_testing_overview$`b_rsilong:error_factorCM1:stimulus1`,
+  pre_testing_overview$`b_rsilong:error_factorEM1:stimulus1`
+)
+
+t_test_pre_long_bs <- t.test(
+  pre_testing_overview$`b_bs_rsilong:error_factorCM1`,
+  pre_testing_overview$`b_bs_rsilong:error_factorEM1`
+)
+
+cohens_d_pre_long_bs <- cohens_d(
+  pre_testing_overview$`b_bs_rsilong:error_factorCM1`,
+  pre_testing_overview$`b_bs_rsilong:error_factorEM1`
+)
+
+t_test_pre_long_ndt <- t.test(
+  pre_testing_overview$`b_ndt_rsilong:error_factorCM1`,
+  pre_testing_overview$`b_ndt_rsilong:error_factorEM1`
+)
+
+cohens_d_pre_long_ndt <- cohens_d(
+  pre_testing_overview$`b_ndt_rsilong:error_factorCM1`,
+  pre_testing_overview$`b_ndt_rsilong:error_factorEM1`
+)
+
+t_test_pre_long_bias_X <- t.test(
+  pre_testing_overview$`b_bias_rsilong:previous_stimulusX:error_factorCM1`,
+  pre_testing_overview$`b_bias_rsilong:previous_stimulusX:error_factorEM1`
+)
+
+cohens_d_pre_long_bias_X <- cohens_d(
+  pre_testing_overview$`b_bias_rsilong:previous_stimulusX:error_factorCM1`,
+  pre_testing_overview$`b_bias_rsilong:previous_stimulusX:error_factorEM1`
+)
+
+t_test_pre_long_bias_Y <- t.test(
+  pre_testing_overview$`b_bias_rsilong:previous_stimulusY:error_factorCM1`,
+  pre_testing_overview$`b_bias_rsilong:previous_stimulusY:error_factorEM1`
+)
+
+cohens_d_pre_long_bias_Y <- cohens_d(
+  pre_testing_overview$`b_bias_rsilong:previous_stimulusY:error_factorCM1`,
+  pre_testing_overview$`b_bias_rsilong:previous_stimulusY:error_factorEM1`
+)
+
+## Short rsi
+
+t_test_pre_short_drift_0 <- t.test(
+  pre_testing_overview$`b_rsishort:error_factorCM1:stimulus0`,
+  pre_testing_overview$`b_rsishort:error_factorEM1:stimulus0`
+)
+
+cohens_d_pre_short_drift_0 <- cohens_d(
+  pre_testing_overview$`b_rsishort:error_factorCM1:stimulus0`,
+  pre_testing_overview$`b_rsishort:error_factorEM1:stimulus0`
+)
+
+t_test_pre_short_drift_1 <- t.test(
+  pre_testing_overview$`b_rsishort:error_factorCM1:stimulus1`,
+  pre_testing_overview$`b_rsishort:error_factorEM1:stimulus1`
+)
+
+cohens_d_pre_short_drift_1 <- cohens_d(
+  pre_testing_overview$`b_rsishort:error_factorCM1:stimulus1`,
+  pre_testing_overview$`b_rsishort:error_factorEM1:stimulus1`
+)
+
+t_test_pre_short_bs <- t.test(
+  pre_testing_overview$`b_bs_rsishort:error_factorCM1`,
+  pre_testing_overview$`b_bs_rsishort:error_factorEM1`
+)
+
+cohens_d_pre_short_bs <- cohens_d(
+  pre_testing_overview$`b_bs_rsishort:error_factorCM1`,
+  pre_testing_overview$`b_bs_rsishort:error_factorEM1`
+)
+
+t_test_pre_short_ndt <- t.test(
+  pre_testing_overview$`b_ndt_rsishort:error_factorCM1`,
+  pre_testing_overview$`b_ndt_rsishort:error_factorEM1`
+)
+
+cohens_d_pre_short_ndt <- cohens_d(
+  pre_testing_overview$`b_ndt_rsishort:error_factorCM1`,
+  pre_testing_overview$`b_ndt_rsishort:error_factorEM1`
+)
+
+t_test_pre_short_bias_X <- t.test(
+  pre_testing_overview$`b_bias_rsishort:previous_stimulusX:error_factorCM1`,
+  pre_testing_overview$`b_bias_rsishort:previous_stimulusX:error_factorEM1`
+)
+
+cohens_d_pre_short_bias_X <- cohens_d(
+  pre_testing_overview$`b_bias_rsishort:previous_stimulusX:error_factorCM1`,
+  pre_testing_overview$`b_bias_rsishort:previous_stimulusX:error_factorEM1`
+)
+
+t_test_pre_short_bias_Y <- t.test(
+  pre_testing_overview$`b_bias_rsishort:previous_stimulusY:error_factorCM1`,
+  pre_testing_overview$`b_bias_rsishort:previous_stimulusY:error_factorEM1`
+)
+
+cohens_d_pre_short_bias_Y <- cohens_d(
+  pre_testing_overview$`b_bias_rsishort:previous_stimulusY:error_factorCM1`,
+  pre_testing_overview$`b_bias_rsishort:previous_stimulusY:error_factorEM1`
+)
 ```
 

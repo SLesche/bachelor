@@ -22,7 +22,7 @@ rt_dist_ep1_short <- diffusion_data_location %>%
 rt_dist_ep1_short
 ```
 
-Parameters obtained from data originating in the long RSI condition do not show this extreme misfit to the data. We expected to find evidence of adaptive processes at long RSI resulting in increased boundary separation. Maladaptive processes leading to attentional deficits following errors should lead to decreases in drift rate, which we mostly expected at short RSI. This decrease in drift rate should be smaller in long RSI. 
+Parameters obtained from data originating in the long RSI condition do not show this extreme misfit to the data. We expected to find evidence of adaptive processes at long RSI resulting in increased boundary separation. Maladaptive processes leading to attentional deficits following errors should lead to decreases in drift rate, which we mostly expected at short RSI. This decrease in drift rate should be smaller in long RSI.
 
 In line with previous research [@dutilh2013; @purcell2016; @schiffler2017] we found post-error decreases in drift rate, even in the long RSI. Maladaptive processes such decreased attention as posed by the orientating account [@notebaert2009] or reduced availability of central cognitive processing capabilities posited by @dudschig2009 seem to influence post-error behavior even after 1000ms.
 
