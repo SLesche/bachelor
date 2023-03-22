@@ -121,49 +121,6 @@ data %>%
          n < 50)
 ```
 
-```{r descriptive-analysis-block comparison, include = FALSE, cache = TRUE, dependson='descriptive-analysis-data', eval = FALSE}
-data %>% 
-  group_by(rsi, block) %>% 
-  # filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
-  summarize(mean_rt = mean(rt, na.rm = TRUE),
-            mean_acc = mean(acc, na.rm = TRUE),
-            count = n()) %>% 
-  ggplot(aes(
-    x = block,
-    y = mean_rt,
-    group = rsi,
-    color = factor(rsi)
-  ))+
-  geom_line()
-
-data %>% 
-  mutate(block_fifths = case_when(
-    trial < 50 ~ block + 0.2,
-    trial < 100 ~ block + 0.4,
-    trial < 150 ~ block + 0.6,
-    trial < 200 ~ block + 0.8,
-    trial < 250 ~ block + 1
-  )) %>%
-  group_by(rsi, block_fifths) %>%
-  # filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>%
-  summarize(mean_rt = mean(rt, na.rm = TRUE),
-            mean_acc = mean(acc, na.rm = TRUE),
-            count = n()) %>% 
-  ggplot(aes(
-    x = block_fifths,
-    y = mean_acc,
-    group = rsi,
-    color = factor(rsi)
-  ))+
-  geom_line()
-# Check whether accuracy difference overall in RSI is driven by go trials
-data %>% 
-  group_by(rsi, trial_type, block) %>% 
-  summarise(mean_rt = mean(rt, na.rm = TRUE),
-            mean_acc = sum(acc)/n(),
-            count = n())
-```
-
 ```{r descriptive-analysis-visualization, include = FALSE, cache = TRUE, dependson='descriptive-analysis-data'}
 data %>% 
   group_by(rsi, error_code) %>% 

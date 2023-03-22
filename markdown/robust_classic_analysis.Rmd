@@ -1,0 +1,203 @@
+---
+editor_options:
+  chunk_output_type: console
+---
+<!-- # Library calls -->
+```{r robust-analysis-setup}
+library(tidyverse)
+library(rio)
+library(data.table)
+library(scales)
+
+ggplot2::theme_set(theme_classic()) # setting default theme
+```
+
+```{r robust-analysis-functions}
+
+```
+
+```{r robust-anal-data, cache = TRUE, cache.extra = tools::md5sum("./markdown/data/analysis_data.Rdata")}
+data <- rio::import("./markdown/data/analysis_data.Rdata")
+```
+
+```{r robust-anal-plot}
+data %>% 
+  filter(location %in% c("E-1", "E+1", "C-1", "C+1")) %>% 
+  mutate(unique_trial = parse_number(paste0(block, trial))) %>% 
+  count(block, trial, rsi, location) %>% 
+  mutate(location = factor(location)) %>% 
+  mutate(location = fct_relevel(location, "E-1", "E+1", "C-1", "C+1")) %>% 
+  ggplot(
+    aes(x = trial,
+        y = n,
+        group = location,
+        color = location)
+  )+
+  geom_line()+
+  geom_smooth(method = "lm")+
+  facet_wrap(~rsi)
+
+data %>% 
+  filter(location %in% c("E-1", "E+1", "C-1", "C+1")) %>% 
+  count(block, rsi, location) %>% 
+  mutate(location = factor(location)) %>% 
+  mutate(location = fct_relevel(location, "E-1", "E+1", "C-1", "C+1")) %>% 
+  ggplot(
+    aes(x = block,
+        y = n,
+        group = location,
+        color = location)
+  )+
+  geom_line()+
+  geom_smooth(method = "lm")+
+  facet_wrap(~rsi)
+
+
+data %>% 
+  mutate(block_fifths = case_when(
+    trial < 50 ~ block + 0.2,
+    trial < 100 ~ block + 0.4,
+    trial < 150 ~ block + 0.6,
+    trial < 200 ~ block + 0.8,
+    trial < 250 ~ block + 1
+  )) %>%
+  filter(location %in% c("E-1", "E+1", "C-1", "C+1")) %>% 
+  count(block_fifths, rsi, location) %>% 
+  mutate(location = factor(location)) %>% 
+  mutate(location = fct_relevel(location, "E-1", "E+1", "C-1", "C+1")) %>% 
+  ggplot(
+    aes(x = block_fifths,
+        y = n,
+        group = location,
+        color = location)
+  )+
+  geom_line()+
+  facet_wrap(~rsi)
+ 
+```
+
+```{r descriptive-analysis-block comparison, include = FALSE, cache = TRUE, dependson='descriptive-analysis-data', eval = FALSE}
+data %>% 
+  group_by(rsi, block) %>% 
+  # filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
+  summarize(mean_rt = mean(rt, na.rm = TRUE),
+            mean_acc = mean(acc, na.rm = TRUE),
+            count = n()) %>% 
+  ggplot(aes(
+    x = block,
+    y = mean_acc,
+    group = rsi,
+    color = factor(rsi)
+  ))+
+  geom_line()
+
+data %>% 
+  group_by(rsi, trial) %>% 
+  summarize(mean_rt = mean(rt, na.rm = TRUE),
+            mean_acc = mean(acc, na.rm = TRUE),
+            count = n()) %>% 
+  ggplot(aes(
+    x = trial,
+    y = mean_rt,
+    group = rsi,
+    color = factor(rsi)
+  ))+
+  geom_point()+
+  geom_smooth(method = "lm", se = TRUE)
+
+data %>% 
+  mutate(block_fifths = case_when(
+    trial < 50 ~ block + 0.2,
+    trial < 100 ~ block + 0.4,
+    trial < 150 ~ block + 0.6,
+    trial < 200 ~ block + 0.8,
+    trial < 250 ~ block + 1
+  )) %>%
+  group_by(rsi, block_fifths) %>%
+  # filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>%
+  summarize(mean_rt = mean(rt, na.rm = TRUE),
+            mean_acc = mean(acc, na.rm = TRUE),
+            count = n()) %>% 
+  ggplot(aes(
+    x = block_fifths,
+    y = mean_acc,
+    group = rsi,
+    color = factor(rsi)
+  ))+
+  geom_line()
+# Check whether accuracy difference overall in RSI is driven by go trials
+data %>% 
+  group_by(rsi, trial_type, block) %>% 
+  summarise(mean_rt = mean(rt, na.rm = TRUE),
+            mean_acc = sum(acc)/n(),
+            count = n())
+```
+
+```{r robust-anal-lm}
+summary_data_block <- data %>% 
+  group_by(id, rsi, block) %>% 
+  # filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
+  summarize(mean_rt = mean(rt, na.rm = TRUE),
+            mean_acc = mean(acc, na.rm = TRUE),
+            count = n()) %>% 
+  ungroup()
+
+summary_data_trial <- data %>% 
+  group_by(id, rsi, trial) %>% 
+  # filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
+  summarize(mean_rt = mean(rt, na.rm = TRUE),
+            mean_acc = mean(acc, na.rm = TRUE),
+            count = n()) %>% 
+  ungroup()
+
+lm_block_acc_short <- lm(mean_acc ~ block,
+                   data = summary_data_block %>% filter(rsi == 0.2))
+
+lm_block_acc_long <- lm(mean_acc ~ block,
+                        data = summary_data_block %>% filter(rsi == 1))
+
+lm_block_rt_short <- lm(mean_rt ~ block,
+                   data = summary_data_block %>% filter(rsi == 0.2))
+
+lm_block_rt_long <- lm(mean_rt ~ block,
+                        data = summary_data_block %>% filter(rsi == 1))
+
+
+lm_trial_acc_short <- lm(mean_acc ~ trial,
+                   data = summary_data_trial %>% filter(rsi == 0.2))
+
+lm_trial_acc_long <- lm(mean_acc ~ trial,
+                        data = summary_data_trial %>% filter(rsi == 1))
+
+lm_trial_rt_short <- lm(mean_rt ~ trial,
+                   data = summary_data_trial %>% filter(rsi == 0.2))
+
+lm_trial_rt_long <- lm(mean_rt ~ trial,
+                        data = summary_data_trial %>% filter(rsi == 1))
+
+```
+
+```{r lm-error-count}
+summary_count_block <- data %>% 
+  count(id, rsi, block, location) %>% 
+  filter(location == "E+1")
+
+summary_count_trial <- data %>% 
+  count(id, rsi, trial, location) %>% 
+  filter(location == "E+1")
+
+
+lm_count_block_short <- lm(n ~ block,
+                           data = summary_count_block %>% filter(rsi == 0.2)) %>% summary()
+
+lm_count_block_long <- lm(n ~ block,
+                          data = summary_count_block %>% filter(rsi == 1)) %>% summary()
+
+
+lm_count_trial_short <- lm(n ~ trial,
+                           data = summary_count_trial %>% filter(rsi == 0.2)) %>% summary()
+
+lm_count_trial_long <- lm(n ~ trial,
+                          data = summary_count_trial %>% filter(rsi == 1)) %>% summary()
+```
+

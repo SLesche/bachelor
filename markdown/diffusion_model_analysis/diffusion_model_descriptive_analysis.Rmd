@@ -151,6 +151,60 @@ plot_long_rsi <- function(data){
     theme(text=element_text(size=20),
           legend.title= element_text(size = 12))
 }
+
+plot_params_classic <- function(data){
+  data %>% 
+    ggplot(
+      aes(
+        x = location,
+        y = mean
+      )
+    )+
+    geom_point(size = 2)+
+    facet_wrap(~rsi)+
+    geom_errorbar(
+      aes(
+        ymin = upper, 
+        ymax = lower, 
+        width = 0.2
+      )
+    )+
+    labs(
+      x = "Location",
+      y = "Estimate",
+      # caption = "Error bars represent 95% CI"
+    )+
+    theme_classic()+
+    theme(text=element_text(size=20),
+          legend.title= element_text(size = 12))
+}
+
+plot_long_rsi_classic <- function(data){
+  data %>% 
+    filter(rsi == "long") %>% 
+    ggplot(
+      aes(
+        x = location,
+        y = mean
+      )
+    )+
+    geom_point(size = 2)+
+    geom_errorbar(
+      aes(
+        ymin = upper, 
+        ymax = lower, 
+        width = 0.2
+      )
+    )+
+    labs(
+      x = "Location",
+      y = "Estimate",
+      # caption = "Error bars represent 95% CI"
+    )+
+    theme_classic()+
+    theme(text=element_text(size=20),
+          legend.title= element_text(size = 12))
+}
 ```
 
 ```{r ddm-descriptive-data, cache = TRUE}
@@ -476,34 +530,134 @@ summary_classic <- working_classic %>%
     stimulus = str_remove(stimulus, "stimulus")
   ) %>% 
   mutate(
-    error_factor = ifelse(str_detect(error_factor, "baseline"), "C, E", error_factor)
-  ) %>% 
-  separate_rows(
-    error_factor,
-    sep = ","
-  ) %>% 
-  mutate(
-    type = ifelse(str_detect(error_factor, "E"), "nogo_error", "nogo_correct")
-  ) %>% 
-  mutate(
-    location = case_when(
-      str_detect(error_factor, "M1") ~ -1,
-      str_detect(error_factor, "P0") ~ 0,
-      str_detect(error_factor, "P1") ~ 1,
-      str_detect(error_factor, "P2") ~ 2,
-      str_detect(error_factor, "P3") ~ 3,
-      str_detect(error_factor, "P4") ~ 4,
-      str_detect(error_factor, "C") ~ 5,
-      str_detect(error_factor, "E") ~ 5
-    )
+    location = error_factor
   ) %>% 
   mutate(mean_corrected = abs(mean), lower_corrected = abs(lower), upper_corrected = abs(upper)) %>% 
-  group_by(param, rsi, type, location, stimulus) %>% 
+  group_by(param, rsi, location, stimulus) %>% 
   summarize(
     mean = mean(mean_corrected),
     lower = mean(lower_corrected), 
     upper = mean(upper_corrected)
-    ) %>% 
-  filter(location != 5)
+    )
+
+drift_classic_rsi_plot <- summary_classic %>%
+  filter(param == "drift") %>%
+  group_by(rsi, location) %>%
+  summarize(
+    mean = mean(mean),
+    upper = mean(upper),
+    lower = mean(lower)
+  ) %>%
+  plot_params_classic()
+
+drift_classic_long_rsi <- summary_classic %>% 
+  filter(param == "drift") %>% 
+  group_by(rsi, location) %>%
+  summarize(
+    mean = mean(mean),
+    upper = mean(upper),
+    lower = mean(lower)
+  ) %>%
+  plot_long_rsi_classic()
+
+bs_classic_rsi_plot <- summary_classic %>%
+  filter(param == "bs") %>%
+  plot_params_classic()
+
+bs_classic_long_rsi <- summary_classic %>% 
+  filter(param == "bs") %>% 
+  plot_long_rsi_classic()
+
+ndt_classic_rsi_plot <- summary_classic %>%
+  filter(param == "ndt") %>%
+  plot_params_classic()
+
+ndt_classic_long_rsi <- summary_classic %>% 
+  filter(param == "ndt") %>% 
+  plot_long_rsi_classic()
+
+bias_classic_rsi_plot <- summary_classic %>%
+  filter(param == "bias") %>%
+  mutate(
+    lower_copy = lower,
+    upper_copy = upper,
+    mean = ifelse(
+      stimulus == "prevstimX",
+      1 - mean,
+      mean
+    ),
+    upper = ifelse(
+      stimulus == "prevstimX",
+      1 - lower_copy, # need to turn this around for inversion
+      upper
+    ),
+    lower = ifelse(
+      stimulus == "prevstimX",
+      1 - upper_copy,
+      lower
+    )
+  ) %>%
+  select(-ends_with("copy")) %>%
+  group_by(location, rsi) %>%
+  summarize(mean = mean(mean),
+            upper = mean(upper),
+            lower = mean(lower))  %>%
+  plot_params_classic()
+
+bias_classic_err_plot <- summary_classic %>%
+  filter(param == "bias") %>%
+  mutate(
+    lower_copy = lower,
+    upper_copy = upper,
+    mean = ifelse(
+      stimulus == "prevstimX",
+      1 - mean,
+      mean
+    ),
+    upper = ifelse(
+      stimulus == "prevstimX",
+      1 - lower_copy, # need to turn this around for inversion
+      upper
+    ),
+    lower = ifelse(
+      stimulus == "prevstimX",
+      1 - upper_copy,
+      lower
+    )
+  ) %>%
+  select(-ends_with("copy")) %>%
+  group_by(location, rsi) %>%
+  summarize(mean = mean(mean),
+            upper = mean(upper),
+            lower = mean(lower))  %>%
+  plot_post_error()
+
+bias_classic_long_rsi <- summary_classic %>%
+  filter(param == "bias") %>%
+  mutate(
+    lower_copy = lower,
+    upper_copy = upper,
+    mean = ifelse(
+      stimulus == "prevstimX",
+      1 - mean,
+      mean
+    ),
+    upper = ifelse(
+      stimulus == "prevstimX",
+      1 - lower_copy, # need to turn this around for inversion
+      upper
+    ),
+    lower = ifelse(
+      stimulus == "prevstimX",
+      1 - upper_copy,
+      lower
+    )
+  ) %>%
+  select(-ends_with("copy")) %>%
+  group_by(location, rsi) %>%
+  summarize(mean = mean(mean),
+            upper = mean(upper),
+            lower = mean(lower))  %>%
+  plot_long_rsi_classic()
 ```
 
