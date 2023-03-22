@@ -253,3 +253,29 @@ lm_rt_classic <- lmer(
 )
 summary(lm_rt_classic)
 ```
+
+```{r significance-testing-pre-error-speeding}
+mean_data_rsi_pre <- data %>% 
+  filter(location == "E-1" | location == "C-1") %>% 
+  group_by(id, rsi, location) %>%
+  summarize(
+    across(
+      c("rt", "acc"),
+      list(mean = ~mean(., na.rm = TRUE), sd = ~sd(., na.rm = TRUE))
+    )
+  ) %>% 
+  ungroup() %>% 
+  mutate(id = factor(id),
+         rsi = factor(rsi, 
+                      levels = c(0.2, 1),
+                      labels = c("short", "long")),
+         location = factor(location)
+         )
+
+aov_rt_pre_rsi <- aov_car(
+  formula = rt_mean ~ rsi*location + Error(id/rsi*location),
+  data = mean_data_rsi_pre,
+  anova_table = list(es = c("ges","pes"))
+)
+```
+

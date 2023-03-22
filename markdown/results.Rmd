@@ -28,8 +28,7 @@ Comparison of mean accuracy between the 2x2 conditions yielded similar patterns 
 <!-- Critically, we observed a significant interaction effects of _NoGo-accuracy_ and _distance_ on response time `r apa_print(aov_rt_rsi_error_location, es = "pes", mse = FALSE)$full_result$nogo_type_distance` and accuracy `r apa_print(aov_acc_rsi_error_location, es = "pes", mse = FALSE)$full_result$nogo_type_distance`. Responses around errors are faster than responses around correct NoGo trials prior to the NoGo trial and slower and less accurate following the NoGo trial. We furthermore observed a significant effect of RSI on this interaction, captured by the three-fold interaction between $RSI \times NoGo-accuracy \times distance$. **finish this** -->
 
 ### Global performance shifts
-Talk about rt and accuracy shifts within trial/block
-talk about post-error count shifts across blocks, this is why we chose to use the robust method
+A multilevel model was fit to mean response time and accuracy data in each block for each participant allowing for random intercepts for each participant. The model revealed that overall, participants responded faster `r apa_print(lm_block_rt_overall)$full_result$block` and more accurate `r apa_print(lm_block_acc_overall)$full_result$block` in later blocks. Participants tended to respond slower `r apa_print(lm_trial_rt_overall)$full_result$trial` and less accurate `r apa_print(lm_trial_acc_overall)$full_result$trial` as the trial count within a block increased. 
 
 ## Diffusion Model
 ### Model comparisons
@@ -110,7 +109,7 @@ We observed a significant decrease in drift rate in post-error trials compared t
 
 We also compared trials prior to errors (E-1) to those preceding correct responses (C-1) to investigate _pre-error speeding_. The model was able to provide reasonable fit to the data in both RSI conditions here, allowing us to study pre-error speeding in both the short and long RSI condition.
 
-Behaviorally we observed smaller response times prior to errors in both conditions, with the effect being more pronounced in the long RSI condition.
+Behaviorally we observed shorter response times prior to errors `r apa_print(aov_rt_pre_rsi, es = "pes", mse = FALSE)$full_result$location`, with the effect being more pronounced in the long RSI condition `r apa_print(aov_rt_pre_rsi, es = "pes", mse = FALSE)$full_result$rsi_location`.
 
 In the long RSI condition we observed lower drift rates `r print_mean_cohen(cohens_d_pre_long_drift_0, cohens_d_pre_long_drift_1)` and lower boundary separation in pre-error trials `r print_cohen(cohens_d_pre_long_bs)`. Non-decision time was lower `r print_cohen(cohens_d_pre_long_ndt)` and responses were more biased towards the previously not shown response `r print_mean_cohen(cohens_d_pre_long_bias_X, cohens_d_pre_long_bias_Y)`.
 

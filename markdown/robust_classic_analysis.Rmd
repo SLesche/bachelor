@@ -150,30 +150,41 @@ summary_data_trial <- data %>%
             count = n()) %>% 
   ungroup()
 
-lm_block_acc_short <- lm(mean_acc ~ block,
+lm_block_acc_short <- lmer(mean_acc ~ block + (1|id),
                    data = summary_data_block %>% filter(rsi == 0.2))
 
-lm_block_acc_long <- lm(mean_acc ~ block,
+lm_block_acc_long <- lmer(mean_acc ~ block + (1|id),
                         data = summary_data_block %>% filter(rsi == 1))
 
-lm_block_rt_short <- lm(mean_rt ~ block,
+lm_block_acc_overall <- lmer(mean_acc ~ block * rsi + (1|id),
+                         data = summary_data_block)
+
+lm_block_rt_short <- lmer(mean_rt~ block + (1|id),
                    data = summary_data_block %>% filter(rsi == 0.2))
 
-lm_block_rt_long <- lm(mean_rt ~ block,
+lm_block_rt_long <- lmer(mean_rt~ block + (1|id),
                         data = summary_data_block %>% filter(rsi == 1))
 
+lm_block_rt_overall <- lmer(mean_rt ~ block * rsi + (1|id),
+                          data = summary_data_block)
 
-lm_trial_acc_short <- lm(mean_acc ~ trial,
+lm_trial_acc_short <- lmer(mean_acc ~ trial + (1|id),
                    data = summary_data_trial %>% filter(rsi == 0.2))
 
-lm_trial_acc_long <- lm(mean_acc ~ trial,
+lm_trial_acc_long <- lmer(mean_acc ~ trial + (1|id),
                         data = summary_data_trial %>% filter(rsi == 1))
 
-lm_trial_rt_short <- lm(mean_rt ~ trial,
+lm_trial_acc_overall <- lmer(mean_acc ~ trial * rsi + (1|id),
+                             data = summary_data_trial)
+
+lm_trial_rt_short <- lmer(mean_rt ~ trial + (1|id),
                    data = summary_data_trial %>% filter(rsi == 0.2))
 
-lm_trial_rt_long <- lm(mean_rt ~ trial,
+lm_trial_rt_long <- lmer(mean_rt ~ trial + (1|id),
                         data = summary_data_trial %>% filter(rsi == 1))
+
+lm_trial_rt_overall <- lmer(mean_rt ~ trial * rsi + (1|id),
+                            data = summary_data_trial)
 
 ```
 
