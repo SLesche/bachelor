@@ -378,7 +378,7 @@ descriptive_location_plot_rt <- data %>%
   summarize(
     across(c("rt", "acc"),
     list(
-      mean = ~mean(., na.rm = TRUE), 
+      mean = ~mean(., na.rm = TRUE),
       sd = ~sd(., na.rm = TRUE),
       count = ~n()
       )

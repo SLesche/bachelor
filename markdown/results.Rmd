@@ -27,6 +27,10 @@ Comparison of mean accuracy between the 2x2 conditions yielded similar patterns 
 
 <!-- Critically, we observed a significant interaction effects of _NoGo-accuracy_ and _distance_ on response time `r apa_print(aov_rt_rsi_error_location, es = "pes", mse = FALSE)$full_result$nogo_type_distance` and accuracy `r apa_print(aov_acc_rsi_error_location, es = "pes", mse = FALSE)$full_result$nogo_type_distance`. Responses around errors are faster than responses around correct NoGo trials prior to the NoGo trial and slower and less accurate following the NoGo trial. We furthermore observed a significant effect of RSI on this interaction, captured by the three-fold interaction between $RSI \times NoGo-accuracy \times distance$. **finish this** -->
 
+### Global performance shifts
+Talk about rt and accuracy shifts within trial/block
+talk about post-error count shifts across blocks, this is why we chose to use the robust method
+
 ## Diffusion Model
 ### Model comparisons
 ```{r result-model-comp, cache=TRUE, cache.extra = tools::md5sum(list.files("./markdown/diffusion_model_runs/cluster/output/model_comp/waic/", pattern = ".rda", full.names = TRUE))}
@@ -101,4 +105,18 @@ We will restrict interpretation and reporting of results to model parameters in 
 
 <!-- In the short RSI condition we observed a significant **testing** decrease in drift rate in post-error trials compared to pre-error levels. Boundary separation also decreased significantly **testing** and responses were less biased away from the previously presented stimulus following an error. Non-decision time was increased following an error response **testing**. Following an error, participants were less biased towards the previously not shown response than they were prior to the error **testing**. The course of parameter changes following an error or following a correct response is illustrated in **FIGURE** **maybe split that short/long?** -->
 We observed a significant decrease in drift rate in post-error trials compared to pre-error levels in the long RSI conditions **testing**. Boundary separation decreased and responses were less biased towards the previously not shown response. We found no evidence in favor of increasing non-decision time following an error. **TEST THOSE, Bayes Factor** Graphical illustrations of parameter development following errors and correct NoGo responses can be found in Appendix D.
+
+**talk about pre-error vs. pre-correct here!**
+**Testing!**
+We also compared trials prior to errors (E-1) to those preceding correct responses (C-1) to investigate _pre-error speeding_. The model was able to provide reasonable fit to the data in both RSI conditions here, allowing us to study pre-error speeding in both the short and long RSI condition.
+
+Behaviorally we observed smaller response times prior to errors in both conditions, with the effect being more pronounced in the long RSI condition.
+
+In the long RSI condition we observed lower drift rates and lower boundary separation in pre-error trials with the decrease in boundary separation being responsible for faster response times.
+
+Parameter differences were more complex in the short RSI condition. Lower drift rates, increased non-decision time and less biased response pre-error compared to pre-correct predict slower response times. These differences are however overpowered by a significantly lower boundary separation pre-error, resulting in net faster response times pre-error compared to pre correct. 
+
+Differences in bias and non-decision time were only present in the short RSI condition. The differences in drift rate and boundary separation were also more pronounced in the short RSI condition.
+
+
 

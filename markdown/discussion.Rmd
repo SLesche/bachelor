@@ -29,7 +29,7 @@ In line with previous research [@dutilh2013; @purcell2016; @schiffler2017] we fo
 All those previous studies did however observe increases in boundary separation following errors. Lending support to the idea that errors do lead to some attentional deficit that is then offset by increases in caution [@schiffler2017] **is this right?**. In our data, we failed to find any evidence for increases in caution following errors. Compared to pre-error trials, boundary separation was significantly lower after an error. Decreases in boundary separation are no predicted by any accounts of PES and where only found in one other study [@damaso2022]. @damaso2022 found decreases in caution applying an LBA model to data obtained by @osth2017 but observed no decreases in boundary separation when fitting a DDM to the same data. Our results and those of @damaso2022 are however inconsistent with most prior research [@dutilh2012testing; @dutilh2013; @purcell2016; @schiffler2017] and require explanation.
 
 Explaining this:
-in terms of model problems: only sampling low bs trials (in long rsi not a problem)
+in terms of model problems: only sampling low bs trials in post-error (in long rsi not a problem as all trials are sampled).
 
 in terms of study design problems:
 - this study not truly a two-choice task, people respond "go" or "nogo". So maybe some assumptions of the DDM are violated.
@@ -42,14 +42,15 @@ in terms of reflecting true behavior:
 - damaso et al said two different error types, their errors mostly evidence quality, where bs doesnt correlate with accuracy. This is not the case here
 - this study has mostly response-speed errors, so increasing bs is the best way 
 - post-error recklessness, this may be due to study,
-in terms of stop-signal task: When stop-signal is more likely, bs goes up. "Stop signal" here is really unlikely following a NoGo trial, so bs might decrease to get faster rt
+in terms of stop-signal task: When stop-signal is more likely, bs goes up. "Stop signal" here is really unlikely following a NoGo trial, so bs might decrease to get faster rt.
+Bias is best indicator of this!   
 
 We did not find any evidence of adaptive post-error processes leading to increased caution but rather attribute our results to increased post-error recklessness following errors. Sadly we were not able to test our hypothesis regarding differential effects in the two conditions due to a flaw in study design. This can be accounted for in future modelling. Problems that cannot be fixed however is the compound of NoGo and stuff, We would thus suggest for future research:
 
-A strength of this study is the ability to discern pre-correct from pre-error trials, this allows us to find effects even prior to error commission. **add this to results**
+A strength of this study is the ability to discern pre-correct from pre-error trials, this allows us to find effects even prior to error commission. **add this to results** Pre-error speeding is due to decreased boundary separation prior to error trials. This is more pronounced in long RSI because it is not accompanied by changes in bias or non-decision time parameters pre-error.
 
 **maybe say something about robust vs. classical pes here?**
-
+We observed global shifts in performance that may effects results obtained in classical condition. But the full location model shows pre-error speeding differences that will taint the results of robust measures. Both have their problems. Even though pre-error speeding is much more impactful in the long RSI condition, differences in DDM parameters reveal a more complicated structure in short RSI.
 
 Problematic as it may be, this study gives further warning against interpreting PES as a unitary construct. Many factors are involved when determining the size and functionality of slower RT following errors. These include: RSI, Task, Feedback, Participants, Error type
 

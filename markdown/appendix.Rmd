@@ -78,6 +78,7 @@ bias_location_rsi_plot
 ```
 
 # Classic PES results
+## Global performance shifts
 ## Diffusion model fit
 ## Diffusion model results
 
