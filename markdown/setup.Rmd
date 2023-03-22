@@ -86,3 +86,56 @@ print_flextable_apa <- function(x){
   )
 }
 ```
+
+```{r setup-print-cohen}
+print_cohen <- function(x, ci = FALSE){
+  estimate = round(x$estimate, 2)
+  ci_lower = round(x$conf.int[1], 2)
+  ci_upper = round(x$conf.int[2], 2)
+  if (estimate < 0){
+    estimate = estimate * -1
+    ci_lower_copy = ci_lower
+    ci_upper_copy = ci_upper
+    ci_upper = ci_lower_copy * -1
+    ci_lower = ci_upper_copy * -1 
+  }
+  
+  if (ci == TRUE){
+    message = paste0(
+      "$d = ",
+      estimate,
+      "$, ",
+      "95\\% CI $",
+      "[",
+      ci_lower,
+      ", ",
+      ci_upper,
+      "]$"
+    )
+  } else {
+    message = paste0(
+      "$d = ",
+      estimate,
+      "$"
+    )
+  }
+  
+  return(message)
+}
+
+print_mean_cohen <- function(x, y){
+  estimate_x = abs(round(x$estimate, 2))
+  estimate_y = abs(round(y$estimate, 2))
+  
+  mean = round(mean(c(estimate_x, estimate_y)), 2)
+  
+  message = paste0(
+    "$\\mu_{d} = ",
+    mean,
+    "$"
+  )
+  
+  return(message)
+}
+```
+

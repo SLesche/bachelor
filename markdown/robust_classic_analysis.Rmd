@@ -20,7 +20,7 @@ ggplot2::theme_set(theme_classic()) # setting default theme
 data <- rio::import("./markdown/data/analysis_data.Rdata")
 ```
 
-```{r robust-anal-plot}
+```{r robust-anal-plot, eval = FALSE}
 data %>% 
   filter(location %in% c("E-1", "E+1", "C-1", "C+1")) %>% 
   mutate(unique_trial = parse_number(paste0(block, trial))) %>% 
@@ -133,7 +133,7 @@ data %>%
             count = n())
 ```
 
-```{r robust-anal-lm}
+```{r robust-anal-lm, cache = TRUE}
 summary_data_block <- data %>% 
   group_by(id, rsi, block) %>% 
   # filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
@@ -177,7 +177,7 @@ lm_trial_rt_long <- lm(mean_rt ~ trial,
 
 ```
 
-```{r lm-error-count}
+```{r lm-error-count, cache = TRUE}
 summary_count_block <- data %>% 
   count(id, rsi, block, location) %>% 
   filter(location == "E+1")

@@ -177,7 +177,7 @@ estimated_mean_values_table <- tibble(
 
 ```{r power-analysis-sensitivity}
 num_df_sensitivity <- 1
-den_df_sensitivity <- 88
+den_df_sensitivity <- 92
 alpha_level_sensitivity <- 0.05
 
 sensitivity <- morey_plot.ftest(
