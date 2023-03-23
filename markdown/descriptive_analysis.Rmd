@@ -92,6 +92,18 @@ average_n_location <- data %>%
   group_by(location) %>% 
   summarize(mean = mean(n), sd = sd(n), median = median(n))
 
+proportion_omissions_location <- data %>% 
+  group_by(rsi, location) %>% 
+  count(is.na(rt)) %>% 
+  pivot_wider(
+    id_cols = c("rsi", "location"),
+    values_from = n,
+    names_from = `is.na(rt)`
+  ) %>% 
+  mutate(
+    freq = `TRUE` / (`TRUE` + `FALSE`)
+  )
+
 descriptive_output <- data.frame(
   mean_error_rate_overall,
   mean_error_rate_nogo,

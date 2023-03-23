@@ -1,0 +1,76 @@
+---
+editor_options:
+  chunk_output_type: console
+---
+```{r setup}
+# Library calls
+library(psych)
+```
+
+```{r functions}
+# Custom functions
+
+```
+
+```{r data}
+# Reading in data
+data <- rio::import("./markdown/data/analysis_data.rdata")
+```
+
+```{r rt-rel}
+mean_rt_split_half <- data %>% 
+  mutate(split = rep(c(1,2), nrow(data)/2)) %>% 
+  group_by(id, rsi, split) %>% 
+  summarize(
+    mean_rt = as.numeric(mean(rt, na.rm = TRUE)),
+    mean_acc = mean(acc, na.rm = TRUE)
+  ) %>% 
+  pivot_wider(
+    id_cols = c("id", "rsi"),
+    names_from = split,
+    values_from = c("mean_rt", "mean_acc")
+  ) %>% 
+  as.data.frame()
+
+mean_rt_split_half_short <- mean_rt_split_half %>% 
+  filter(rsi == 0.2) 
+
+cor.test(mean_rt_split_half_short$mean_rt_1, mean_rt_split_half_short$mean_rt_2)
+cor.test(mean_rt_split_half_short$mean_acc_1, mean_rt_split_half_short$mean_acc_2)
+
+```
+
+```{r pes-rel}
+pes_split_mean_data <- data %>% 
+  filter(!is.na(error_id)) %>% 
+  group_by(error_id) %>% 
+  mutate(
+    pes = rt - lag(rt - 2) 
+  ) %>% 
+  filter(!is.na(pes)) %>% 
+  select(id, rsi, pes, error_id) %>% 
+  ungroup() %>% 
+  mutate(split = ifelse(row_number() %% 2 == TRUE, 1, 0)) %>% 
+  select(-error_id) %>%
+  pivot_wider(
+    id_cols = c("id", "rsi"),
+    names_from = split,
+    values_from = pes
+  ) %>% 
+  as.data.frame() %>% 
+  ungroup()
+
+pes_split_mean_data_short <- pes_split_mean_data %>% 
+  filter(rsi == 0.2)
+pes_split_mean_data_long <- pes_split_mean_data %>% 
+  filter(rsi == 1)
+
+plot(pes_split_mean_data_short[, 3], pes_split_mean_data_short[, 4])
+plot(pes_split_mean_data_long[, 3], pes_split_mean_data_long[, 4])
+
+cor.test(pes_split_mean_data_short[, 3], pes_split_mean_data_short[, 4])
+cor.test(pes_split_mean_data_long[, 3], pes_split_mean_data_long[, 4])
+
+```
+
+
