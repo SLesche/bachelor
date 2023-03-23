@@ -259,3 +259,209 @@ cohens_d_pre_short_bias_Y <- cohen.d(
 )
 ```
 
+```{r ddm-significance-testing-evidence-accumulated, cache = TRUE}
+calculate_evidence <- function(bs, bias){
+  bs = abs(bs)
+  start = bs * bias
+  distance = c()
+  for (i in seq_along(bias)){
+    if (bias[i] < 0.5){
+    distance[i] = start[i]
+  } else {
+    distance[i] = bs[i] - start[i]
+    }
+  }
+  return(distance)
+}
+
+evidence_posterior <- posterior_robust %>% 
+  mutate(
+    short_pre_error_evidence_X = calculate_evidence(
+      `b_bs_rsishort:error_factorpre_error`,
+      `b_bias_rsishort:previous_stimulusY:error_factorpre_error`
+    ),
+    short_pre_error_evidence_Y = calculate_evidence(
+      `b_bs_rsishort:error_factorpre_error`,
+      `b_bias_rsishort:previous_stimulusX:error_factorpre_error`
+    ),
+    short_post_error_evidence_X = calculate_evidence(
+      `b_bs_rsishort:error_factorpost_error`,
+      `b_bias_rsishort:previous_stimulusY:error_factorpost_error`
+    ),
+    short_post_error_evidence_Y = calculate_evidence(
+      `b_bs_rsishort:error_factorpost_error`,
+      `b_bias_rsishort:previous_stimulusX:error_factorpost_error`
+    ),
+    long_pre_error_evidence_X = calculate_evidence(
+      `b_bs_rsilong:error_factorpre_error`,
+      `b_bias_rsilong:previous_stimulusY:error_factorpre_error`
+    ),
+    long_pre_error_evidence_Y = calculate_evidence(
+      `b_bs_rsilong:error_factorpre_error`,
+      `b_bias_rsilong:previous_stimulusX:error_factorpre_error`
+    ),
+    long_post_error_evidence_X = calculate_evidence(
+      `b_bs_rsilong:error_factorpost_error`,
+      `b_bias_rsilong:previous_stimulusY:error_factorpost_error`
+    ),
+    long_post_error_evidence_Y = calculate_evidence(
+      `b_bs_rsilong:error_factorpost_error`,
+      `b_bias_rsilong:previous_stimulusX:error_factorpost_error`
+    )
+  )
+
+fill_evidence <- c(
+  "post-error" = "darkred",
+  "pre-error" = "forestgreen"
+)
+
+posterior_comp_evidence_accumulated_long <- ggplot()+
+  geom_density(
+    aes(
+      x = c(evidence_posterior$long_pre_error_evidence_Y, evidence_posterior$long_pre_error_evidence_X),
+      fill = "pre-error"
+      ),
+    alpha = 0.5
+  )+
+  geom_density(
+    aes(
+      x = c(evidence_posterior$long_post_error_evidence_Y, evidence_posterior$long_post_error_evidence_X),
+      fill = "post-error"
+      ),
+    alpha = 0.5
+  )+
+  labs(
+    x = "distance in evidence units",
+    fill = ""
+  )+
+  scale_fill_manual(values = fill_evidence)
+
+t_test_evidence_accumulated_long <- t.test(
+  c(evidence_posterior$long_pre_error_evidence_Y, evidence_posterior$long_pre_error_evidence_X),
+  c(evidence_posterior$long_post_error_evidence_Y, evidence_posterior$long_post_error_evidence_X)
+)
+
+cohens_d_evidence_accumulated_long <- cohen.d(
+  c(evidence_posterior$long_pre_error_evidence_Y, evidence_posterior$long_pre_error_evidence_X),
+  c(evidence_posterior$long_post_error_evidence_Y, evidence_posterior$long_post_error_evidence_X)
+)
+
+# ggplot()+
+#   geom_density(
+#     aes(x = c(evidence_posterior$short_pre_error_evidence_Y, evidence_posterior$short_pre_error_evidence_X)),
+#     color = "lightgreen"
+#   )+
+#   geom_density(
+#     aes(x = c(evidence_posterior$short_post_error_evidence_Y, evidence_posterior$short_post_error_evidence_X)),
+#     color = "red"
+#   )+
+#   labs(
+#     x = "evidence accumulated"
+#   )
+```
+
+```{r evidence-accumulated-location, eval = FALSE}
+evidence_posterior_speeding <- pre_testing_overview %>% 
+  mutate(
+    short_pre_error_evidence_X = calculate_evidence(
+      `b_bs_rsilong:error_factorEM1`,
+      `b_bias_rsishort:previous_stimulusY:error_factorEM1`
+    ),
+    short_pre_error_evidence_Y = calculate_evidence(
+      `b_bs_rsilong:error_factorEM1`,
+      `b_bias_rsishort:previous_stimulusX:error_factorEM1`
+    ),
+    short_pre_correct_evidence_X = calculate_evidence(
+      `b_bs_rsishort:error_factorCM1`,
+      `b_bias_rsishort:previous_stimulusY:error_factorCM1`
+    ),
+    short_pre_correct_evidence_Y = calculate_evidence(
+      `b_bs_rsishort:error_factorCM1`,
+      `b_bias_rsishort:previous_stimulusX:error_factorCM1`
+    ),
+    long_pre_error_evidence_X = calculate_evidence(
+      `b_bs_rsilong:error_factorEM1`,
+      `b_bias_rsilong:previous_stimulusY:error_factorEM1`
+    ),
+    long_pre_error_evidence_Y = calculate_evidence(
+      `b_bs_rsilong:error_factorEM1`,
+      `b_bias_rsilong:previous_stimulusX:error_factorEM1`
+    ),
+    long_pre_correct_evidence_X = calculate_evidence(
+      `b_bs_rsilong:error_factorCM1`,
+      `b_bias_rsilong:previous_stimulusY:error_factorCM1`
+    ),
+    long_pre_correct_evidence_Y = calculate_evidence(
+      `b_bs_rsilong:error_factorCM1`,
+      `b_bias_rsilong:previous_stimulusX:error_factorCM1`
+    )
+  )
+
+fill_evidence_speeding <- c(
+  "pre-error" = "darkred",
+  "pre-correct" = "forestgreen"
+)
+ggplot()+
+  geom_density(
+    aes(
+      x = c(evidence_posterior_speeding$long_pre_error_evidence_Y, evidence_posterior_speeding$long_pre_error_evidence_X),
+      fill = "pre-error"
+      ),
+    alpha = 0.5
+  )+
+  geom_density(
+    aes(
+      x = c(evidence_posterior_speeding$long_pre_correct_evidence_Y, evidence_posterior_speeding$long_pre_correct_evidence_X),
+      fill = "pre-correct"
+      ),
+    alpha = 0.5
+  )+
+  labs(
+    x = "distance in evidence units",
+    fill = ""
+  )+
+  scale_fill_manual(values = fill_evidence_speeding)
+
+ggplot()+
+  geom_density(
+    aes(
+      x = c(evidence_posterior_speeding$short_pre_error_evidence_Y, evidence_posterior_speeding$short_pre_error_evidence_X),
+      fill = "pre-error"
+      ),
+    alpha = 0.5
+  )+
+  geom_density(
+    aes(
+      x = c(evidence_posterior_speeding$short_pre_correct_evidence_Y, evidence_posterior_speeding$short_pre_correct_evidence_X),
+      fill = "pre-correct"
+      ),
+    alpha = 0.5
+  )+
+  labs(
+    x = "distance in evidence units",
+    fill = ""
+  )+
+  scale_fill_manual(values = fill_evidence_speeding)
+
+ggplot()+
+  geom_density(
+    aes(
+      x = abs(c(evidence_posterior_speeding$`b_rsishort:error_factorEM1:stimulus0`,
+            evidence_posterior_speeding$`b_rsishort:error_factorEM1:stimulus1`)),
+      fill = "short"
+    ),
+    alpha = 0.5
+  )+
+  geom_density(
+    aes(
+      x = abs(c(evidence_posterior_speeding$`b_rsilong:error_factorEM1:stimulus0`,
+            evidence_posterior_speeding$`b_rsilong:error_factorEM1:stimulus1`)),
+      fill = "long"
+    ),
+    alpha = 0.5
+  )+
+  labs(
+    x = "drift rate"
+  )
+```
+
