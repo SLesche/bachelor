@@ -274,39 +274,55 @@ calculate_evidence <- function(bs, bias){
   return(distance)
 }
 
-evidence_posterior <- posterior_robust %>% 
+evidence_posterior <- posterior_location %>% 
   mutate(
     short_pre_error_evidence_X = calculate_evidence(
-      `b_bs_rsishort:error_factorpre_error`,
-      `b_bias_rsishort:previous_stimulusY:error_factorpre_error`
+      `b_bs_rsishort:error_factorEM1`,
+      `b_bias_rsishort:previous_stimulusY:error_factorEM1`
     ),
     short_pre_error_evidence_Y = calculate_evidence(
-      `b_bs_rsishort:error_factorpre_error`,
-      `b_bias_rsishort:previous_stimulusX:error_factorpre_error`
+      `b_bs_rsishort:error_factorEM1`,
+      `b_bias_rsishort:previous_stimulusX:error_factorEM1`
     ),
-    short_post_error_evidence_X = calculate_evidence(
-      `b_bs_rsishort:error_factorpost_error`,
-      `b_bias_rsishort:previous_stimulusY:error_factorpost_error`
+    short_pre_correct_evidence_X = calculate_evidence(
+      `b_bs_rsishort:error_factorCM1`,
+      `b_bias_rsishort:previous_stimulusY:error_factorCM1`
     ),
-    short_post_error_evidence_Y = calculate_evidence(
-      `b_bs_rsishort:error_factorpost_error`,
-      `b_bias_rsishort:previous_stimulusX:error_factorpost_error`
+    short_pre_correct_evidence_Y = calculate_evidence(
+      `b_bs_rsishort:error_factorCM1`,
+      `b_bias_rsishort:previous_stimulusX:error_factorCM1`
     ),
     long_pre_error_evidence_X = calculate_evidence(
-      `b_bs_rsilong:error_factorpre_error`,
-      `b_bias_rsilong:previous_stimulusY:error_factorpre_error`
+      `b_bs_rsilong:error_factorEM1`,
+      `b_bias_rsilong:previous_stimulusY:error_factorEM1`
     ),
     long_pre_error_evidence_Y = calculate_evidence(
-      `b_bs_rsilong:error_factorpre_error`,
-      `b_bias_rsilong:previous_stimulusX:error_factorpre_error`
+      `b_bs_rsilong:error_factorEM1`,
+      `b_bias_rsilong:previous_stimulusX:error_factorEM1`
+    ),
+    long_pre_correct_evidence_X = calculate_evidence(
+      `b_bs_rsilong:error_factorCM1`,
+      `b_bias_rsilong:previous_stimulusY:error_factorCM1`
+    ),
+    long_pre_correct_evidence_Y = calculate_evidence(
+      `b_bs_rsilong:error_factorCM1`,
+      `b_bias_rsilong:previous_stimulusX:error_factorCM1`
+    ),
+    short_post_error_evidence_X = calculate_evidence(
+      `b_bs_rsishort:error_factorEP1`,
+      `b_bias_rsishort:previous_stimulusY:error_factorEP1`
+    ),
+    short_post_error_evidence_Y = calculate_evidence(
+      `b_bs_rsishort:error_factorEP1`,
+      `b_bias_rsishort:previous_stimulusX:error_factorEP1`
     ),
     long_post_error_evidence_X = calculate_evidence(
-      `b_bs_rsilong:error_factorpost_error`,
-      `b_bias_rsilong:previous_stimulusY:error_factorpost_error`
+      `b_bs_rsilong:error_factorEP1`,
+      `b_bias_rsilong:previous_stimulusY:error_factorEP1`
     ),
     long_post_error_evidence_Y = calculate_evidence(
-      `b_bs_rsilong:error_factorpost_error`,
-      `b_bias_rsilong:previous_stimulusX:error_factorpost_error`
+      `b_bs_rsilong:error_factorEP1`,
+      `b_bias_rsilong:previous_stimulusX:error_factorEP1`
     )
   )
 
@@ -341,10 +357,39 @@ t_test_evidence_accumulated_long <- t.test(
   c(evidence_posterior$long_post_error_evidence_Y, evidence_posterior$long_post_error_evidence_X)
 )
 
-cohens_d_evidence_accumulated_long <- cohen.d(
-  c(evidence_posterior$long_pre_error_evidence_Y, evidence_posterior$long_pre_error_evidence_X),
-  c(evidence_posterior$long_post_error_evidence_Y, evidence_posterior$long_post_error_evidence_X)
+# Evidence sampled Post-error
+cohens_d_evidence_long_post_X <- cohen.d(
+  evidence_posterior$long_pre_error_evidence_X,
+  evidence_posterior$long_post_error_evidence_X
 )
+
+cohens_d_evidence_long_post_Y <- cohen.d(
+  evidence_posterior$long_pre_error_evidence_Y,
+  evidence_posterior$long_post_error_evidence_Y, 
+)
+
+# Evidence sampled pre long
+cohens_d_evidence_long_pre_X <- cohen.d(
+  evidence_posterior$long_pre_error_evidence_X,
+  evidence_posterior$long_pre_correct_evidence_X
+)
+
+cohens_d_evidence_long_pre_Y <- cohen.d(
+  evidence_posterior$long_pre_error_evidence_Y,
+  evidence_posterior$long_pre_correct_evidence_Y, 
+)
+
+# Evidence sampling pre short
+cohens_d_evidence_short_pre_X <- cohen.d(
+  evidence_posterior$short_pre_error_evidence_X,
+  evidence_posterior$short_pre_correct_evidence_X
+)
+
+cohens_d_evidence_short_pre_Y <- cohen.d(
+  evidence_posterior$short_pre_error_evidence_Y,
+  evidence_posterior$short_pre_correct_evidence_Y, 
+)
+
 
 # ggplot()+
 #   geom_density(

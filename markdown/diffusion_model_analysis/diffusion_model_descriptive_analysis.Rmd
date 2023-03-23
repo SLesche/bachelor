@@ -221,6 +221,13 @@ location_median_count <- fit$data %>%
     median = median(n),
     sd = sd(n)
   )
+
+location_robust_count <- fit_robust$data %>% 
+  count(rsi, error_factor) %>% 
+  summarize(
+    median = median(n),
+    sd = sd(n)
+  )
 ```
 
 ```{r ddm-descriptive-table-params}
