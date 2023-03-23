@@ -71,5 +71,11 @@ cor.test(pes_id$short, mean_acc_id$short)
 cor.test(pes_id$long, mean_acc_id$long)
 cor.test(nogo_acc_id$short, pes_id$short)
 cor.test(nogo_acc_id$long, pes_id$long)
+
+pes_long_id <- ggplot(pes_id, aes(x = long))+
+  geom_histogram(bins = 25)+
+  labs(
+    x = "PES (in ms)"
+  )
 ```
 

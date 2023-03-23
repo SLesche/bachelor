@@ -368,6 +368,17 @@ cohens_d_evidence_long_post_Y <- cohen.d(
   evidence_posterior$long_post_error_evidence_Y, 
 )
 
+# # Evidence sampled post-error short
+# cohens_d_evidence_short_post_X <- cohen.d(
+#   evidence_posterior$short_pre_error_evidence_X,
+#   evidence_posterior$short_post_error_evidence_X
+# )
+# 
+# cohens_d_evidence_short_post_Y <- cohen.d(
+#   evidence_posterior$short_pre_error_evidence_Y,
+#   evidence_posterior$short_post_error_evidence_Y, 
+# )
+
 # Evidence sampled pre long
 cohens_d_evidence_long_pre_X <- cohen.d(
   evidence_posterior$long_pre_error_evidence_X,
