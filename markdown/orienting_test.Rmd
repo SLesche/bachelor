@@ -1,0 +1,75 @@
+---
+editor_options:
+  chunk_output_type: console
+---
+```{r setup}
+# Library calls
+library(tidyverse)
+
+```
+
+```{r functions}
+# Custom functions
+
+```
+
+```{r data}
+# Reading in data
+data <- rio::import("./markdown/data/analysis_data.rdata")
+```
+
+```{r mean-acc-pes}
+mean_acc_id <- data %>% 
+  group_by(id, rsi) %>% 
+  summarize(
+    mean_acc = mean(acc, na.rm = TRUE)
+  ) %>% 
+  pivot_wider(
+    id_cols = id,
+    names_from = rsi,
+    values_from = mean_acc
+  )
+colnames(mean_acc_id) <- c("id", "short", "long")
+
+nogo_acc_id <- data %>% 
+  filter(trial_type == "nogo") %>% 
+  group_by(id, rsi) %>% 
+  summarize(
+    mean_acc = mean(acc, na.rm = TRUE)
+  ) %>% 
+  pivot_wider(
+    id_cols = id,
+    names_from = rsi,
+    values_from = mean_acc
+  )
+
+colnames(nogo_acc_id) <- c("id", "short", "long")
+
+pes_id <- data %>% 
+  filter(location %in% c("E-1", "E+1")) %>% 
+  group_by(id, rsi, location) %>% 
+  summarize(
+    mean_rt = mean(rt, na.rm = TRUE)
+  ) %>% 
+  mutate(pes = mean_rt - lag(mean_rt)) %>% 
+  filter(!is.na(pes)) %>% 
+  select(id, rsi, pes) %>% 
+  pivot_wider(
+    id_cols = id,
+    names_from = rsi,
+    values_from = pes
+  )
+
+colnames(pes_id) <- c("id", "short", "long")
+
+plot(pes_id$short, mean_acc_id$short)
+plot(pes_id$long, mean_acc_id$long)
+plot(nogo_acc_id$short, pes_id$short)
+plot(nogo_acc_id$long, pes_id$long)
+
+cor.test(pes_id$short, mean_acc_id$short)
+cor.test(pes_id$long, mean_acc_id$long)
+cor.test(nogo_acc_id$short, pes_id$short)
+cor.test(nogo_acc_id$long, pes_id$long)
+```
+
