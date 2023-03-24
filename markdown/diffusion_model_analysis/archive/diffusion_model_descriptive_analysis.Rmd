@@ -212,22 +212,22 @@ plot_long_rsi_classic <- function(data){
 fit <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model.rda")
 fit_robust <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model_robust.rda")
 fit_classic <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model_classic.rda")
+
+fit_hierarch_robust <- rio::import("./markdown/diffusion_model_runs/cluster/output/hierarch_model_long_robust.rda")
 ```
 
 ```{r ddm-descriptive-counting-location}
-location_median_count <- fit$data %>% 
-  count(rsi, error_factor) %>% 
+model_robust_count <- fit_hierarch_robust$data %>% 
+  count(id, error_factor) %>%
+  group_by(error_factor) %>% 
   summarize(
     median = median(n),
-    sd = sd(n)
+    sd = sd(n),
+    total = sum(n)
   )
 
-location_robust_count <- fit_robust$data %>% 
-  count(rsi, error_factor) %>% 
-  summarize(
-    median = median(n),
-    sd = sd(n)
-  )
+model_classic_count
+
 ```
 
 ```{r ddm-descriptive-table-params}
