@@ -9,7 +9,7 @@
 ```
 ```{r results-source-diffusion-descriptive, child = "markdown/diffusion_model_analysis/ddm_descriptive_hierarch.Rmd"}
 ```
-```{r results-source-diffusion-significance, child = "markdown/diffusion_model_analysis/diffusion_model_significance_testing.Rmd"}
+```{r results-source-diffusion-significance, child = "markdown/diffusion_model_analysis/ddm_significance_testing.Rmd"}
 ```
 
 
