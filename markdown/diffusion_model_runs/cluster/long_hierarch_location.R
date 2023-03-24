@@ -10,11 +10,12 @@ data <- rio::import("./bachelor/data/diffusion_data_location_long.rdata")
 
 ## ----set-formula------------------------------------------------------------------------------
 formula <- bf(
-  rt | dec(decision) ~ 0 + error_factor:stimulus + (0 + error_factor:stimulus||id),
+  rt | dec(acc) ~ 0 + error_factor + (0 + error_factor||id),
   bs ~ 0 + error_factor + (0 + error_factor||id),
   ndt ~ 0 + error_factor + (0 + error_factor||id),
-  bias ~ 0 + error_factor:previous_stimulus + (0 + error_factor:previous_stimulus||id)
+  bias ~ 0 + error_factor + (0 + error_factor||id)
 )
+
 
 
 ## ----set-prior--------------------------------------------------------------------------------
