@@ -49,13 +49,18 @@ data_robust <- data %>%
     stimulus = case_when(
       stimulus == "X" ~ 0,
       stimulus == "Y" ~ 1
+    ),
+    previous_stimulus = case_when(
+      previous_stimulus == "X" ~ 0,
+      previous_stimulus == "Y" ~ 1
     )
   ) %>% 
   mutate(
     rsi = factor(rsi),
     error_factor = factor(error_factor),
     map_condition = factor(map_condition),
-    stimulus = factor(stimulus)
+    stimulus = factor(stimulus),
+    previous_stimulus = factor(previous_stimulus)
   )
 
 
@@ -75,13 +80,18 @@ data_classic <- data %>%
     stimulus = case_when(
       stimulus == "X" ~ 0,
       stimulus == "Y" ~ 1
+    ),
+    previous_stimulus = case_when(
+      previous_stimulus == "X" ~ 0,
+      previous_stimulus == "Y" ~ 1
     )
   ) %>% 
   mutate(
     rsi = factor(rsi),
     error_factor = factor(classic_pes_type),
     map_condition = factor(map_condition),
-    stimulus = factor(stimulus)
+    stimulus = factor(stimulus),
+    previous_stimulus = factor(previous_stimulus)
   )
 
 data_location <- data %>% 
@@ -100,13 +110,18 @@ data_location <- data %>%
     stimulus = case_when(
       stimulus == "X" ~ 0,
       stimulus == "Y" ~ 1
+    ),
+    previous_stimulus = case_when(
+      previous_stimulus == "X" ~ 0,
+      previous_stimulus == "Y" ~ 1
     )
   ) %>% 
   mutate(
     rsi = factor(rsi),
     error_factor = factor(location),
     map_condition = factor(map_condition),
-    stimulus = factor(stimulus)
+    stimulus = factor(stimulus),
+    previous_stimulus = factor(previous_stimulus)
   ) %>% 
   filter(!is.na(rt), !is.na(decision), !is.na(acc))
 ```
@@ -137,22 +152,33 @@ data_location_clean <- data_location %>%
     previous_trial_type = factor(previous_trial_type)
   )
 
-little_robust_data <- data_robust_clean %>% 
-  group_by(id) %>% 
-  count(rsi, error_factor, stimulus) %>% 
-  filter(n < 7)
 
-little_data_ids <- unique(little_robust_data$id)
-
-data_robust_good <- data_robust_clean %>% 
-  filter(!id %in% little_data_ids)
 ```
 
 ```{r data-robust-long}
 data_robust_long <- data_robust_clean %>% 
   filter(rsi == "long") %>% 
   filter(id != 89)
+
+data_classic_long <- data_classic_clean %>% 
+  filter(rsi == "long") %>% 
+  filter(id != 89)
+
 ```
+
+```{r data-hierarch-location}
+data_location_long <- data_location_clean %>% 
+  filter(rsi == "long") %>% 
+  filter(id != 89)
+
+```
+
+```{r data-speeding}
+data_speeding <- data_location_clean %>% 
+  filter(error_factor %in% c("E-1", "C-1")) %>% 
+  mutate(error_factor = droplevels(error_factor))
+```
+
 
 
 ```{r export data}
@@ -165,6 +191,9 @@ save(data_robust_clean, file = "./markdown/data/final_ddm_data_robust.rdata")
 save(data_location_clean, file = "./markdown/data/final_ddm_data_location.rdata")
 save(data_robust_good, file = "./markdown/data/diffusion_data_robust_good.rdata")
 save(data_robust_long, file = "./markdown/data/diffusion_data_robust_long.rdata")
+save(data_location_long, file = "./markdown/data/diffusion_data_location_long.rdata")
+save(data_classic_long, file = "./markdown/data/diffusion_data_classic_long.rdata")
+save(data_speeding, file = "./markdown/data/diffusion_data_speeding.rdata")
 ```
 
 ```{r}
