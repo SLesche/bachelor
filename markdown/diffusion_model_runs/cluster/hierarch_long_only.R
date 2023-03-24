@@ -5,7 +5,7 @@ library(brms)
 # cmdstanr
 library(cmdstanr)
 ## ----data-------------------------------------------------------------------------------------
-data <- rio::import("./markdown/data/diffusion_data_robust_long.rdata")
+data <- rio::import("./bachelor/data/diffusion_data_robust_long.rdata")
 
 
 ## ----set-formula------------------------------------------------------------------------------
