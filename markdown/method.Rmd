@@ -32,7 +32,7 @@ $$\Delta_{PES} = \overline{\theta_{E+1}} - \overline{\theta_{C+1}}$$
 as well as the robust approach to PES [@dutilh2012how].
 $$ \Delta_{PES} = \overline{\theta_{E+1}} - \overline{\theta_{E-1}}$$
 
-When investigating the specific impact of an error-response on the following trial we will conduct our main analyses using the robust definition of PES to account for global shifts in performance^[We conducted all behavioral and DDM analysis with the classical measure of PES as well [@dutilh2012how]. Results did not differ significantly, see Appendix C for  details on global performance shifts and model results]. Parameters and behavioral measures in trials following an error will be compared to trials preceding an error to ensure that post-error trials and trials used to estimate a baseline originate from the same place in the dataset. This prevents biased sampling of post-error trials depending on global performance shifts. 
+When investigating the specific impact of an error-response on the following trial we will conduct our main analyses using the robust definition of PES to account for global shifts in performance^[We conducted all behavioral and DDM analysis with the classical measure of PES as well [@dutilh2012how]. Results did not differ significantly, see Appendix C for  details on global performance shifts and model results.]. Parameters and behavioral measures in trials following an error will be compared to trials preceding an error to ensure that post-error trials and trials used to estimate a baseline originate from the same place in the dataset. This prevents biased sampling of post-error trials depending on global performance shifts. 
 
 _Pre-error speeding_ effects can be estimated as follows.
 $$\Delta_{speed} = \overline{\theta_{C-1}} - \overline{\theta_{E-1}}$$
@@ -41,17 +41,16 @@ $$\Delta_{speed} = \overline{\theta_{C-1}} - \overline{\theta_{E-1}}$$
 The diffusion model was estimated using a Bayesian hierarchical approach implemented in the R-package `brms` [@R-brms_a]. Hierarchical approaches to the DDM allow simultaneous estimation of parameters on both a population-level and on a subject-level [@vandekerckhove2011; @lee2011; @gelman2006], reducing the number of samples required to estimate model parameters reliably [@wiecki2013; @ratcliff2015; @rouder2005]. Bayesian estimation allows hierarchical extensions of the model otherwise not feasible in frequentist approaches using maximum likelihood estimation [@vandekerckhove2011] and produces more accurate model estimates [@rouder2005]. Individual-level parameters are assumed to be random samples drawn from a group-level distribution. Group-level distributions thus define between-subjects variability of the parameters and are themselves specified by a set of parameters [@matzke2009]. The ability to fully infer posterior distributions and thus allow a more intuitive quantification of uncertainty is a further benefit of bayesian estimation [@kruschke2010].
 
 ## Model comparison
-To examine the best-fitting model able to explain post-error effects we tested models using the robust definition of PES. These models include pre-error (E-1) and post-error (E+1) trials in both RSI conditions. We then selectively disabled the impact of RSI or _error-condition_ on parameters and estimated their pointwise out-of-sample prediction accuracy using the PSIS-LOO criterion [@vehtari2017] approximation  implemented in the `loo` package [@R-loo_b].
+To examine the best-fitting model able to explain post-error effects we tested models using the robust definition of PES. These models include pre-error (E-1) and post-error (E+1) trials in both RSI conditions. We then selectively disabled the impact of RSI or _error-condition_ on parameters and estimated their pointwise out-of-sample prediction accuracy using the PSIS-LOO criterion [@vehtari2017] approximation  implemented in the `loo` package [@R-loo_b]. Model comparisons were done in a non-hierarchical setting using completely pooled data.
 
 A model with the factors RSI and error-condition both affecting all parameters was used as a baseline. We tested 14 other models that selectively disabled the impact of one of the factors on either all, one or all but one parameters of the model. This results in 1 baseline model, 1 model with RSI not impacting any parameters, 1 model with error-condition not affecting any parameter, 4 models with only one of the 4 DDM parameters varying between error-conditions, 4 models with one of the parameters not being allowed to vary between error-conditions and 4 models with one of the parameters not being allowed to vary between RSI conditions. The parameter specification of the best fitting model was then employed and is reported below.
 
 ## Model specification
 Let $\mathbf{Y_{(ijk)}}$ represent a response vector of the decision and response time $(X_{(ijk)}, T_{(ijk)})$ for the $i$th participant, in the $j$th trial of the $k$th condition. The data is assumed to follow a Wiener distribution,
 $$\mathbf{Y_{(ijk)}} \sim Wiener(\alpha_{(ijk)}, \beta_{(ijk)}, \tau_{(ijk)}, \delta_{(ijk)})$$
-with the four model parameters boundary separation $\alpha$, bias $\beta$, non-decision time $\tau$ and drift-rate $\delta$. Responses $X_{(ijk)}$ can take the values $X_{(ijk)} = \{0,1\}$. $X_{(ijk)} = 0$ represents the decision that the stimulus shows the letter _X_, corresponding to the lower response boundary. $X_{(ijk)} = 1$ represents the respective decision that the stimulus shows the letter _Y_. Response time (in $s$) can take on any value $T_{(ijk)} \in (0, 0.8]$. A response $\mathbf{Y_{(ijk)}}$ of participant $i$ on trial $j$ is further influenced by the combination $k$ of the conditions RSI (short -- long) and location (C-1, E-1, E+1 ...), depending on the measure tested.
+with the four model parameters boundary separation $\alpha$, bias $\beta$, non-decision time $\tau$ and drift-rate $\delta$. Responses $X_{(ijk)}$ can take the values $X_{(ijk)} = \{0,1\}$. $X_{(ijk)} = 0$ represents an inaccurate response to a Go trial, corresponding to the lower response boundary. $X_{(ijk)} = 1$ represents a correct response. Response time (in $s$) can take on any value $T_{(ijk)} \in (0, 0.8]$. A response $\mathbf{Y_{(ijk)}}$ of participant $i$ on trial $j$ is further influenced by the combination $k$ of the conditions RSI (short -- long) and location of the trial (C-1, E-1, E+1 ...), depending on the measure tested.
 
-All parameters were allowed to vary between conditions (see Figure \@ref(fig:method-display-model-spec)). All intercepts were fixed to zero in order to estimate group-level parameters for each combination of factors instead of deviations from a baseline, easing specification of priors [@singmann2017intro]. Drift rate was further allowed to vary depending on the true status of the presented stimulus $s$, accounting for differences in drift direction depending on the presented stimulus. Because the task relied heavily on the alternation of stimuli "X" and "Y", the bias parameter was allowed to vary depending on the status of the previously presented stimulus $p$.
-The model estimates parameters defining the group-level distribution from which individual-level parameters are then drawn. Boundary separation $\alpha_{ik}$ of individual $i$ in condition $k$, for example, is assumed to follow the distribution $\alpha_{ik} \sim N(\mu_{\alpha k}, \sigma_{\alpha k})$.
+All parameters were allowed to vary between conditions (see Figure \@ref(fig:method-display-model-spec)). All intercepts were fixed to zero in order to estimate group-level parameters for each combination of factors instead of deviations from a baseline, easing specification of priors [@singmann2017intro]. The model estimates parameters defining the group-level distribution from which individual-level parameters are then drawn. Boundary separation $\alpha_{ik}$ of individual $i$ in condition $k$, for example, is assumed to follow the distribution $\alpha_{ik} \sim N(\mu_{\alpha k}, \sigma_{\alpha k})$.
 
 (ref:method-display-model-spec-caption) Graphical representation of model specification. Shaded nodes represent measured parameters. 
 
@@ -64,13 +63,13 @@ knitr::include_graphics(
 
 Priors for the group-level parameters were specified in a weakly informative manner. Priors were specified simultaneously for all conditions $k$ of a diffusion model parameter. The index $k$ is thus omitted.
 
-$$\delta \sim Normal(0, 5)$$
+$$\mu_{\delta} \sim Normal(0, 5)$$
 $$\sigma_{\delta} \sim Gamma(2, 4)$$
-$$\alpha \sim Gamma(10, 5)$$
+$$\mu_{\alpha} \sim Gamma(10, 5)$$
 $$\sigma_{\alpha} \sim Gamma(2, 4)$$
-$$\tau \sim Gamma(1, 5)$$
+$$\mu_{\tau} \sim Gamma(1, 5)$$
 $$\sigma_{\tau} \sim Gamma(2, 4)$$
-$$\tau \sim Beta(4, 4)$$
+$$\mu_{\beta} \sim Beta(4, 4)$$
 $$\sigma_{\beta} \sim Gamma(2, 4)$$
 ```{r method-setup-model}
 n_iter <- 3000

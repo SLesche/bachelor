@@ -13,6 +13,10 @@ library(gridExtra)
 ```
 
 ```{r ddm-descriptive-functions}
+n_divergent <- function(model){
+  sum(subset(nuts_params(model), Parameter=="divergent__")$Value)
+}
+
 prep_drift <- function(data){
   data %>% 
     filter(param == "drift")

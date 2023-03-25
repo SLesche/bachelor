@@ -114,8 +114,6 @@ cohens_d_robust_evidence <- cohen.d(posterior_robust_evidence$evidence_pre_error
                                  posterior_robust_evidence$evidence_post_error)
 ```
 
-
-
 ```{r testing-classic-drift, cache = TRUE}
 # Testing drift
 posterior_classic_drift <- posterior_classic %>% 
@@ -164,3 +162,51 @@ cohens_d_classic_bias <- cohen.d(posterior_classic_bias$post_correct, posterior_
 
 ```
 
+
+```{r testing-speed-drift, cache = TRUE}
+# Testing drift
+posterior_speed_drift <- posterior_speed %>% 
+  select(starts_with("b_error"))
+
+colnames(posterior_speed_drift) <- c("pre_correct", "pre_error")
+
+t_test_speed_drift <- t.test(posterior_speed_drift$pre_correct, posterior_speed_drift$pre_error)
+
+cohens_d_speed_drift <- cohen.d(posterior_speed_drift$pre_correct, posterior_speed_drift$pre_error)
+```
+
+```{r testing-speed-bs, cache = TRUE}
+# Testing drift
+posterior_speed_bs <- posterior_speed %>% 
+  select(starts_with("b_bs_error"))
+
+colnames(posterior_speed_bs) <- c("pre_correct", "pre_error")
+
+t_test_speed_bs <- t.test(posterior_speed_bs$pre_correct, posterior_speed_bs$pre_error)
+
+cohens_d_speed_bs <- cohen.d(posterior_speed_bs$pre_correct, posterior_speed_bs$pre_error)
+```
+
+```{r testing-speed-ndt, cache = TRUE}
+posterior_speed_ndt <- posterior_speed %>% 
+  select(starts_with("b_ndt_error"))
+
+colnames(posterior_speed_ndt) <- c("pre_correct", "pre_error")
+
+t_test_speed_ndt <- t.test(posterior_speed_ndt$pre_correct, posterior_speed_ndt$pre_error)
+
+cohens_d_speed_ndt <- cohen.d(posterior_speed_ndt$pre_correct, posterior_speed_ndt$pre_error)
+```
+
+```{r testing-speed-bias, cache = TRUE}
+# Testing drift
+posterior_speed_bias <- posterior_speed %>% 
+  select(starts_with("b_bias_error"))
+
+colnames(posterior_speed_bias) <- c("pre_correct", "pre_error")
+
+t_test_speed_bias <- t.test(posterior_speed_bias$pre_correct, posterior_speed_bias$pre_error)
+
+cohens_d_speed_bias <- cohen.d(posterior_speed_bias$pre_correct, posterior_speed_bias$pre_error)
+
+```
