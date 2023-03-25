@@ -47,10 +47,10 @@ A model with the factors RSI and error-condition both affecting all parameters w
 
 ## Model specification
 Let $\mathbf{Y_{(ijk)}}$ represent a response vector of the decision and response time $(X_{(ijk)}, T_{(ijk)})$ for the $i$th participant, in the $j$th trial of the $k$th condition. The data is assumed to follow a Wiener distribution,
-$$\mathbf{Y_{(ijk)}} \sim Wiener(\alpha_{(ijk)}, \beta_{(ijk)}, \tau_{(ijk)}, \delta_{(ijk)})$$
-with the four model parameters boundary separation $\alpha$, bias $\beta$, non-decision time $\tau$ and drift-rate $\delta$. Responses $X_{(ijk)}$ can take the values $X_{(ijk)} = \{0,1\}$. $X_{(ijk)} = 0$ represents an inaccurate response to a Go trial, corresponding to the lower response boundary. $X_{(ijk)} = 1$ represents a correct response. Response time (in $s$) can take on any value $T_{(ijk)} \in (0, 0.8]$. A response $\mathbf{Y_{(ijk)}}$ of participant $i$ on trial $j$ is further influenced by the combination $k$ of the conditions RSI (short -- long) and location of the trial (C-1, E-1, E+1 ...), depending on the measure tested.
+$$\mathbf{Y_{(ijk)}} \sim Wiener(a_{(ijk)}, z_{(ijk)}, Ter_{(ijk)}, \delta_{(ijk)})$$
+with the four model parameters boundary separation $a$, bias $z$, non-decision time $T_{er}$ and drift-rate $v$. Responses $X_{(ijk)}$ can take the values $X_{(ijk)} = \{0,1\}$. $X_{(ijk)} = 0$ represents an inaccurate response to a Go trial, corresponding to the lower response boundary. $X_{(ijk)} = 1$ represents a correct response. Response time (in $s$) can take on any value $T_{(ijk)} \in (0, 0.8]$. A response $\mathbf{Y_{(ijk)}}$ of participant $i$ on trial $j$ is further influenced by the combination $k$ of the conditions RSI (short -- long) and location of the trial (C-1, E-1, E+1 ...), depending on the measure tested.
 
-All parameters were allowed to vary between conditions (see Figure \@ref(fig:method-display-model-spec)). All intercepts were fixed to zero in order to estimate group-level parameters for each combination of factors instead of deviations from a baseline, easing specification of priors [@singmann2017intro]. The model estimates parameters defining the group-level distribution from which individual-level parameters are then drawn. Boundary separation $\alpha_{ik}$ of individual $i$ in condition $k$, for example, is assumed to follow the distribution $\alpha_{ik} \sim N(\mu_{\alpha k}, \sigma_{\alpha k})$.
+All parameters were allowed to vary between conditions (see Figure \@ref(fig:method-display-model-spec)). All intercepts were fixed to zero in order to estimate group-level parameters for each combination of factors instead of deviations from a baseline, easing specification of priors [@singmann2017intro]. The model estimates parameters defining the group-level distribution from which individual-level parameters are then drawn. Boundary separation $a_{ik}$ of individual $i$ in condition $k$, for example, is assumed to follow the distribution $a_{ik} \sim N(\mu_{a k}, \sigma_{a k})$.
 
 (ref:method-display-model-spec-caption) Graphical representation of model specification. Shaded nodes represent measured parameters. 
 
@@ -63,14 +63,14 @@ knitr::include_graphics(
 
 Priors for the group-level parameters were specified in a weakly informative manner. Priors were specified simultaneously for all conditions $k$ of a diffusion model parameter. The index $k$ is thus omitted.
 
-$$\mu_{\delta} \sim Normal(0, 5)$$
-$$\sigma_{\delta} \sim Gamma(2, 4)$$
-$$\mu_{\alpha} \sim Gamma(10, 5)$$
-$$\sigma_{\alpha} \sim Gamma(2, 4)$$
-$$\mu_{\tau} \sim Gamma(1, 5)$$
-$$\sigma_{\tau} \sim Gamma(2, 4)$$
-$$\mu_{\beta} \sim Beta(4, 4)$$
-$$\sigma_{\beta} \sim Gamma(2, 4)$$
+$$\mu_{v} \sim Normal(0, 5)$$
+$$\sigma_{v} \sim Gamma(2, 4)$$
+$$\mu_{a} \sim Gamma(10, 5)$$
+$$\sigma_{a} \sim Gamma(2, 4)$$
+$$\mu_{Ter} \sim Gamma(1, 5)$$
+$$\sigma_{Ter} \sim Gamma(2, 4)$$
+$$\mu_{z} \sim Beta(4, 4)$$
+$$\sigma_{z} \sim Gamma(2, 4)$$
 ```{r method-setup-model}
 n_iter <- 3000
 n_warmup <- 1000

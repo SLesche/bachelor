@@ -10,6 +10,7 @@ library(tidybayes)
 library(emmeans)
 library(loo)
 library(gridExtra)
+library(ggpubr)
 ```
 
 ```{r ddm-descriptive-functions}
@@ -54,7 +55,7 @@ plot_robust <- function(data){
       ),
     )+
     labs(
-      y = "estimate",
+      y = "",
       x = ""
     )+
     theme_classic()+
@@ -71,7 +72,7 @@ fit_speed <- rio::import("./markdown/diffusion_model_runs/cluster/output/hierarc
 fit_classic <- rio::import("./markdown/diffusion_model_runs/cluster/output/hierarch_model_long_classic.rda")
 ```
 
-```{r ddm-descriptive-counting-location}
+```{r ddm-descriptive-counting-location, cache = TRUE, dependson='ddm-descriptive-data'}
 model_robust_count <- fit_robust$data %>% 
   count(id, error_factor) %>%
   group_by(error_factor) %>% 
@@ -101,7 +102,7 @@ model_speed_count <- fit_speed$data %>%
 
 ```
 
-```{r ddm-descriptive-robust, cache = TRUE, eval = FALSE}
+```{r ddm-descriptive-robust, cache = TRUE}
 data_robust <- fixef(fit_robust) %>%
   as.data.frame() %>% 
   rownames_to_column() %>% 
@@ -131,25 +132,21 @@ summary_robust <- working_robust
 
 drift_robust_plot <- summary_robust %>%
   prep_drift() %>%
-  plot_robust()+
-  labs(y = expression(delta))
+  plot_robust()
 
 ndt_robust_plot <- summary_robust %>% 
   prep_ndt() %>% 
-  plot_robust()+
-  labs(y = expression(tau))
+  plot_robust()
 
 bs_robust_plot <- summary_robust %>% 
   prep_bs() %>% 
-  plot_robust()+
-  labs(y = expression(alpha))
+  plot_robust()
 
 bias_robust_plot <- summary_robust %>% 
   prep_bias() %>% 
-  plot_robust()+
-  labs(y = expression(beta))
+  plot_robust()
 
-combined_robust_plot <- grid.arrange(drift_robust_plot, bs_robust_plot, ndt_robust_plot, bias_robust_plot)
+combined_robust_plot <- ggarrange(drift_robust_plot, bs_robust_plot, ndt_robust_plot, bias_robust_plot, labels = c("v", "a", "Ter", "D"))
 ```
 
 ```{r ddm-descriptive-classic, cache = TRUE, eval = FALSE}
@@ -184,27 +181,22 @@ summary_classic <- working_classic
 
 drift_classic_plot <- summary_classic %>%
   prep_drift() %>% 
-  plot_robust()+
-  labs(
-    y = expression(delta)
-  )
+  plot_robust()
 
 bs_classic_plot <- summary_classic %>%
   prep_bs() %>%
-  plot_robust()+
-  labs(y = expression(alpha))
+  plot_robust()
 
 ndt_classic_plot <- summary_classic %>%
   prep_ndt() %>%
-  plot_robust()+
-  labs(y = expression(tau))
+  plot_robust()
 
 bias_classic_plot <- summary_classic %>%
   prep_bias() %>%
-  plot_robust()+
-  labs(y = expression(beta))
+  plot_robust()
 
-combined_classic_plot <- grid.arrange(drift_classic_plot, bs_classic_plot, ndt_classic_plot, bias_classic_plot)
+combined_classic_plot <- ggarrange(drift_classic_plot, bs_classic_plot, ndt_classic_plot, bias_classic_plot, labels = c("v", "a", "Ter", "D"))
+
 ```
 
 ```{r ddm-descriptive-speeding, cache = TRUE}
@@ -237,26 +229,19 @@ summary_speed <- working_speed
 
 drift_speed_plot <- summary_speed %>%
   prep_drift() %>% 
-  plot_robust()+
-  labs(
-    y = expression(delta)
-  )
-
+  plot_robust()
 bs_speed_plot <- summary_speed %>%
   prep_bs() %>%
-  plot_robust()+
-  labs(y = expression(alpha))
+    plot_robust()
 
 ndt_speed_plot <- summary_speed %>%
   prep_ndt() %>%
-  plot_robust()+
-  labs(y = expression(tau))
+  plot_robust()
 
 bias_speed_plot <- summary_speed %>%
   prep_bias() %>%
-  plot_robust()+
-  labs(y = expression(beta))
+  plot_robust()
 
-combined_speed_plot <- grid.arrange(drift_speed_plot, bs_speed_plot, ndt_speed_plot, bias_speed_plot)
+combined_speed_plot <- ggarrange(drift_speed_plot, bs_speed_plot, ndt_speed_plot, bias_speed_plot, labels = c("v", "a", "Ter", "D"))
 ```
 
