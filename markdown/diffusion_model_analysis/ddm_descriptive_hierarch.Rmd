@@ -146,7 +146,7 @@ bias_robust_plot <- summary_robust %>%
   prep_bias() %>% 
   plot_robust()
 
-combined_robust_plot <- ggarrange(drift_robust_plot, bs_robust_plot, ndt_robust_plot, bias_robust_plot, labels = c("v", "a", "Ter", "D"))
+combined_robust_plot <- ggarrange(drift_robust_plot, bs_robust_plot, ndt_robust_plot, bias_robust_plot, labels = c("v", "a", "Ter", "z"))
 ```
 
 ```{r ddm-descriptive-classic, cache = TRUE, eval = FALSE}
@@ -195,7 +195,7 @@ bias_classic_plot <- summary_classic %>%
   prep_bias() %>%
   plot_robust()
 
-combined_classic_plot <- ggarrange(drift_classic_plot, bs_classic_plot, ndt_classic_plot, bias_classic_plot, labels = c("v", "a", "Ter", "D"))
+combined_classic_plot <- ggarrange(drift_classic_plot, bs_classic_plot, ndt_classic_plot, bias_classic_plot, labels = c("v", "a", "Ter", "z"))
 
 ```
 
@@ -242,6 +242,6 @@ bias_speed_plot <- summary_speed %>%
   prep_bias() %>%
   plot_robust()
 
-combined_speed_plot <- ggarrange(drift_speed_plot, bs_speed_plot, ndt_speed_plot, bias_speed_plot, labels = c("v", "a", "Ter", "D"))
+combined_speed_plot <- ggarrange(drift_speed_plot, bs_speed_plot, ndt_speed_plot, bias_speed_plot, labels = c("v", "a", "Ter", "z"))
 ```
 
