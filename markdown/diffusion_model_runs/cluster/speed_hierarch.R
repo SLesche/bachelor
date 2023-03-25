@@ -4,8 +4,11 @@ library(brms)
 
 # cmdstanr
 library(cmdstanr)
+library(dplyr)
 ## ----data-------------------------------------------------------------------------------------
-data <- rio::import("./bachelor/data/diffusion_data_speeding.rdata")
+data <- rio::import("./bachelor/data/diffusion_data_speeding.rdata") %>% 
+  filter(rsi == "long") %>% 
+  mutate(rsi = droplevels(rsi))
 
 
 ## ----set-formula------------------------------------------------------------------------------

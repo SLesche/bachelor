@@ -16,19 +16,33 @@ library(effsize)
 
 ```{r ddm-significance-functions}
 # Custom functions
-
+calculate_evidence <- function(bs, bias){
+  bs = abs(bs)
+  start = bs * bias
+  distance = bs - start
+  return(distance)
+}
 ```
 
 ```{r ddm-significance-data, cache = TRUE}
 # Reading in data 
 fit_robust <- rio::import("./markdown/diffusion_model_runs/cluster/output/hierarch_model_long_robust.rda")
 
+fit_speed <- rio::import("./markdown/diffusion_model_runs/cluster/output/hierarch_model_speeding.rda")
+
+fit_classic <- rio::import("./markdown/diffusion_model_runs/cluster/output/hierarch_model_long_classic.rda")
+
+
 posterior_robust <- as_draws_df(
   fit_robust
 )
 
-posterior_location <- as_draws_df(
-  fit
+posterior_speed <- as_draws_df(
+  fit_speed
+)
+
+posterior_classic <- as_draws_df(
+  fit_classic
 )
 ```
 
@@ -51,8 +65,6 @@ posterior_robust_bs <- posterior_robust %>%
 
 colnames(posterior_robust_bs) <- c("post_error", "pre_error")
 
-# bf_robust_bs <- ttestBF(posterior_robust_bs$pre_error, posterior_robust_bs$post_error)@bayesFactor$bf
-
 t_test_robust_bs <- t.test(posterior_robust_bs$pre_error, posterior_robust_bs$post_error)
 
 cohens_d_robust_bs <- cohen.d(posterior_robust_bs$pre_error, posterior_robust_bs$post_error)
@@ -63,8 +75,6 @@ posterior_robust_ndt <- posterior_robust %>%
   select(starts_with("b_ndt_error"))
 
 colnames(posterior_robust_ndt) <- c("post_error", "pre_error")
-
-# bf_robust_ndt <- ttestBF(posterior_robust_ndt$pre_error, posterior_robust_ndt$post_error)@bayesFactor$bf
 
 t_test_robust_ndt <- t.test(posterior_robust_ndt$pre_error, posterior_robust_ndt$post_error)
 
@@ -78,12 +88,79 @@ posterior_robust_bias <- posterior_robust %>%
 
 colnames(posterior_robust_bias) <- c("post_error",
                                      "pre_error")
-# bf_robust_bias_X <- ttestBF(posterior_robust_bias$pre_error_X, posterior_robust_bias$post_error_X)@bayesFactor$bf
-
-# bf_robust_bias_Y <- ttestBF(posterior_robust_bias$pre_error_Y, posterior_robust_bias$post_error_Y)@bayesFactor$bf
 
 t_test_robust_bias <- t.test(posterior_robust_bias$pre_error, posterior_robust_bias$post_error)
 
 cohens_d_robust_bias <- cohen.d(posterior_robust_bias$pre_error, posterior_robust_bias$post_error)
+```
+
+```{r testing-evidece-robust, cache = TRUE}
+posterior_robust_evidence <- posterior_robust %>% 
+  mutate(
+    evidence_pre_error = calculate_evidence(
+      posterior_robust$b_bs_error_factorpre_error,
+      posterior_robust$b_bias_error_factorpre_error
+    ),
+    evidence_post_error = calculate_evidence(
+      posterior_robust$b_bs_error_factorpost_error,
+      posterior_robust$b_bias_error_factorpost_error
+    )
+  ) %>% 
+  select(starts_with("evidence"))
+
+t_test_robust_evidence <- t.test(posterior_robust_evidence$evidence_pre_error,
+                                 posterior_robust_evidence$evidence_post_error)
+cohens_d_robust_evidence <- cohen.d(posterior_robust_evidence$evidence_pre_error,
+                                 posterior_robust_evidence$evidence_post_error)
+```
+
+
+
+```{r testing-classic-drift, cache = TRUE}
+# Testing drift
+posterior_classic_drift <- posterior_classic %>% 
+  select(starts_with("b_error"))
+
+colnames(posterior_classic_drift) <- c("post_correct", "post_error")
+
+t_test_classic_drift <- t.test(posterior_classic_drift$post_correct, posterior_classic_drift$post_error)
+
+cohens_d_classic_drift <- cohen.d(posterior_classic_drift$post_correct, posterior_classic_drift$post_error)
+```
+
+```{r testing-classic-bs, cache = TRUE}
+# Testing drift
+posterior_classic_bs <- posterior_classic %>% 
+  select(starts_with("b_bs_error"))
+
+colnames(posterior_classic_bs) <- c("post_correct", "post_error")
+
+t_test_classic_bs <- t.test(posterior_classic_bs$post_correct, posterior_classic_bs$post_error)
+
+cohens_d_classic_bs <- cohen.d(posterior_classic_bs$post_correct, posterior_classic_bs$post_error)
+```
+
+```{r testing-classic-ndt, cache = TRUE}
+posterior_classic_ndt <- posterior_classic %>% 
+  select(starts_with("b_ndt_error"))
+
+colnames(posterior_classic_ndt) <- c("post_correct", "post_error")
+
+t_test_classic_ndt <- t.test(posterior_classic_ndt$post_correct, posterior_classic_ndt$post_error)
+
+cohens_d_classic_ndt <- cohen.d(posterior_classic_ndt$post_correct, posterior_classic_ndt$post_error)
+```
+
+```{r testing-classic-bias, cache = TRUE}
+# Testing drift
+posterior_classic_bias <- posterior_classic %>% 
+  select(starts_with("b_bias_error"))
+
+colnames(posterior_classic_bias) <- c("post_correct", "post_error")
+
+t_test_classic_bias <- t.test(posterior_classic_bias$post_correct, posterior_classic_bias$post_error)
+
+cohens_d_classic_bias <- cohen.d(posterior_classic_bias$post_correct, posterior_classic_bias$post_error)
 
 ```
+

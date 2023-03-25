@@ -18,13 +18,13 @@
 # Behavioral analysis
 ## Classification of Go trials
 ### Robust Approach
-### Location Approach
 ### Classical Approach
+### Speed approach
 
 ## Descriptive results 
 ### Robust
-### Location
 ### Classical
+### Speed
 
 # Model comparison
 ## Model specifications
@@ -59,40 +59,5 @@ only_comp %>%
             note = "The base model allows all parameters to be influenced by both factors RSI and error-condition. The 'no_error_factor_model' allows none of the parameters to be influenced by error-condition. The other four models only allow the parameter listed in the name to vary between error-conditions")
 ```
 
-# Full Location Model
+# Classical model
 ## Model results
-```{r appendix-drift-rsi-plot, fig.cap = 'Drift rate depending on location and RSI. The gray bar represents the occurence of a NoGo trial. Error bars represent 95% CrI.'}
-drift_location_rsi_plot
-```
-
-```{r appendix-bs-rsi-plot, fig.cap = 'Boundary separation depending on location and RSI. The gray bar represents the occurence of a NoGo trial. Error bars represent 95% CrI.'}
-bs_location_rsi_plot
-```
-
-```{r appedix-ndt-rsi-plot, fig.cap = 'Non-decision time depending on location and RSI. The gray bar represents the occurence of a NoGo trial. Error bars represent 95% CrI.'}
-ndt_location_rsi_plot
-```
-
-```{r appendix-bias-rsi-plot, fig.cap = 'Bias towards the previously not shown response depending on location and RSI. The gray bar represents the occurence of a NoGo trial. Error bars represent 95% CrI.'}
-bias_location_rsi_plot
-```
-
-# Classic PES results
-## Global performance shifts
-## Diffusion model fit
-## Diffusion model results
-
-# Hierarchical model
-## Model specification
-## Model fit
-## Model results
-
-```{r appendix-table-location-counts, results = 'asis'}
-count_table <- diffusion_data_location %>% count(rsi, location)
-
-apa_table(count_table, caption = "Number of trials per condition")
-```
-```{r appendix-mean-values-power-analysis, results = 'asis', eval = FALSE}
-# estimated_mean_values_table 
-# commented out because no power analysis reported anymore
-```
