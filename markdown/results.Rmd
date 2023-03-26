@@ -111,7 +111,7 @@ We observed a significant decrease in drift rate in post-error trials compared t
 combined_robust_plot
 ```
 
-We also compared trials prior to errors (E-1) to those preceding correct responses (C-1) to investigate _pre-error speeding_. The hierarchical model did not converge properly when attempting to estimate the short RSI condition. We again discarded data stemming from the short RSI condition and tried refitting the model in the long RSI condition with a higher adapt-delta. There were `r n_divergent(fit_speed)` divergent transitions in the speed model. $\widehat{R}$ and MCMC-trace plots indicated that the chains mixed well.
+We also compared trials prior to errors (E-1) to those preceding correct responses (C-1) to investigate _pre-error speeding_. The hierarchical model did not converge properly when attempting to estimate the short RSI condition. We again discarded data stemming from the short RSI condition and tried refitting the model in the long RSI condition with a higher adapt-delta. `r n_divergent(fit_speed)` divergent transitions remained, indicating that the MCMC sampling algorithm was not able to fully explore the parameter space.. $\widehat{R}$ and MCMC-trace plots indicated that the chains mixed well. Results obtained here should be taken with care.
 
 Behaviorally we observed shorter response times prior to errors `r apa_print(aov_rt_pre_rsi, es = "pes", mse = FALSE)$full_result$location`, with the effect being more pronounced in the long RSI condition `r apa_print(aov_rt_pre_rsi, es = "pes", mse = FALSE)$full_result$rsi_location`.
 
