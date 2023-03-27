@@ -24,16 +24,17 @@ diffusion_data_classic <- rio::import("./markdown/data/diffusion_data_classic.Rd
 
 ```{r diffusion-results-data, cache = TRUE}
 # Reading in data
-fit_base_model <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model.rda")
-pred_base_model <- rio::import("./markdown/diffusion_model_runs/cluster/output/predictions/pred_base_model.rda")
-data_base_model <- fit_base_model$data
+fit_robust_model <- rio::import("./markdown/diffusion_model_runs/cluster/output/base_model_robust.rda")
+pred_base_model_robust <- rio::import("./markdown/diffusion_model_runs/cluster/output/predictions/pred_base_model_robust.rda")
 
-combined_base_model <- combine_data(data_base_model, pred_base_model)
+data_base_model_robust <- fit_robust_model$data
+
+combined_base_model <- combine_data(data_base_model_robust, pred_base_model_robust)
 ```
 
 ```{r diffusion-results-ep1-bad-pred-prep, cache = TRUE}
 vector_ep1 <- combined_base_model %>% 
-    filter(rsi == "short", error_factor == "E+1") %>% 
+    filter(rsi == "short", error_factor == "post_error") %>% 
     select(starts_with("V")) %>% 
     as.matrix() %>% 
     c() %>% 
@@ -41,8 +42,8 @@ vector_ep1 <- combined_base_model %>%
 
 vector_ep1_data <- data.frame(rt = vector_ep1, type = "predicted")
 
-data_ep1 <- data_base_model %>% 
-  filter(rsi == "short", error_factor == "E+1") %>% 
+data_ep1 <- data_base_model_robust %>% 
+  filter(rsi == "short", error_factor == "post_error") %>% 
   mutate(type = "empirical") %>% 
   select(rt, type)
 
