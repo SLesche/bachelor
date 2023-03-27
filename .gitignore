@@ -14,7 +14,7 @@ markdown/method_cache
 markdown/method_files
 markdown/master_files
 markdown/master_cache
-markdown/images
+# markdown/images
 markdown/diffusion_model_runs/cluster/output
 
 markdown/*.pdf
