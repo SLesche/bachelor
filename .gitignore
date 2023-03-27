@@ -7,7 +7,7 @@ renv/
 template/
 logbuch_ba.xlsx
 
-markdown/data
+# markdown/data
 markdown/models
 markdown/output
 markdown/method_cache
@@ -15,7 +15,8 @@ markdown/method_files
 markdown/master_files
 markdown/master_cache
 # markdown/images
-markdown/diffusion_model_runs/cluster/output
+# markdown/diffusion_model_runs/cluster/output
+markdown/diffusion_model_runs/cluster/output/archive
 
 markdown/*.pdf
 markdown/*.docx
