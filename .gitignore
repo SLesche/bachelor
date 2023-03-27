@@ -32,8 +32,8 @@ markdown/testing*
 psychopy/archive
 psychopy/data
 psychopy/instructions_bat
-psychopy/instructions_bat_d
-psychopy/instructions_bat_l
+#psychopy/instructions_bat_d
+#psychopy/instructions_bat_l
 psychopy/*.pptx
 psychopy/*.xlsx
 psychopy/readme.md
