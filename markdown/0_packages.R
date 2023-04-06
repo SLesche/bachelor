@@ -9,8 +9,13 @@ ensure_setup <- function(){
     install.packages("renv")
   }
   
-  if (list.files("./", pattern = ".lock") == "renv.lock"){
+  if (list.files("./", pattern = ".lock") != "renv.lock"){
     stop("Ensure you have lockfile!")
+  }
+  
+  if (!dir.exists("./markdown/output")){
+    dir.create("./markdown/output")
+    print("Created output subfolder")
   }
   
   print("Checking renv-lockfile")
