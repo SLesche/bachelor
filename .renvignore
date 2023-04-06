@@ -1,0 +1,14 @@
+psychopy/
+python/
+template/
+
+markdown/data
+markdown/images
+markdown/master_cache
+markdown/master_files
+markdown/output
+markdown/stan
+
+markdown/diffusion_model_runs/cluster/archive
+markdown/diffusion_model_runs/cluster/output
+markdown/diffusion_model_runs/cluster/predicts
