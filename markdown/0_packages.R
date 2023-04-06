@@ -26,8 +26,13 @@ ensure_setup <- function(){
 
 render_project <- function(output = "pdf"){
   n_output = length(output)
+  
+  # Check for cache folders
+  if(!dir.exists("./markdown/mater_cache")){
+    print("No computations cached yet. Regenerating full project. This may take some time.")
+  }
   for (i in 1:n_output){
-    if (output[i] != "pdf" | output[i] != "word"){
+    if (output[i] != "pdf" & output[i] != "word"){
       stop("Only word and pdf are valid output types")
     }
     output_format = paste0("papaja::apa6_", output[i])

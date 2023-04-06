@@ -5,4 +5,4 @@ source("./markdown/0_packages.R")
 ensure_setup()
 
 # Render the report
-render_report()
+render_project("pdf")
