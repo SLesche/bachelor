@@ -117,14 +117,24 @@ knitr::opts_chunk$set(warning = FALSE)
 <!-- Method -->
 ```{r child = "markdown/method.Rmd", eval = TRUE}
 ```
+```{r}
+gc()
+```
 
 <!-- Results -->
 ```{r child = "markdown/results.Rmd", eval = TRUE}
+```
+```{r}
+gc()
 ```
 
 <!-- Discussion -->
 ```{r child = "markdown/discussion.Rmd", eval = TRUE}
 ```
+```{r}
+gc()
+```
+
 
 <!-- References -->
 \newpage
