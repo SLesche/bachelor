@@ -88,7 +88,7 @@ render_project <- function(output = "pdf"){
         intermediates_dir = "markdown",
         knit_root_dir = file.path(rprojroot::find_rstudio_root_file()),
         clean = TRUE,
-        params = list(piecewise_load) # can set author and date in a vector here
+        params = list(piecewise_load = piecewise_load) # can set author and date in a vector here
       )
     }
   }

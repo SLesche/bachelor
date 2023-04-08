@@ -20,7 +20,7 @@ rmarkdown::render(
   intermediates_dir = "markdown",
   knit_root_dir = file.path(rprojroot::find_rstudio_root_file()),
   clean = TRUE
-  # params = params # can set author and date in a vector here
+  # params = list(piecewise_load = c(1, 1, 1, 1, 1)) # can set author and date in a vector here
 )
 
 rmarkdown::render(
