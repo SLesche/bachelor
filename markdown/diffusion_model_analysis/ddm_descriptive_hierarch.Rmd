@@ -11,6 +11,7 @@ library(emmeans)
 library(loo)
 library(gridExtra)
 library(ggpubr)
+gc()
 ```
 
 ```{r ddm-descriptive-functions}
@@ -244,4 +245,5 @@ bias_speed_plot <- summary_speed %>%
 
 combined_speed_plot <- ggarrange(drift_speed_plot, bs_speed_plot, ndt_speed_plot, bias_speed_plot, labels = c("v", "a", "Ter", "z"))
 ```
+
 

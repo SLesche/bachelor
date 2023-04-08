@@ -97,7 +97,6 @@ knitr::opts_chunk$set(ft.keepnext = TRUE,
 # Seed for random number generation
 set.seed(1234)
 knitr::opts_chunk$set(cache.extra = knitr::rand_seed) # this adds random seed to all chunks
-knitr::opts_chunk$set(cache.lazy = FALSE)
 knitr::opts_chunk$set(autodep = TRUE)
 knitr::dep_auto()
 
@@ -111,25 +110,25 @@ knitr::opts_chunk$set(warning = FALSE)
 <!-- Here we incorporate child markdown-documents as the separate parts -->
 
 <!-- Introduction -->
-```{r child = "markdown/introduction.Rmd", eval = TRUE}
+```{r child = "markdown/introduction.Rmd", eval = piecewise_load[1]}
 ```
 
 <!-- Method -->
-```{r child = "markdown/method.Rmd", eval = TRUE}
+```{r child = "markdown/method.Rmd", eval = piecewise_load[2]}
 ```
 ```{r}
 gc()
 ```
 
 <!-- Results -->
-```{r child = "markdown/results.Rmd", eval = TRUE}
+```{r child = "markdown/results.Rmd", eval = piecewise_load[3]}
 ```
 ```{r}
 gc()
 ```
 
 <!-- Discussion -->
-```{r child = "markdown/discussion.Rmd", eval = TRUE}
+```{r child = "markdown/discussion.Rmd", eval = piecewise_load[4]}
 ```
 ```{r}
 gc()
@@ -146,6 +145,6 @@ gc()
 
 # (APPENDIX) Appendix {-}
 
-```{r child = "markdown/appendix.Rmd", eval = TRUE}
+```{r child = "markdown/appendix.Rmd", eval = piecewise_load[5]}
 ```
 
