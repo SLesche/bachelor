@@ -45,9 +45,19 @@ ensure_setup <- function(){
 
 render_project <- function(output = "pdf"){
   n_output = length(output)
+  # Check for pdf in output because of tinytex
+  if("pdf" %in% output){
+    if("tinytex" %in% rownames(installed.packages())){
+      install.packages("tinytex")
+    }
+    if(tinytex::is_tinytex() || Sys.which("miktex_console.exe") != ""){
+      print("No proper TeX engine found. Installing tinytex.")
+      tinytex::install_tinytex()
+    }
+  }
   
   # Check for cache folders
-  if(!dir.exists("./markdown/mater_cache")){
+  if(!dir.exists("./markdown/master_cache")){
     print("No computations cached yet. Regenerating full project. This may take some time.")
   }
   for (i in 1:n_output){
