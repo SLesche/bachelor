@@ -26,6 +26,7 @@ markdown/*.log
 markdown/*.fff
 markdown/*.ttt
 markdown/*.rdata
+markdown/*.Rdata
 
 markdown/testing*
 
