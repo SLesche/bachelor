@@ -37,6 +37,11 @@ ensure_setup <- function(){
     print("Created output subfolder")
   }
   
+  if (!dir.exists("./markdown/data")){
+    dir.create("./markdown/data")
+    print("Created data subfolder")
+  }
+  
   print("Checking renv-lockfile")
   print("Updating packages required")
   renv::restore(exclude = c("cmdstanr", "brms", "threejs", "MASS", "igraph"))
