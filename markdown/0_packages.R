@@ -1,10 +1,10 @@
 # This file should install all the necessary packages and maybe check if 
 # all datafiles required are there
 
-maybe_install <- function(pkgs){
-  for (i in pkgs){
-    if (!pkgs[i] %in% rownames(installed.packages())){
-      install.packages(pkgs[i])
+maybe_install <- function(pkgs, type = "both"){
+  for (pkg in pkgs){
+    if (!pkg %in% rownames(installed.packages())){
+      install.packages(pkg, type = type)
     }
   }
 
@@ -26,9 +26,7 @@ ensure_setup <- function(){
     stop("Please open the .Rproj file in the bachelor-main folder")
   }
   
-  if (!"igraph" %in% rownames(installed.packages())){
-    install.packages("igraph", type = "binary")
-  }
+  maybe_install(c("brms", "shinystan", "threejs", "igraph"), type = "binary")
   
   if (list.files("./", pattern = ".lock") != "renv.lock"){
     stop("Ensure you have lockfile!")
@@ -41,7 +39,7 @@ ensure_setup <- function(){
   
   print("Checking renv-lockfile")
   print("Updating packages required")
-  renv::restore(exclude = c("cmdstanr"))
+  renv::restore(exclude = c("cmdstanr", "brms", "threejs", "MASS", "igraph"))
   print("All packages installed")
 }
 
