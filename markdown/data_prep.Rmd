@@ -14,9 +14,9 @@ library(data.table)
 ```
 
 <!-- # Reading in data -->
-```{r data-prep-importing-data, cache = TRUE, cache.extra = tools::md5sum(list.files("./markdown/data", pattern = ".csv", full.names = TRUE))}
+```{r data-prep-importing-data, cache = TRUE, cache.extra = tools::md5sum(list.files("./markdown/raw_data", pattern = ".csv", full.names = TRUE))}
 # For auto-read
-path <- "./markdown/data/"
+path <- "./markdown/raw_data/"
 keyword <- "bat_bachelor"
 
 data <- list.files(

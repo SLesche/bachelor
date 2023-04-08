@@ -2,11 +2,10 @@
 .Rhistory
 .Rprofile
 
-renv/
 template/
 logbuch_ba.xlsx
 
-# markdown/data
+markdown/data
 markdown/models
 markdown/output
 markdown/method_cache
