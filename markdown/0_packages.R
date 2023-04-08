@@ -1,31 +1,33 @@
 # This file should install all the necessary packages and maybe check if 
 # all datafiles required are there
+
+maybe_install <- function(pkgs){
+  for (i in pkgs){
+    if (!pkgs[i] %in% rownames(installed.packages())){
+      install.packages(pkgs[i])
+    }
+  }
+
+}
 ensure_setup <- function(){
   if (R.Version()$major != "4" | R.Version()$minor != "1.3"){
     stop("Please use R 4.1.3!")
   }
   
-  if (!"devtools" %in% rownames(installed.packages())){
-    install.packages("devtools")
-  }
+  maybe_install("devtools")
+  
   if (!devtools::find_rtools()){
     stop("You need to have rtools40 installed")
   }
   
-  if (!"rstudioapi" %in% rownames(installed.packages())){
-    install.packages("rstudioapi")
-  }
+  maybe_install(c("rstudioapi", "renv", "MASS"))
   
   if (rstudioapi::getActiveProject() == ""){
     stop("Please open the .Rproj file in the bachelor-main folder")
   }
   
-  if (!"renv" %in% rownames(installed.packages())){
-    install.packages("renv")
-  }
-  
-  if (!"MASS" %in% rownames(installed.packages())){
-    install.packages("MASS")
+  if (!"igraph" %in% rownames(installed.packages())){
+    install.packages("igraph", type = "binary")
   }
   
   if (list.files("./", pattern = ".lock") != "renv.lock"){
