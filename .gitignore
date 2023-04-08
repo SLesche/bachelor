@@ -25,6 +25,7 @@ markdown/*.ppt
 markdown/*.log
 markdown/*.fff
 markdown/*.ttt
+markdown/*.rdata
 
 markdown/testing*
 

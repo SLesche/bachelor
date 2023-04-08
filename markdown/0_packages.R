@@ -5,8 +5,27 @@ ensure_setup <- function(){
     stop("Please use R 4.1.3!")
   }
   
+  if (!"devtools" %in% rownames(installed.packages())){
+    install.packages("devtools")
+  }
+  if (!devtools::find_rtools()){
+    stop("You need to have rtools40 installed")
+  }
+  
+  if (!"rstudioapi" %in% rownames(installed.packages())){
+    install.packages("rstudioapi")
+  }
+  
+  if (rstudioapi::getActiveProject() == ""){
+    stop("Please open the .Rproj file in the bachelor-main folder")
+  }
+  
   if (!"renv" %in% rownames(installed.packages())){
     install.packages("renv")
+  }
+  
+  if (!"MASS" %in% rownames(installed.packages())){
+    install.packages("MASS")
   }
   
   if (list.files("./", pattern = ".lock") != "renv.lock"){
