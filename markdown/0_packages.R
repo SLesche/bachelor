@@ -52,10 +52,10 @@ render_project <- function(output = "pdf"){
   n_output = length(output)
   # Check for pdf in output because of tinytex
   if("pdf" %in% output){
-    if("tinytex" %in% rownames(installed.packages())){
+    if(!"tinytex" %in% rownames(installed.packages())){
       install.packages("tinytex")
     }
-    if(tinytex::is_tinytex() || Sys.which("miktex_console.exe") != ""){
+    if(!tinytex::is_tinytex()){
       print("No proper TeX engine found. Installing tinytex.")
       tinytex::install_tinytex()
     }
