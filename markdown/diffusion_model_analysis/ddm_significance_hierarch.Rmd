@@ -12,7 +12,6 @@ library(loo)
 library(BayesFactor)
 # library(effectsize)
 library(effsize)
-gc()
 ```
 
 ```{r ddm-significance-functions}
