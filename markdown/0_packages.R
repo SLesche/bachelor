@@ -49,6 +49,9 @@ ensure_setup <- function(){
 }
 
 render_project <- function(output = "pdf"){
+  ensure_setup()
+  
+  print("Setup done, knitting report.")
   n_output = length(output)
   # Check for pdf in output because of tinytex
   if("pdf" %in% output){
