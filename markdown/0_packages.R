@@ -71,15 +71,15 @@ render_project <- function(output = "pdf"){
     }
     output_format = paste0("papaja::apa6_", output[i])
     
-    # TODO: Only piecewise-load on first compilation
-    for (j in 1:5){
-      if (j < 5){
-        piecewise_load = c(0, 0, 0, 0, 0)
-        piecewise_load[j] = 1
-      } else
-      {
-        piecewise_load = c(1, 1, 1, 1, 1)
-      }
+    # # TODO: Only piecewise-load on first compilation
+    # for (j in 1:5){
+    #   if (j < 5){
+    #     piecewise_load = c(0, 0, 0, 0, 0)
+    #     piecewise_load[j] = 1
+    #   } else
+    #   {
+    #     piecewise_load = c(1, 1, 1, 1, 1)
+    #   }
       rmarkdown::render(
         input = "./markdown/master.rmd",
         output_format = output_format,
@@ -87,9 +87,9 @@ render_project <- function(output = "pdf"){
         output_file = paste0("bachelor_thesis_sl"),
         intermediates_dir = "markdown",
         knit_root_dir = file.path(rprojroot::find_rstudio_root_file()),
-        clean = TRUE,
-        params = list(piecewise_load = piecewise_load) # can set author and date in a vector here
+        clean = TRUE #,
+        # params = list(piecewise_load = piecewise_load) # can set author and date in a vector here
       )
-    }
+    # }
   }
 }
