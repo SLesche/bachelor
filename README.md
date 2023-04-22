@@ -1,6 +1,12 @@
 # Sven Lesche's Bachelor Thesis
 This repository contains all scripts used to generate the bachelor thesis: _"The Nature of Cognitive Processes Underlying Post-Error Slowing – A Diffusion Model Account"_.
-To replicate my work, please inquire about the raw data used, I'll gladly provide it. 
+
+# Replicating this work
+R-Version 4.1.3 is required to replicate this work. You can install it [here](https://cran.r-project.org/bin/windows/base/old/4.1.3/). [rtools40](https://cran.r-project.org/bin/windows/Rtools/rtools40.html) is also required to compile some of the packages used.
+
+After installing R 4.1.3 and rtools40, open RStudio and open the file `ba_written.Rproj` to open up a new project in RStudio. Then head over to the script `markdown/0_create_report.R`. The script first sources helper functions that will be used to ensure correct package installation and project setup. `render_project()` runs these functions, installs all necessary packages, installs [tinytex](https://yihui.org/tinytex/) if needed and knits the project. This will take the raw data, compute everything except fitting the DDM used in this work and render the final report.
+
+# Dependencies and folder structure
 
 ## Renv
 To ensure the longevity of this work, the package `renv` was used to generate a project-specific library containing certain versions of the other packages used. You might need to install the `renv` package and call `renv::activate()` after cloning this repository. Check `renv::status()`to compare your current package versions to those used by me. `renv::restore()` will update/revert all packages in the project-specific library to the versions used in my original analysis. This will not affect the packages installed in your global library! As soon as you switch to another project, R will use your package-versions again.
