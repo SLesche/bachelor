@@ -25,7 +25,7 @@ affiliation:
   # add a second id using this syntax
 
 authornote: |
-  This work was completed as part of the first author's bachelor-thesis. It was completed in R-Markdown with code for data preparation, analysis and communication integrated into the scripts. All code needed to replicate this exact work can be found at: https://github.com/SLesche/bachelor. The authors acknowledge support by the state of Baden-Württemberg through bwHPC.
+  This work was completed as part of the author's bachelor-thesis. It was completed in R-Markdown with the code for data preparation, analysis and communication integrated into the scripts. All code needed to replicate this exact work can be found at: https://github.com/SLesche/bachelor. The author acknowledges support by the state of Baden-Württemberg through bwHPC.
 
 abstract: |
   Post-error slowing (PES) describes the increase in response times on trials following errors, often accompanied by changes accuracy. Theories aiming to explain post-error effects often posit adaptive or maladaptive processes. Adaptive processes, such as increased caution, lead to increases in accuracy. Maladaptive processes, such as decreased attention, lead to decreases in accuracy. We aimed to investigate the impact of the response-stimulus interval (RSI) on the relative strength of adaptive versus maladaptive processes following error trials using a Drift-Diffusion Model (DDM).
