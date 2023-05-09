@@ -1,4 +1,4 @@
-# Results
+## Results
 ```{r results-source-descriptive-analysis, child = "markdown/descriptive_analysis.Rmd"}
 ```
 ```{r results-source-significance-testing, child = "markdown/significance_testing.rmd"}
@@ -14,7 +14,7 @@
 ```{r results-source-diffusion-significance, child = "markdown/diffusion_model_analysis/ddm_significance_hierarch.Rmd"}
 ```
 
-## Behavioral analysis
+### Behavioral analysis
 All analysis was conducted using `r r_citations$r`. `r r_citations$pkgs`
 After data cleaning, `r nrow(final_data)` trials from `r demo_output$n_subjects - n_outliers` participants remained. Participants falsely responded in `r descriptive_output$mean_error_rate_nogo`% of NoGo trials resulting in a median `r average_n_location %>% filter(location == "E-1") %>% pull(median)` (SD = `r average_n_location %>% filter(location == "E-1") %>% pull(sd)`) trials prior to an error (E-1), and a median `r average_n_location %>% filter(location == "E+1") %>% pull(median)` (SD = `r average_n_location %>% filter(location == "E+1") %>% pull(sd)`) trials following an error (E+1) per participant.
 
@@ -30,11 +30,11 @@ Comparison of mean accuracy between the 2x2 conditions yielded similar patterns 
 
 <!-- Critically, we observed a significant interaction effects of _NoGo-accuracy_ and _distance_ on response time `r apa_print(aov_rt_rsi_error_location, es = "pes", mse = FALSE)$full_result$nogo_type_distance` and accuracy `r apa_print(aov_acc_rsi_error_location, es = "pes", mse = FALSE)$full_result$nogo_type_distance`. Responses around errors are faster than responses around correct NoGo trials prior to the NoGo trial and slower and less accurate following the NoGo trial. We furthermore observed a significant effect of RSI on this interaction, captured by the three-fold interaction between $RSI \times NoGo-accuracy \times distance$. **finish this** -->
 
-### Global performance shifts
+#### Global performance shifts
 A multilevel model was fit to mean response time and accuracy data in each block for each participant allowing for random intercepts for each participant. The model revealed that overall, participants responded faster `r apa_print(lm_block_rt_overall)$full_result$block` and more accurate `r apa_print(lm_block_acc_overall)$full_result$block` in later blocks. Participants tended to respond slower `r apa_print(lm_trial_rt_overall)$full_result$trial` and less accurate `r apa_print(lm_trial_acc_overall)$full_result$trial` as the trial count within a block increased. **Count within block / over time?**
 
-## Diffusion model
-### Model comparisons
+### Diffusion model
+#### Model comparisons
 ```{r result-model-comp, cache=TRUE, cache.extra = tools::md5sum(list.files("./markdown/diffusion_model_runs/cluster/output/model_comp/waic/", pattern = ".rda", full.names = TRUE))}
 
 library(loo)
@@ -75,7 +75,7 @@ optimized_comp <- loo_compare(base_model, optimized_model, no_rsi_bs_model, no_r
 
 The base model was superior to all other models tested. Thus we retained the influence of both factors (RSI and location) on all parameters for analysis in the full location model. When restricting the influence of RSI on only one of the parameters, restricting its influence on the drift rate had the most detrimental effects. Constraining the bias and boundary separation to be equal across RSI conditions barely worsened predictive accuracy (see Table \@ref(tab:appendix-rsi-compare)). A similar pattern was found when restricting the impact of error-condition on only one of the parameters while allowing all other parameters to vary between pre- and post-error. Here, restricting the drift rate parameter again had the biggest negative impact on predictive accuracy (see Table \@ref(tab:appendix-err-compare)). When only allowing one of the four diffusion model parameters to vary between error-condition, drift rate again proved to be the single most important parameter for good predictive accuracy (see Table \@ref(tab:appendix-only-compare)).
 
-### Model fit
+#### Model fit
 We first ran non-hierarchical models, tested those for convergence and obtained posterior predictive response time distributions. We then compared empirical response time distributions to the predicted response time distribution for each condition. This revealed a serious discrepancy between the predicted response time distribution and the empirical distribution in post-error trials in the short RSI condition (see Figure  \@ref(fig:results-plot-ep1-bad-pred)). This also lead to issues when attempting to fit hierarchical models to data containing this condition. The exact impact and cause of this discrepancy will be discussed later, but we will refrain from interpreting the results in the short RSI condition. We therefore only fit hierarchical models to data in the long RSI condition.
 
 The best-fitting model specification was used to estimate parameters in all 3 models and was then subjected to various model diagnostic tests. In the robust model, there were `r n_divergent(fit_robust)` divergent transitions, $\widehat{R} > 1.01$ or other signs of non-convergence [@gelman1992]. We visually inspected if the 4 chains mixed well for a few randomly selected parameters, observing no signs of misbehavior in the chains. We sampled the posterior parameter distribution 200 times, obtained predicted response time distributions from the sampled parameters and visually inspected them for appropriate model fit. 
@@ -102,7 +102,7 @@ ep1 %>%
   theme(text = element_text(size = 15))
 ```
 
-### Model results
+#### Model results
 Final analysis of the robust model was based on a total of `r model_robust_count %>% filter(error_factor == "post_error") %>% pull(total)` post-error and `r model_robust_count %>% filter(error_factor == "pre_error") %>% pull(total)` pre-error trials with a median of `r model_robust_count %>% filter(error_factor == "post_error") %>% pull(median)` and trials `r model_robust_count %>% filter(error_factor == "pre_error") %>% pull(median)` per participant, respectively. The model estimated a total of 24 group-level parameters.
 
 Since significance tests are based on a minimum of 8000 iterations per condition, all differences presented here are highly significant. We choose to only report effect sizes and omit exact t-test results. 
