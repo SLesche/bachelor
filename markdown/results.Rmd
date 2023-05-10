@@ -117,7 +117,7 @@ We also compared trials prior to errors (E-1) to those preceding correct respons
 
 In the behavioral analysis, we observed shorter response times prior to errors `r apa_print(aov_rt_pre_rsi, es = "pes", mse = FALSE)$full_result$location`, with the effect being more pronounced in the long RSI condition `r apa_print(aov_rt_pre_rsi, es = "pes", mse = FALSE)$full_result$rsi_location`.
 
-In the long RSI condition we observed lower drift rates `r print_cohen(cohens_d_speed_drift)` and lower boundary separation in pre-error trials `r print_cohen(cohens_d_speed_bs)`. Non-decision time was lower `r print_cohen(cohens_d_speed_ndt)` and the starting point bias was increased `r print_cohen(cohens_d_speed_bias)`.
+In the long RSI condition we observed lower drift rates `r print_cohen(cohens_d_speed_drift)` and lower boundary separation in pre-error trials `r print_cohen(cohens_d_speed_bs)`. Non-decision time was higher `r print_cohen(cohens_d_speed_ndt)` and the starting point bias was increased `r print_cohen(cohens_d_speed_bias)`.
 
 ```{r results-plots-speed, fig.cap='Group-level parameter estimates of mean of DDM parameters investigating pre-error speeding. Error bars represent 95% CrI.'}
 combined_speed_plot
