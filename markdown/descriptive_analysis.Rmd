@@ -227,6 +227,173 @@ plot_acc_pes <- data %>%
   scale_y_continuous(labels = label_percent())
 ```
 
+```{r descriptive-analysis-classic-robust-plots}
+behavioral_plot_basis_classic <- data %>% 
+  group_by(rsi, classic_pes_type) %>% 
+  filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
+   summarize(
+    across(c("rt", "acc"),
+    list(
+      mean = ~mean(., na.rm = TRUE), 
+      sd = ~sd(., na.rm = TRUE),
+      count = ~n()
+      )
+    )
+  ) %>% 
+  filter(!is.na(classic_pes_type)) %>% 
+  mutate(rt_se = rt_sd/sqrt(rt_count), 
+         acc_se = acc_sd/sqrt(acc_count))
+
+behavioral_plot_basis_robust <- data %>% 
+  group_by(rsi, error_code) %>% 
+  filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
+   summarize(
+    across(c("rt", "acc"),
+    list(
+      mean = ~mean(., na.rm = TRUE), 
+      sd = ~sd(., na.rm = TRUE),
+      count = ~n()
+      )
+    )
+  ) %>% 
+  filter(!is.na(error_code) & error_code != 0) %>% 
+  mutate(rt_se = rt_sd/sqrt(rt_count), 
+         acc_se = acc_sd/sqrt(acc_count))
+
+behavioral_plot_pes_classic_rt <- behavioral_plot_basis_classic %>% 
+  ggplot(
+    aes(
+      x = factor(rsi),
+      y = rt_mean,
+      group = classic_pes_type,
+      fill = factor(classic_pes_type)
+    )
+  )+
+  geom_bar(position = position_dodge(width=0.9), stat = "identity")+
+  geom_errorbar(
+    aes(
+      ymin = rt_mean - qnorm(0.975)*rt_se, 
+      ymax = rt_mean + qnorm(0.975)*rt_se,
+      width = 0.6
+    ), 
+    position=position_dodge(width=0.9)
+  )+
+  scale_x_discrete(
+    labels = c("Short RSI", "Long RSI")
+  )+
+  scale_fill_manual(
+    labels = c("post-correct", "post-error"),
+    values = c("forestgreen", "darkred")
+  )+
+  labs(
+    x = "",
+    y = "Mean Response Time (ms)",
+    fill = ""
+  )+
+  theme_classic()
+
+behavioral_plot_pes_classic_acc <- behavioral_plot_basis_classic %>% 
+  ggplot(
+    aes(
+      x = factor(rsi),
+      y = acc_mean,
+      group = classic_pes_type,
+      fill = factor(classic_pes_type)
+    )
+  )+
+  geom_bar(position = position_dodge(width=0.9), stat = "identity")+
+  geom_errorbar(
+    aes(
+      ymin = acc_mean - qnorm(0.975)*acc_se, 
+      ymax = acc_mean + qnorm(0.975)*acc_se,
+      width = 0.6
+    ), 
+    position=position_dodge(width=0.9)
+  )+
+  scale_x_discrete(
+    labels = c("Short RSI", "Long RSI")
+  )+
+  scale_fill_manual(
+    labels = c("post-correct", "post-error"),
+    values = c("forestgreen", "darkred")
+  )+
+  labs(
+    x = "",
+    y = "Mean Accuracy",
+    fill = ""
+  )+
+  scale_y_continuous(labels = label_percent())+
+  theme_classic()
+
+behavioral_plot_pes_robust_acc <- behavioral_plot_basis_robust %>% 
+  ggplot(
+    aes(
+      x = factor(rsi),
+      y = acc_mean,
+      group = error_code,
+      fill = factor(error_code)
+    )
+  )+
+  geom_bar(position = position_dodge(width=0.9), stat = "identity")+
+  geom_errorbar(
+    aes(
+      ymin = acc_mean - qnorm(0.975)*acc_se, 
+      ymax = acc_mean + qnorm(0.975)*acc_se,
+      width = 0.6
+    ), 
+    position=position_dodge(width=0.9)
+  )+
+  scale_x_discrete(
+    labels = c("Short RSI", "Long RSI")
+  )+
+  scale_fill_manual(
+    labels = c("pre-error", "post-error"),
+    values = c("forestgreen", "darkred")
+  )+
+  labs(
+    x = "",
+    y = "Mean Accuracy",
+    fill = ""
+  )+
+  scale_y_continuous(labels = label_percent())+
+  theme_classic()
+
+behavioral_plot_pes_robust_rt <- behavioral_plot_basis_robust %>% 
+  ggplot(
+    aes(
+      x = factor(rsi),
+      y = rt_mean,
+      group = error_code,
+      fill = factor(error_code)
+    )
+  )+
+  geom_bar(position = position_dodge(width=0.9), stat = "identity")+
+  geom_errorbar(
+    aes(
+      ymin = rt_mean - qnorm(0.975)*rt_se, 
+      ymax = rt_mean + qnorm(0.975)*rt_se,
+      width = 0.6
+    ), 
+    position=position_dodge(width=0.9)
+  )+
+  scale_x_discrete(
+    labels = c("Short RSI", "Long RSI")
+  )+
+  scale_fill_manual(
+    labels = c("pre-error", "post-error"),
+    values = c("forestgreen", "darkred")
+  )+
+  labs(
+    x = "",
+    y = "Mean Response Time (ms)",
+    fill = ""
+  )+
+  theme_classic()
+
+combined_robust_plot_behavioral <- ggarrange(behavioral_plot_pes_robust_rt, behavioral_plot_pes_robust_acc, labels = c("RT", "ACC"), common.legend = TRUE, legend = "right")
+combined_classic_plot_behavioral <- ggarrange(behavioral_plot_pes_classic_rt, behavioral_plot_pes_classic_acc, labels = c("RT", "ACC"), common.legend = TRUE, legend = "right")
+```
+
 <!-- # TODO: Something about "fast" vs. "slow" errors -->
 ```{r descriptive-analysis-error rate without noresponse, include = FALSE, eval = FALSE}
 data %>% 
@@ -400,10 +567,11 @@ descriptive_location_plot_rt <- data %>%
          distance = ifelse(is.na(distance), 0, distance)) %>% 
   mutate(distance = ifelse(distance == 9, "baseline", as.character(distance))) %>% 
   select(-c("rt_count", "acc_count")) %>% 
+  filter(distance < 2) %>% 
   # filter(rsi == 0.2) %>% 
   mutate(distance = factor(distance)) %>%
   mutate(nogo_type = ifelse(nogo_type == "baseline", "C,E", nogo_type)) %>% 
-  mutate(distance = fct_relevel(distance, "-1", "0", "1", "2", "3", "4", "baseline")) %>% 
+  mutate(distance = fct_relevel(distance, "-1", "0", "1")) %>% 
   separate_rows(nogo_type, sep = ",") %>% 
   # filter(location != "baseline") %>% 
   # filter(!is.na(rt_mean)) %>% 
@@ -431,14 +599,15 @@ scale_color_manual(
     labels = c("Correct", "Error")
   )+
   scale_x_discrete(
-    labels = c("-1", "NoGo", "+1", "+2", "+3", "+4", "baseline - Go")
+    labels = c("-1", "NoGo", "+1")
   )+
   labs(
     x = "Location",
     y = "Response Time",
     caption = "Error bars represent standard errors"
   )+
-  facet_wrap(~rsi)
+  facet_wrap(~rsi)+
+  theme(text=element_text(size=21))
 
 descriptive_location_plot_acc <- data %>% 
   group_by(rsi, trial_type, location, distance, nogo_type) %>% 
@@ -455,10 +624,11 @@ descriptive_location_plot_acc <- data %>%
          distance = ifelse(is.na(distance), 0, distance)) %>% 
   mutate(distance = ifelse(distance == 9, "baseline", as.character(distance))) %>% 
   select(-c("rt_count", "acc_count")) %>% 
+  filter(distance < 2) %>% 
   # filter(rsi == 0.2) %>% 
   mutate(distance = factor(distance)) %>%
   mutate(nogo_type = ifelse(nogo_type == "baseline", "C,E", nogo_type)) %>% 
-  mutate(distance = fct_relevel(distance, "-1", "0", "1", "2", "3", "4", "baseline")) %>% 
+  mutate(distance = fct_relevel(distance, "-1", "0", "1")) %>% 
   separate_rows(nogo_type, sep = ",") %>% 
   # filter(location != "baseline") %>% 
   # filter(!is.na(rt_mean)) %>% 
@@ -486,7 +656,7 @@ scale_color_manual(
     labels = c("Correct", "Error")
   )+
   scale_x_discrete(
-    labels = c("-1", "NoGo", "+1", "+2", "+3", "+4", "baseline - Go")
+    labels = c("-1", "NoGo", "+1")
   )+
   labs(
     x = "Location",
@@ -494,7 +664,8 @@ scale_color_manual(
     caption = "Error bars represent standard errors"
   )+
   facet_wrap(~rsi)+
-  theme_classic()
+  theme_classic()+
+  theme(text=element_text(size=21))
 ```
 
 ```{r descriptive-analysis-checking-nogo-effect, eval = FALSE, cache = TRUE, dependson = 'descriptive-analysis-data'}

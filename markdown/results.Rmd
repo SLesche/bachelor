@@ -22,6 +22,11 @@ We observed highly significant main effects of RSI, `r apa_print(aov_rt_rsi_erro
 
 Analysis of mean accuracy between the 2x2 conditions yielded similar patterns of significant main effects of RSI `r apa_print(aov_acc_rsi_error_robust, es = "pes", mse = FALSE)$full_result$rsi` and error-condition `r apa_print(aov_acc_rsi_error_robust, es = "pes", mse = FALSE)$full_result$error_code` and a significant interaction effect, `r apa_print(aov_acc_rsi_error_robust, es = "pes", mse = FALSE)$full_result$rsi_error_code`. Errors committed in the short RSI condition lead to a more significant decrease in accuracy on trials immediately following an error.
 
+```{r results-include-behavioral-plots, warning = FALSE, fig.cap="Mean accuracy and response times preceding and following error trials. Error bars represent 95% confidence intervals."}
+combined_robust_plot_behavioral
+```
+
+
 <!-- Highly significant main effects of RSI, `r apa_print(aov_rt_rsi_error_classic, es = "pes", mse = FALSE)$full_result$rsi` and accuracy of previous trial, `r apa_print(aov_rt_rsi_error_classic, es = "pes", mse = FALSE)$full_result$classic_pes_type` on reaction time were observed. Critically, the interaction between RSI and previous accuracy was highly significant, `r apa_print(aov_rt_rsi_error_classic, es = "pes", mse = FALSE)$full_result$rsi_classic_pes_type`. Post-hoc comparison reveals an increased influence of previous accuracy in the short RSI condition, manifesting in an increase in PES. -->
 
 <!-- Comparison of mean accuracy between the 2x2 conditions yielded similar patterns of significant main effects of RSI `r apa_print(aov_acc_rsi_error_classic, es = "pes", mse = FALSE)$full_result$rsi` and previous accuracy `r apa_print(aov_acc_rsi_error_classic, es = "pes", mse = FALSE)$full_result$classic_pes_type` and a significant interaction effect, `r apa_print(aov_acc_rsi_error_classic, es = "pes", mse = FALSE)$full_result$rsi_classic_pes_type`. Errors committed in the short RSI condition lead to a more significant decrease in accuracy on the trial immediately following the error. -->
