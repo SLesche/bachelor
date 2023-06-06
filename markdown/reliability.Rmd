@@ -5,6 +5,7 @@ editor_options:
 ```{r setup}
 # Library calls
 library(psych)
+library(tidyverse)
 ```
 
 ```{r functions}
@@ -52,10 +53,12 @@ pes_split_mean_data <- data %>%
   ungroup() %>% 
   mutate(split = ifelse(row_number() %% 2 == TRUE, 1, 0)) %>% 
   select(-error_id) %>%
+  group_by(id, rsi, split) %>% 
+  summarize(mean_pes = mean(pes)) %>% 
   pivot_wider(
     id_cols = c("id", "rsi"),
     names_from = split,
-    values_from = pes
+    values_from = mean_pes
   ) %>% 
   as.data.frame() %>% 
   ungroup()
