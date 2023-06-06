@@ -31,7 +31,7 @@ Analysis of mean accuracy between the 2x2 conditions yielded similar patterns of
 <!-- Critically, we observed a significant interaction effects of _NoGo-accuracy_ and _distance_ on response time `r apa_print(aov_rt_rsi_error_location, es = "pes", mse = FALSE)$full_result$nogo_type_distance` and accuracy `r apa_print(aov_acc_rsi_error_location, es = "pes", mse = FALSE)$full_result$nogo_type_distance`. Responses around errors are faster than responses around correct NoGo trials prior to the NoGo trial and slower and less accurate following the NoGo trial. We furthermore observed a significant effect of RSI on this interaction, captured by the three-fold interaction between $RSI \times NoGo-accuracy \times distance$. **finish this** -->
 
 #### Global performance shifts
-A multilevel model was fit to mean response time and mean accuracy data of each participant for each block. We allowed random intercepts for each participant. The model revealed that overall, participants responded faster `r apa_print(lm_block_rt_overall)$full_result$block` and more accurate `r apa_print(lm_block_acc_overall)$full_result$block` in later blocks. We also investigated the effect of trial count since the last break. Participants tended to respond slower `r apa_print(lm_trial_rt_overall)$full_result$trial` and less accurate `r apa_print(lm_trial_acc_overall)$full_result$trial` as the trial count within a block increased.
+A key benefit of the robust approach is its ability to combat global shifts in performance. To investigate global performance shifts in the present dataset a multilevel model was fit to mean response time and mean accuracy data of each participant for each block. We allowed random intercepts for each participant. The model revealed that overall, participants responded faster `r apa_print(lm_block_rt_overall)$full_result$block` and more accurate `r apa_print(lm_block_acc_overall)$full_result$block` in later blocks. We also investigated the effect of trial count since the last break on response time and accuracy. Participants tended to respond slower `r apa_print(lm_trial_rt_overall)$full_result$trial` and less accurate `r apa_print(lm_trial_acc_overall)$full_result$trial` as the trial count within a block increased.
 
 ### Diffusion model
 #### Model comparisons
@@ -78,7 +78,7 @@ The previously described base model, which allows all parameters to be affected 
 #### Model fit
 First, we ran non-hierarchical models, tested them for convergence and obtained posterior predictive response time distributions. We then compared empirical response time distributions to the predicted response time distribution for each condition. This revealed a serious discrepancy between the predicted response time distribution and the empirical distribution in post-error trials in the short RSI condition (see Figure \@ref(fig:results-plot-ep1-bad-pred)). This also lead to issues when attempting to fit hierarchical models to data containing this condition. We therefore only fit hierarchical models to data in the long RSI condition.
 
-The best-fitting model specification was used to estimate parameters in all 3 models and was then subjected to various model diagnostic tests. In the robust model, there were `r n_divergent(fit_robust)` divergent transitions, $\widehat{R} > 1.01$ or other signs of non-convergence [@gelman1992]. We visually inspected whether the four chains mixed well for a number of randomly selected parameters, observing no signs of misbehavior in the chains. We sampled the posterior parameter distribution 200 times, obtained predicted response time distributions from the sampled parameters and visually inspected them for appropriate model fit. 
+The best-fitting model specification was used to estimate parameters in both the classic and robust model and was then subjected to various model diagnostic tests. In the robust model, there were `r n_divergent(fit_robust)` divergent transitions, $\widehat{R} > 1.01$ or other signs of non-convergence [@gelman1992]. We visually inspected whether the four chains mixed well for a number of randomly selected parameters, observing no signs of misbehavior in the chains. We sampled the posterior parameter distribution 200 times, obtained predicted response time distributions from the sampled parameters and visually inspected them for appropriate model fit. 
 
 We observed `r n_divergent(fit_classic)` divergent transitions when fitting the classical model to our data. Inspections of $\widehat{R}$, bulk- and tail effective sample size and trace plots of the MCMC chains showed no signs of issues in the model. We will refrain from interpreting the parameters of the classical model in this study, but report the results in Appendix C. Main effects are of the same direction in both models.
 
@@ -112,15 +112,4 @@ We observed a significant decrease of drift rate in post-error trials compared t
 ```{r results-plots-robust, fig.cap='Robust approach to PES. Group-level parameter estimates of mean of DDM parameters. Error bars represent 95% CrI.'}
 combined_robust_plot
 ```
-
-We also compared trials prior to errors (E-1) to those preceding correct responses (C-1) to investigate _pre-error speeding_. The hierarchical model did not converge properly when attempting to estimate the short RSI condition. Again, we discarded the data from the short RSI condition and tried refitting the model in the long RSI condition with a higher adapt-delta. `r n_divergent(fit_speed)` divergent transitions remained, indicating that the MCMC sampling algorithm was not able to fully explore the parameter space. $\widehat{R}$ values and MCMC-trace plots indicated that the chains mixed well.
-
-In the behavioral analysis, we observed shorter response times prior to errors `r apa_print(aov_rt_pre_rsi, es = "pes", mse = FALSE)$full_result$location`, with the effect being more pronounced in the long RSI condition `r apa_print(aov_rt_pre_rsi, es = "pes", mse = FALSE)$full_result$rsi_location`.
-
-In the long RSI condition we observed lower drift rates `r print_cohen(cohens_d_speed_drift)` and lower boundary separation in pre-error trials `r print_cohen(cohens_d_speed_bs)`. Non-decision time was higher `r print_cohen(cohens_d_speed_ndt)` and the starting point bias was increased `r print_cohen(cohens_d_speed_bias)`.
-
-```{r results-plots-speed, fig.cap='Group-level parameter estimates of mean of DDM parameters investigating pre-error speeding. Error bars represent 95% CrI.'}
-combined_speed_plot
-```
-
 
