@@ -22,6 +22,13 @@ calculate_evidence <- function(bs, bias){
   distance = bs - start
   return(distance)
 }
+
+return_d_value <- function(mu1, mu2, sd1, sd2){
+  pooled_sd = sqrt(0.5*(sd1^2 + sd2^2))
+  diff_means = mu1 - mu2
+  cohens_d = diff_means/pooled_sd
+  return(cohens_d)
+}
 ```
 
 ```{r ddm-significance-data, cache = TRUE}
@@ -44,6 +51,82 @@ posterior_speed <- as_draws_df(
 posterior_classic <- as_draws_df(
   fit_classic
 )
+```
+```{r signif-adding-d-value}
+posterior_robust$cohens_d_drift = NA
+posterior_robust$cohens_d_bs = NA
+posterior_robust$cohens_d_bias = NA
+posterior_robust$cohens_d_ndt = NA
+
+for (row in 1:nrow(posterior_robust)) {
+  posterior_robust$cohens_d_drift[row] = return_d_value(
+    posterior_robust$b_error_factorpost_error[row],
+    posterior_robust$b_error_factorpre_error[row],
+    posterior_robust$sd_id__error_factorpost_error[row],
+    posterior_robust$sd_id__error_factorpre_error[row]
+  )
+  posterior_robust$cohens_d_bs[row] = return_d_value(
+    posterior_robust$b_bs_error_factorpost_error[row],
+    posterior_robust$b_bs_error_factorpre_error[row],
+    posterior_robust$sd_id__bs_error_factorpost_error[row],
+    posterior_robust$sd_id__bs_error_factorpre_error[row]
+  )
+  posterior_robust$cohens_d_ndt[row] = return_d_value(
+    posterior_robust$b_ndt_error_factorpost_error[row],
+    posterior_robust$b_ndt_error_factorpre_error[row],
+    posterior_robust$sd_id__ndt_error_factorpost_error[row],
+    posterior_robust$sd_id__ndt_error_factorpre_error[row]
+  )
+  posterior_robust$cohens_d_bias[row] = return_d_value(
+    posterior_robust$b_bias_error_factorpost_error[row],
+    posterior_robust$b_bias_error_factorpre_error[row],
+    posterior_robust$sd_id__bias_error_factorpost_error[row],
+    posterior_robust$sd_id__bias_error_factorpre_error[row]
+  )
+}
+
+cohens_d_robust_drift_mean_d = mean(posterior_robust$cohens_d_drift)
+cohens_d_robust_bs_mean_d = mean(posterior_robust$cohens_d_bs)
+cohens_d_robust_ndt_mean_d = mean(posterior_robust$cohens_d_ndt)
+cohens_d_robust_bias_mean_d = mean(posterior_robust$cohens_d_bias)
+
+posterior_classic$cohens_d_drift = NA
+posterior_classic$cohens_d_bs = NA
+posterior_classic$cohens_d_bias = NA
+posterior_classic$cohens_d_ndt = NA
+
+for (row in 1:nrow(posterior_classic)) {
+  posterior_classic$cohens_d_drift[row] = return_d_value(
+    posterior_classic$b_error_factorpost_error[row],
+    posterior_classic$b_error_factorpost_correct[row],
+    posterior_classic$sd_id__error_factorpost_error[row],
+    posterior_classic$sd_id__error_factorpost_correct[row]
+  )
+  posterior_classic$cohens_d_bs[row] = return_d_value(
+    posterior_classic$b_bs_error_factorpost_error[row],
+    posterior_classic$b_bs_error_factorpost_correct[row],
+    posterior_classic$sd_id__bs_error_factorpost_error[row],
+    posterior_classic$sd_id__bs_error_factorpost_correct[row]
+  )
+  posterior_classic$cohens_d_ndt[row] = return_d_value(
+    posterior_classic$b_ndt_error_factorpost_error[row],
+    posterior_classic$b_ndt_error_factorpost_correct[row],
+    posterior_classic$sd_id__ndt_error_factorpost_error[row],
+    posterior_classic$sd_id__ndt_error_factorpost_correct[row]
+  )
+  posterior_classic$cohens_d_bias[row] = return_d_value(
+    posterior_classic$b_bias_error_factorpost_error[row],
+    posterior_classic$b_bias_error_factorpost_correct[row],
+    posterior_classic$sd_id__bias_error_factorpost_error[row],
+    posterior_classic$sd_id__bias_error_factorpost_correct[row]
+  )
+}
+
+cohens_d_classic_drift_mean_d = mean(posterior_classic$cohens_d_drift)
+cohens_d_classic_bs_mean_d = mean(posterior_classic$cohens_d_bs)
+cohens_d_classic_ndt_mean_d = mean(posterior_classic$cohens_d_ndt)
+cohens_d_classic_bias_mean_d = mean(posterior_classic$cohens_d_bias)
+
 ```
 
 ```{r testing-robust-drift, cache = TRUE}
