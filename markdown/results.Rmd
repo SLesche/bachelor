@@ -22,11 +22,11 @@ Using the robust approach, we observed highly significant main effects of RSI, `
 
 Analysis of mean accuracy between the 2x2 conditions yielded similar patterns of significant main effects of RSI `r apa_print(aov_acc_rsi_error_robust, es = "pes", mse = FALSE)$full_result$rsi` and error-condition `r apa_print(aov_acc_rsi_error_robust, es = "pes", mse = FALSE)$full_result$error_code` and a significant interaction effect, `r apa_print(aov_acc_rsi_error_robust, es = "pes", mse = FALSE)$full_result$rsi_error_code`. Errors committed in the short RSI condition lead to a more significant decrease in accuracy on trials immediately following an error.
 
-```{r results-include-behavioral-plots-robust, warning = FALSE, fig.cap="Robust approach to post-error effect. Mean accuracy and response times preceding and following error trials. Omissions were excluded from accuracy estimation. Error bars represent 95% confidence intervals."}
+```{r results-include-behavioral-plots-robust, warning = FALSE, fig.cap="Robust approach to post-error effects. Mean accuracy and response times preceding and following error trials. Omissions were excluded from accuracy estimation. Error bars represent 95% confidence intervals."}
 combined_robust_plot_behavioral
 ```
 
-```{r results-include-behavioral-plots-classic, warning = FALSE, fig.cap="Classical approach to post-error effect. Mean accuracy and response times following error trials vs. following correct trials. Omissions were excluded from accuracy estimation. Error bars represent 95% confidence intervals."}
+```{r results-include-behavioral-plots-classic, warning = FALSE, fig.cap="Classical approach to post-error effects. Mean accuracy and response times following error trials vs. following correct trials. Omissions were excluded from accuracy estimation. Error bars represent 95% confidence intervals."}
 combined_classic_plot_behavioral
 ```
 
