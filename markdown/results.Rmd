@@ -88,7 +88,7 @@ First, we ran non-hierarchical models, tested them for convergence and obtained 
 
 The best-fitting model specification was used to estimate parameters in both the classic and robust model and was then subjected to various model diagnostic tests. In the robust model, there were `r n_divergent(fit_robust)` divergent transitions, $\widehat{R} > 1.01$ or other signs of non-convergence [@gelman1992]. We visually inspected whether the four chains mixed well for a number of randomly selected parameters, observing no signs of misbehavior in the chains. We sampled the posterior parameter distribution 200 times, obtained predicted response time distributions from the sampled parameters and visually inspected them for appropriate model fit. 
 
-We observed `r n_divergent(fit_classic)` divergent transitions when fitting the classical model to our data. Inspections of $\widehat{R}$, bulk- and tail effective sample size and trace plots of the MCMC chains showed no signs of issues in the model. We will refrain from interpreting the parameters of the classical model in this study, but report the results in Appendix C. Main effects are of the same direction in both models.
+We observed `r n_divergent(fit_classic)` divergent transitions when fitting the classical model to our data. Inspections of $\widehat{R}$, bulk- and tail effective sample size and trace plots of the MCMC chains showed no signs of issues in the model. All parameters obtained from the classical model in this study should be taken with caution, as the number of divergent transitions indicate that the sampler was not able to fully explore the parameter space.
 
 ```{r results-plot-ep1-bad-pred, warning = FALSE, fig.cap='Comparison of empirical and predicted response time distribution in short RSI condition for post-error trials'}
 ep1 %>% 
@@ -115,7 +115,7 @@ The final analysis of the robust model was based on a total of `r model_robust_c
 
 In the robust model, we observed a significant decrease of drift rate in post-error trials compared to pre-error levels in the long RSI condition `r print_cohen_num(cohens_d_robust_drift_mean_d)`. Additionally, boundary separation decreased `r print_cohen_num(cohens_d_robust_bs_mean_d)`, non-decision time decreased `r print_cohen_num(cohens_d_robust_ndt_mean_d)` and starting point bias was reduced `r print_cohen_num(cohens_d_robust_bias_mean_d)`. In the classical model, we observed the same decreases in drift rate `r print_cohen_num(cohens_d_classic_drift_mean_d)` and boundary separation `r print_cohen_num(cohens_d_classic_bs_mean_d)` but observed increases in non-decision time `r print_cohen_num(cohens_d_classic_ndt_mean_d)` and starting point `r print_cohen_num(cohens_d_classic_bias_mean_d)`.
 
-```{r results-plots-robust, fig.cap='Robust approach to PES. Group-level parameter estimates of mean of DDM parameters. Error bars represent 95% CrI.'}
+```{r results-plots-robust, fig.cap='Robust approach to PES. Group-level parameter estimates of mean DDM parameters. Error bars represent 95% CrI.'}
 combined_robust_plot
 ```
 
