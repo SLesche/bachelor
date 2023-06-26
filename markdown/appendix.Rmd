@@ -1,5 +1,3 @@
-# Model comparison
-## LOO
 ```{r appendix-rsi-compare}
 rsi_comp %>% 
   as.data.frame() %>% 
