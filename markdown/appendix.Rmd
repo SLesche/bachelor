@@ -1,3 +1,4 @@
+# Model comparison
 ```{r appendix-rsi-compare}
 rsi_comp %>% 
   as.data.frame() %>% 
@@ -5,7 +6,8 @@ rsi_comp %>%
   select(model, elpd_loo, elpd_diff, se_diff) %>% 
   remove_rownames() %>% 
   apa_table(caption = "Model comparison",
-            note = "The base model allows all parameters to be influenced by both factors RSI and error-condition. The 'no_rsi_model' allows none of the parameters to be influenced by RSI. The other four models allow all other parameters but the parameter listed in the name to vary between RSI")
+            note = "The base model allows all parameters to be influenced by both factors RSI and error-condition. The 'no_rsi_model' allows none of the parameters to be influenced by RSI. The other four models allow all other parameters but the parameter listed in the name to vary between RSI",
+            placement = "h")
 ```
 
 ```{r appendix-err-compare}
