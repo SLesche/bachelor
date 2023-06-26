@@ -9,6 +9,7 @@ library(rio)
 library(data.table)
 library(scales)
 
+library(ggpubr)
 ggplot2::theme_set(theme_classic()) # setting default theme
 ```
 
