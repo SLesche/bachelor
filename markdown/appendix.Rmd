@@ -1,33 +1,4 @@
-<!-- First level headers create new appendix section and a label "Appendix N" -->
-<!-- Appendix structure: -->
-<!-- A: Behavioral analysis -->
-<!-- A0: trial criteria location-approach -->
-<!-- A1: Location descriptives -->
-<!-- - plot rt / acc, table -->
-<!-- A2: robust descriptives -->
-<!-- - plot rt /acc, table -->
-<!-- A3: classic descriptives -->
-<!-- -plot rt / acc, table -->
-
-<!-- B: Model comparion -->
-
-<!-- c: Results classical PES account -->
-
-<!-- D: Hierarchical Model -->
-
-# Behavioral analysis
-## Classification of Go trials
-### Robust Approach
-### Classical Approach
-### Speed approach
-
-## Descriptive results 
-### Robust
-### Classical
-### Speed
-
 # Model comparison
-## Model specifications
 ## LOO
 ```{r appendix-rsi-compare}
 rsi_comp %>% 
@@ -36,7 +7,7 @@ rsi_comp %>%
   select(model, elpd_loo, elpd_diff, se_diff) %>% 
   remove_rownames() %>% 
   apa_table(caption = "Model comparison",
-            note = "The base model allows all parameters to be influenced by both factors RSI and error-condition. The 'no_rsi_model' allows none of the parameters to be influenced by RSI. The other four models only all other parameters but the parameter listed in the name to vary between RSI")
+            note = "The base model allows all parameters to be influenced by both factors RSI and error-condition. The 'no_rsi_model' allows none of the parameters to be influenced by RSI. The other four models allow all other parameters but the parameter listed in the name to vary between RSI")
 ```
 
 ```{r appendix-err-compare}
@@ -46,7 +17,7 @@ err_comp %>%
   select(model, elpd_loo, elpd_diff, se_diff) %>% 
   remove_rownames() %>% 
   apa_table(caption = "Model comparison",
-            note = "The base model allows all parameters to be influenced by both factors RSI and error-condition. The 'no_error_factor_model' allows none of the parameters to be influenced by error-condition. The other four models only all other parameters but the parameter listed in the name to vary between error-conditions")
+            note = "The base model allows all parameters to be influenced by both factors RSI and error-condition. The 'no_error_factor_model' allows none of the parameters to be influenced by error-condition. The other four models allow all other parameters but the parameter listed in the name to vary between error-conditions")
 ```
 
 ```{r appendix-only-compare}
@@ -59,5 +30,3 @@ only_comp %>%
             note = "The base model allows all parameters to be influenced by both factors RSI and error-condition. The 'no_error_factor_model' allows none of the parameters to be influenced by error-condition. The other four models only allow the parameter listed in the name to vary between error-conditions")
 ```
 
-# Classical model
-## Model results
