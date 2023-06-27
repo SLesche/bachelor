@@ -10,7 +10,7 @@ table_overview_robust %>%
   as.data.frame() %>% 
   apa_table(
     caption = "Descriptive Statistics - Robust Approach",
-    note = "Descriptive statistics for post-error effects classified using the robust approach. RSI = Response stimulus interval, RT = response time, ACC = accuracy. RT is measured in ms. Accuracy represents the mean accuracy when a response is given. Omission rate represents the percentage of trials in which no response is given. Standard deviations are printed in parentheses following mean values.", 
+    note = "Descriptive statistics for post-error effects classified using the robust approach. RSI = Response stimulus interval, RT = response time, ACC = accuracy. RT is measured in ms. Accuracy represents the mean accuracy when a response is given. Omission rate represents the percentage of trials in which no response is given. Type represents the classification of the trial depending on the accuracy of the following or previous trial. Standard deviations are printed in parentheses following mean values.", 
     placement = "h"
   )
   
@@ -26,7 +26,7 @@ table_overview_classic %>%
   as.data.frame() %>% 
   apa_table(
     caption = "Descriptive Statistics - Classical Approach",
-    note = "Descriptive statistics for post-error effects classified using the classical approach. RSI = Response stimulus interval, RT = response time, ACC = accuracy. RT is measured in ms. Accuracy represents the mean accuracy when a response is given. Omission rate represents the percentage of trials in which no response is given. Standard deviations are printed in parentheses following mean values.",
+    note = "Descriptive statistics for post-error effects classified using the classical approach. RSI = Response stimulus interval, RT = response time, ACC = accuracy. RT is measured in ms. Accuracy represents the mean accuracy when a response is given. Omission rate represents the percentage of trials in which no response is given. Type represents the classification of the trial depending on the accuracy of the following or previous trial. Standard deviations are printed in parentheses following mean values.",
     placement = "h"
   )
   
