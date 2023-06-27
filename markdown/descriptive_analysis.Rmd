@@ -395,6 +395,66 @@ combined_robust_plot_behavioral <- ggarrange(behavioral_plot_pes_robust_rt, beha
 combined_classic_plot_behavioral <- ggarrange(behavioral_plot_pes_classic_rt, behavioral_plot_pes_classic_acc, labels = c("RT", "ACC"), common.legend = TRUE, legend = "right")
 ```
 
+```{r descriptive-analysis-overview-robust, include=FALSE}
+n_omissions_robust <- data %>% 
+  count(error_code, rsi, response == "None") %>% 
+  filter(error_code %in% c(-1, 1)) %>% 
+  group_by(error_code, rsi) %>% 
+  mutate(omission_rate = n / sum(n)) %>% 
+  filter(`response == "None"` == TRUE) %>% 
+  select(error_code, rsi, omission_rate)
+
+table_overview_robust <- data %>% 
+  filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
+  group_by(rsi, error_code) %>%
+  summarize(
+    across(
+      c("rt", "acc"),
+      list(mean = ~mean(., na.rm = TRUE), sd = ~sd(., na.rm = TRUE))
+    )
+  ) %>%
+  filter(error_code %in% c(-1, 1)) %>% 
+  ungroup() %>% 
+  left_join(., n_omissions_robust) %>% 
+  mutate(rsi = factor(rsi, 
+                    levels = c(0.2, 1),
+                    labels = c("short", "long")),
+          error_code = factor(error_code,
+                               levels = c(-1, 1),
+                               labels = c("pre-error", "post-error"))
+       )
+
+```
+
+```{r descriptive-analysis-overview-classic, include=FALSE}
+n_omissions_classic <- data %>% 
+  count(classic_pes_type, rsi, response == "None") %>% 
+  filter(!is.na(classic_pes_type)) %>% 
+  group_by(classic_pes_type, rsi) %>% 
+  mutate(omission_rate = n / sum(n)) %>% 
+  filter(`response == "None"` == TRUE) %>% 
+  select(classic_pes_type, rsi, omission_rate)
+
+table_overview_classic <- data %>% 
+  filter(!is.na(rt) & trial_type == "go" | trial_type == "nogo") %>% 
+  group_by(rsi, classic_pes_type) %>%
+  summarize(
+    across(
+      c("rt", "acc"),
+      list(mean = ~mean(., na.rm = TRUE), sd = ~sd(., na.rm = TRUE))
+    )
+  ) %>%
+  filter(!is.na(classic_pes_type)) %>% 
+  ungroup() %>% 
+  left_join(., n_omissions_classic) %>% 
+  mutate(rsi = factor(rsi, 
+                    levels = c(0.2, 1),
+                    labels = c("short", "long")),
+       classic_pes_type = factor(classic_pes_type)
+       )
+
+```
+
 <!-- # TODO: Something about "fast" vs. "slow" errors -->
 ```{r descriptive-analysis-error rate without noresponse, include = FALSE, eval = FALSE}
 data %>% 

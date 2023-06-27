@@ -142,9 +142,9 @@ print_mean_cohen <- function(x, y){
 print_cohen_num <- function(x){
   round = round(x, 2)
    message = paste0(
-      "$d = ",
+      "($d = ",
       round,
-      "$"
+      "$)"
     )
   return(message)
 }

@@ -1,3 +1,38 @@
+# Behavioral
+```{r appendix-tab-robust-desc}
+table_overview_robust %>% 
+  mutate_if(is.numeric, ~round(., 2)) %>% 
+  mutate(rt = paste0(rt_mean, " (", rt_sd, ")"),
+         acc = paste0(acc_mean, " (", acc_sd, ")")) %>% 
+  mutate(omission_rate = paste0(omission_rate*100, "%")) %>% 
+  select(RSI = rsi, type = error_code, RT = rt, ACC = acc, `omission rate` = omission_rate) %>% 
+  mutate(type = str_replace(type, "_", "-")) %>% 
+  as.data.frame() %>% 
+  apa_table(
+    caption = "Descriptive Statistics - Robust Approach",
+    note = "Descriptive statistics for post-error effects classified using the robust approach. RSI = Response stimulus interval, RT = response time, ACC = accuracy. RT is measured in ms. Accuracy represents the mean accuracy when a response is given. Omission rate represents the percentage of trials in which no response is given. Standard deviations are printed in parentheses following mean values.", 
+    placement = "h"
+  )
+  
+```
+```{r appendix-tab-classic-desc}
+table_overview_classic %>% 
+  mutate_if(is.numeric, ~round(., 2)) %>% 
+  mutate(rt = paste0(rt_mean, " (", rt_sd, ")"),
+         acc = paste0(acc_mean, " (", acc_sd, ")")) %>% 
+  mutate(omission_rate = paste0(omission_rate*100, "%")) %>% 
+  select(RSI = rsi, type = classic_pes_type, RT = rt, ACC = acc, `omission rate` = omission_rate) %>% 
+  mutate(type = str_replace(type, "_", "-")) %>% 
+  as.data.frame() %>% 
+  apa_table(
+    caption = "Descriptive Statistics - Classical Approach",
+    note = "Descriptive statistics for post-error effects classified using the classical approach. RSI = Response stimulus interval, RT = response time, ACC = accuracy. RT is measured in ms. Accuracy represents the mean accuracy when a response is given. Omission rate represents the percentage of trials in which no response is given. Standard deviations are printed in parentheses following mean values.",
+    placement = "h"
+  )
+  
+```
+
+
 # Model comparison
 ```{r appendix-rsi-compare}
 rsi_comp %>% 
