@@ -39,7 +39,7 @@ abstract: |
 keywords          : "post-error slowing, response-stimulus interval, diffusion modeling, adaptive account, maladaptive account"
 wordcount         : "X"
 
-bibliography      : ["r-references.bib", "pes_lib.bib"]
+bibliography      : ["r-references.bib", "clean_pes_lib.bib"]
 
 floatsintext      : yes # for pics in text
 linenumbers       : no
