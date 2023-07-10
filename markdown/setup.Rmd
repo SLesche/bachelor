@@ -148,5 +148,21 @@ print_cohen_num <- function(x){
     )
   return(message)
 }
+
+print_scientific <- function(num){
+  num = round(num, 2)
+  if (num < 0.01 | num > 1000){
+    science_num = format(num, scientific = TRUE)
+    char_num = stringr::str_replace(science_num, "e?[\\+\\-]\\d(\\d)", "\\\\times 10^{\\1}")
+  } else {
+    char_num = paste(num)
+  }
+  
+  return(char_num)
+}
+
+# print_bf <- function(bf){
+#   # message = 
+# }
 ```
 
