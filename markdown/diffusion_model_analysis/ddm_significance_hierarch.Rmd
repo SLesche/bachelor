@@ -12,6 +12,7 @@ library(loo)
 library(BayesFactor)
 # library(effectsize)
 library(effsize)
+library(bayestestR)
 ```
 
 ```{r ddm-significance-functions}
@@ -138,6 +139,8 @@ colnames(posterior_robust_drift) <- c("post_error", "pre_error")
 
 t_test_robust_drift <- t.test(posterior_robust_drift$pre_error, posterior_robust_drift$post_error)
 
+bf_robust_drift <- bf_pointnull(posterior_robust_drift$post_error - posterior_robust_drift$pre_error, prior = distribution_normal(nrow(posterior_robust_drift), 0, sd(rnorm(nrow(posterior_robust_drift), 0, 5) - rnorm(nrow(posterior_robust_drift), 0, 5))))
+
 cohens_d_robust_drift <- cohen.d(posterior_robust_drift$pre_error, posterior_robust_drift$post_error)
 ```
 
@@ -150,6 +153,8 @@ colnames(posterior_robust_bs) <- c("post_error", "pre_error")
 
 t_test_robust_bs <- t.test(posterior_robust_bs$pre_error, posterior_robust_bs$post_error)
 
+bf_robust_bs <- bf_pointnull(posterior_robust_bs$post_error - posterior_robust_bs$pre_error, prior = distribution_normal(nrow(posterior_robust_bs), 0, sd(rgamma(nrow(posterior_robust_bs), 10, 5) - rgamma(nrow(posterior_robust_bs), 10, 5))))
+
 cohens_d_robust_bs <- cohen.d(posterior_robust_bs$pre_error, posterior_robust_bs$post_error)
 ```
 
@@ -160,6 +165,8 @@ posterior_robust_ndt <- posterior_robust %>%
 colnames(posterior_robust_ndt) <- c("post_error", "pre_error")
 
 t_test_robust_ndt <- t.test(posterior_robust_ndt$pre_error, posterior_robust_ndt$post_error)
+
+bf_robust_ndt <- bf_pointnull(posterior_robust_ndt$post_error - posterior_robust_ndt$pre_error, prior = distribution_normal(nrow(posterior_robust_ndt), 0, sd(rgamma(nrow(posterior_robust_ndt), 1, 5) - rgamma(nrow(posterior_robust_ndt), 1, 5))))
 
 cohens_d_robust_ndt <- cohen.d(posterior_robust_ndt$pre_error, posterior_robust_ndt$post_error)
 ```
@@ -172,7 +179,9 @@ posterior_robust_bias <- posterior_robust %>%
 colnames(posterior_robust_bias) <- c("post_error",
                                      "pre_error")
 
-t_test_robust_bias <- t.test(posterior_robust_bias$pre_error, posterior_robust_bias$post_error)
+t_test_robust_bias <- t.test(posterior_robust_bias$pre_error, posterior_robust_bias$post_error, paired = TRUE)
+
+bf_robust_bias <- bf_pointnull(posterior_robust_bias$post_error - posterior_robust_bias$pre_error, prior = distribution_normal(nrow(posterior_robust_bias), 0, sd(rbeta(nrow(posterior_robust_bias), 4, 4) - rbeta(nrow(posterior_robust_bias), 4, 4))))
 
 cohens_d_robust_bias <- cohen.d(posterior_robust_bias$pre_error, posterior_robust_bias$post_error)
 ```
@@ -206,6 +215,8 @@ colnames(posterior_classic_drift) <- c("post_correct", "post_error")
 
 t_test_classic_drift <- t.test(posterior_classic_drift$post_correct, posterior_classic_drift$post_error)
 
+bf_classic_drift <- bf_pointnull(posterior_classic_drift$post_error - posterior_classic_drift$post_correct, prior = distribution_normal(nrow(posterior_classic_drift), 0, sd(rnorm(nrow(posterior_classic_drift), 0, 5) - rnorm(nrow(posterior_classic_drift), 0, 5))))
+
 cohens_d_classic_drift <- cohen.d(posterior_classic_drift$post_correct, posterior_classic_drift$post_error)
 ```
 
@@ -218,6 +229,8 @@ colnames(posterior_classic_bs) <- c("post_correct", "post_error")
 
 t_test_classic_bs <- t.test(posterior_classic_bs$post_correct, posterior_classic_bs$post_error)
 
+bf_classic_bs <- bf_pointnull(posterior_classic_bs$post_error - posterior_classic_bs$post_correct, prior = distribution_normal(nrow(posterior_classic_bs), 0, sd(rgamma(nrow(posterior_classic_bs), 10, 5) - rgamma(nrow(posterior_classic_bs), 10, 5))))
+
 cohens_d_classic_bs <- cohen.d(posterior_classic_bs$post_correct, posterior_classic_bs$post_error)
 ```
 
@@ -228,6 +241,8 @@ posterior_classic_ndt <- posterior_classic %>%
 colnames(posterior_classic_ndt) <- c("post_correct", "post_error")
 
 t_test_classic_ndt <- t.test(posterior_classic_ndt$post_correct, posterior_classic_ndt$post_error)
+
+bf_classic_ndt <- bf_pointnull(posterior_classic_ndt$post_error - posterior_classic_ndt$post_correct, prior = distribution_normal(nrow(posterior_classic_ndt), 0, sd(rgamma(nrow(posterior_classic_ndt), 1, 5) - rgamma(nrow(posterior_classic_ndt), 1, 5))))
 
 cohens_d_classic_ndt <- cohen.d(posterior_classic_ndt$post_correct, posterior_classic_ndt$post_error)
 ```
@@ -240,6 +255,8 @@ posterior_classic_bias <- posterior_classic %>%
 colnames(posterior_classic_bias) <- c("post_correct", "post_error")
 
 t_test_classic_bias <- t.test(posterior_classic_bias$post_correct, posterior_classic_bias$post_error)
+
+bf_classic_bias <- bf_pointnull(posterior_classic_bias$post_error - posterior_classic_bias$post_correct, prior = distribution_normal(nrow(posterior_classic_bias), 0, sd(rbeta(nrow(posterior_classic_bias), 4, 4) - rbeta(nrow(posterior_classic_bias), 4, 4))))
 
 cohens_d_classic_bias <- cohen.d(posterior_classic_bias$post_correct, posterior_classic_bias$post_error)
 
