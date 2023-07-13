@@ -161,8 +161,21 @@ print_scientific <- function(num){
   return(char_num)
 }
 
-# print_bf <- function(bf){
-#   # message = 
-# }
+reportBayesFactorAPA <- function(bayes_factor) {
+  bf <- as.numeric(bayes_factor)  # Ensure the input is numeric
+  
+  if (bf < 100 & bf > 0.01) {
+    bf_str <- paste("BF_{10} = ", round(bf, 2), sep = "")
+  } else {
+    exponent <- floor(log10(bf))
+    mantissa <- bf / 10^exponent
+    bf_str <- paste("BF_{10] = ", format(mantissa, scientific = FALSE), "\\times 10^{", exponent, "}", sep = "")
+  }
+  
+  report <- bf_str
+  
+  return(report)
+}
+
 ```
 
