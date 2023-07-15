@@ -2,7 +2,7 @@
 editor_options:
   chunk_output_type: console
 ---
-```{r ddm-significance-setup}
+```{r ddm-significance-setup, include = FALSE}
 # Library calls
 library(brms)
 library(tidyverse)
