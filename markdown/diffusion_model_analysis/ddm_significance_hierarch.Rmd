@@ -53,7 +53,7 @@ posterior_classic <- as_draws_df(
   fit_classic
 )
 ```
-```{r signif-adding-d-value}
+```{r signif-adding-d-value, cache = TRUE}
 posterior_robust$cohens_d_drift = NA
 posterior_robust$cohens_d_bs = NA
 posterior_robust$cohens_d_bias = NA

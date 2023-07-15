@@ -163,12 +163,12 @@ print_scientific <- function(num){
 
 print_bf <- function(bf_result){
   bf = exp(bf_result$log_BF)
-  if (bf < 1){
-    bf_prefix = "BF_{01} = "
-  } else {
-    bf_prefix = "BF_{10} = "
-  }
-
+  # if (bf < 1){
+  #   bf_prefix = "BF_{01} = "
+  # } else {
+  #   bf_prefix = "BF_{10} = "
+  # }
+  bf_prefix = "BF_{10} = "
   if (bf < 1000 & bf > 0.01){
     bf_rounded = round(bf, 2)
     bf_print = paste0("$", bf_prefix, bf_rounded, "$")
