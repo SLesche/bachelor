@@ -161,8 +161,20 @@ print_scientific <- function(num){
   return(char_num)
 }
 
-# print_bf <- function(bf){
-#   # message = 
-# }
+print_bf <- function(bf){
+  bf_prefix = "BF_{10} = "
+  if (bf < 1000 & bf > 0.01){
+    bf_rounded = round(bf, 2)
+    bf_print = paste0(bf_prefix, bf_rounded)
+  } else {
+    bf_exp = floor(log(bf, 10))
+    bf_base = format(bf, scientific = TRUE)
+    bf_base_str = stringr::str_remove(bf_base, "e[+-]\\d{2}$")
+    bf_base_str = paste0(round(as.numeric(bf_base_str), 2))
+    bf_exp_str = paste0(bf_base_str, " \\times 10^{", bf_exp, "}")
+    bf_print = paste0(bf_prefix, bf_exp_str)
+  }
+  return(bf_print)
+}
 ```
 
