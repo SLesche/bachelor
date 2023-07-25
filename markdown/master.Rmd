@@ -1,5 +1,8 @@
 ---
-title             : "The Nature of Cognitive Processes Underlying Post-Error Slowing – A Diffusion Model Account"
+title             : |
+  Bachelor Thesis:
+  
+  The Nature of Cognitive Processes Underlying Post-Error Slowing – A Diffusion Model Account
 shorttitle        : "Nature of Post-Error Slowing"
 
 author: 
@@ -12,10 +15,12 @@ author:
     #   - "Conceptualization"
     #   - "Writing - Original Draft Preparation"
     #   - "Writing - Review & Editing"
-  # - name          : "Kathrin Sadus"
+  # - name          : "1. Betreuerin: Kathrin Sadus"
   #   affiliation   : "1"
-  #   role:
-  #     - "Supervision"
+  # - name          : "2. Betreuer: Dirk Hagemann"
+  #   affiliation   : "1"
+    # role:
+    #   - "Supervision"
 
 affiliation:
   - id            : "1"
@@ -25,7 +30,11 @@ affiliation:
   # add a second id using this syntax
 
 authornote: |
-  This work was completed as part of the author's bachelor-thesis. It was completed in R-Markdown with the code for data preparation, analysis and communication integrated into the scripts. All code needed to replicate this exact work can be found at: https://github.com/SLesche/bachelor. The author acknowledges support by the state of Baden-Württemberg through bwHPC.
+  First supervisor: Kathrin Sadus
+  
+  Second supervisor: Dirk Hagemann
+  
+  This work represents the author's bachelor-thesis. It was completed in R-Markdown with the code for data preparation, analysis and communication integrated into the scripts. All code needed to replicate this exact work can be found at: https://github.com/SLesche/bachelor. The author acknowledges support by the state of Baden-Württemberg through bwHPC.
 
 abstract: |
   Post-error slowing (PES) refers to increased response times on trials following errors, often accompanied by changes in accuracy. Theories explaining post-error effects propose adaptive or maladaptive processes. Adaptive processes, like heightened caution, enhance accuracy following errors. Maladaptive processes, such as decreased attention, reduce accuracy. This study aims to examine how the response-stimulus interval (RSI) influences the relative strength of adaptive and maladaptive processes after error trials using Bayesian hierarchical Drift-Diffusion Models (DDM).
