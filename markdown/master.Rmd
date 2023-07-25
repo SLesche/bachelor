@@ -30,9 +30,17 @@ affiliation:
   # add a second id using this syntax
 
 authornote: |
-  First supervisor: Kathrin Sadus
+  \begin{center}
+  \begin{tabular}{rl}
+  Author: &Sven Lesche \\
   
-  Second supervisor: Dirk Hagemann
+  Matrikel-Nr: &4171783 \\
+  
+  First supervisor: &Kathrin Sadus \\
+  
+  Second supervisor: &Dirk Hagemann \\
+  \end{tabular}
+  \end{center}
   
   This work represents the author's bachelor-thesis. It was completed in R-Markdown with the code for data preparation, analysis and communication integrated into the scripts. All code needed to replicate this exact work can be found at: https://github.com/SLesche/bachelor. The author acknowledges support by the state of Baden-Württemberg through bwHPC.
 
@@ -94,6 +102,8 @@ knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
 knitr::opts_chunk$set(ft.keepnext = TRUE,
                       ft.align = "left",
                       ft.latex.float = "float")
+
+knitr::opts_chunk$set(cache = FALSE)
 # Seed for random number generation
 set.seed(12345)
 knitr::opts_chunk$set(cache.extra = knitr::rand_seed) # this adds random seed to all chunks
