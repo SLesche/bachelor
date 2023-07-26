@@ -116,6 +116,8 @@ knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(message = FALSE)
 ```
 
+<!-- \tableofcontents -->
+
 <!-- Setup -->
 ```{r child = "markdown/setup.Rmd"}
 ```
