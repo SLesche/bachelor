@@ -30,17 +30,13 @@ affiliation:
   # add a second id using this syntax
 
 authornote: |
-  \begin{center}
-  \begin{tabular}{rl}
-  Author: &Sven Lesche \\
+  Author: Sven Lesche
   
-  Matrikel-Nr: &4171783 \\
+  Matrikel-Nr: 4171783
   
-  First supervisor: &Kathrin Sadus \\
+  First supervisor: Kathrin Sadus
   
-  Second supervisor: &Dirk Hagemann \\
-  \end{tabular}
-  \end{center}
+  Second supervisor: Dirk Hagemann
   
   This work represents the author's bachelor-thesis. It was completed in R-Markdown with the code for data preparation, analysis and communication integrated into the scripts. All code needed to replicate this exact work can be found at: https://github.com/SLesche/bachelor. The author acknowledges support by the state of Baden-Württemberg through bwHPC.
 
