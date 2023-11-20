@@ -14,7 +14,7 @@ For more information on `renv`, consult [this introduction](https://rstudio.gith
 
 ## Markdown
 This subfolder contains files used to generate the text itself, aswell as all analysis conducted prior to and following the experiment.
-Report-generation depends heavily on the `papaja` package and its apa6-template. Some changes were done to ensure APA7-compatability. See [this guide](https://www.martinasladek.co.uk/post/how-to-set-up-papaja-to-work-with-apa-7-format/) to find out how.
+Report-generation depends heavily on the `papaja` package and its apa6-template. Some changes were done to ensure APA7-compatability. See [this guide](https://www.martinasladek.co.uk/content/blog/2022_feb_how-to-set-up-papaja-to-work-with-apa-7-format.html) to find out how.
 
 ## Psychopy
 This subfolder contains files responsible for generating the task in PsychoPy. Instructions slides can be sent on request.
